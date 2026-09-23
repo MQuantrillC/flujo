@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // better-sqlite3 es un módulo nativo: se carga desde node_modules, no se empaqueta.
+  serverExternalPackages: ["better-sqlite3"],
 };
 
 export default nextConfig;

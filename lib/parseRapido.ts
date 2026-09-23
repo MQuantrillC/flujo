@@ -1,0 +1,142 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// LA LÍNEA RÁPIDA — de «@harold revisar /master/insights esta semana #insights»
+// a un pendiente con responsable, título, etiquetas y fecha límite.
+//
+//   @nombre      → responsable (se busca entre los miembros del equipo)
+//   #etiqueta    → etiqueta
+//   !            → prioridad alta (también «!alta» o «!urgente»)
+//   fechas       → hoy · mañana · pasado mañana · esta semana (viernes) ·
+//                  próxima semana (viernes siguiente) · fin de mes · en 3 días ·
+//                  en 2 semanas · el lunes · 15 oct · 15 de octubre · 15/10 · 2026-10-15
+//
+// Lo que sobra es el título. Puro: sin base de datos ni React, y con pruebas.
+// ──────────────────────────────────────────────────────────────────────────────
+
+import { aIso, dia, finDeMes, proximoDiaSemana, sumarDias, viernesDeLaSemana, viernesProximaSemana } from './fechas';
+
+export interface MiembroParaParse { email: string; nombre: string }
+
+export interface Interpretacion {
+  titulo: string;
+  /** Correos de los @ que sí se encontraron en el equipo. */
+  asignados: string[];
+  /** Los @ que no coinciden con nadie, para avisar. */
+  noResueltos: string[];
+  etiquetas: string[];
+  fechaLimite: string | null;
+  /** Las palabras que se leyeron como fecha, tal como se escribieron. */
+  fechaTexto: string | null;
+  prioridad: 'alta' | 'normal';
+}
+
+/** Minúsculas y sin acentos, carácter a carácter, para que los índices coincidan con el original. */
+function normalizar(s: string): string {
+  return Array.from(s).map((c) => {
+    const n = c.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    return n.length === 1 ? n : c.toLowerCase();
+  }).join('');
+}
+
+const DIAS = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+const MESES: Record<string, number> = { ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5, jul: 6, ago: 7, sep: 8, set: 8, oct: 9, nov: 10, dic: 11 };
+const NUMEROS: Record<string, number> = { un: 1, una: 1, uno: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10 };
+
+const PREFIJO = '(?:para el |para |antes del |antes de |hasta el |hasta |el proximo |la proxima |el |este |esta |al |a )?';
+
+type Regla = { re: RegExp; fecha: (m: RegExpMatchArray, hoy: Date) => Date | null };
+
+/** Del día/mes al próximo año si ya pasó. */
+function diaMes(hoy: Date, d: number, m: number, anio?: number): Date | null {
+  if (m < 0 || m > 11 || d < 1 || d > 31) return null;
+  let f = new Date(anio ?? hoy.getFullYear(), m, d, 12);
+  if (f.getMonth() !== m) return null; // 31 de febrero, por ejemplo
+  if (anio === undefined && f < hoy) f = new Date(hoy.getFullYear() + 1, m, d, 12);
+  return f;
+}
+
+const REGLAS: Regla[] = [
+  { re: new RegExp(`\\b${PREFIJO}pasado manana\\b`), fecha: (_, h) => sumarDias(h, 2) },
+  { re: new RegExp(`\\b${PREFIJO}manana\\b`), fecha: (_, h) => sumarDias(h, 1) },
+  { re: new RegExp(`\\b${PREFIJO}hoy\\b`), fecha: (_, h) => h },
+  { re: new RegExp(`\\b(?:para |durante |en )?esta semana\\b`), fecha: (_, h) => viernesDeLaSemana(h) },
+  { re: new RegExp(`\\b(?:para |durante |en )?(?:la )?(?:proxima|siguiente|otra) semana\\b`), fecha: (_, h) => viernesProximaSemana(h) },
+  { re: new RegExp(`\\b(?:para |a |antes de |antes del |hasta )?(?:el )?fin de mes\\b`), fecha: (_, h) => finDeMes(h) },
+  {
+    re: /\ben (\d{1,3}|una?|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez) (dias?|semanas?)\b/,
+    fecha: (m, h) => { const n = NUMEROS[m[1]] ?? Number(m[1]); return sumarDias(h, m[2].startsWith('semana') ? n * 7 : n); },
+  },
+  {
+    re: new RegExp(`\\b${PREFIJO}(${DIAS.join('|')})\\b`),
+    fecha: (m, h) => proximoDiaSemana(h, DIAS.indexOf(m[1])),
+  },
+  { re: /\b(\d{4})-(\d{2})-(\d{2})\b/, fecha: (m, h) => diaMes(h, Number(m[3]), Number(m[2]) - 1, Number(m[1])) },
+  {
+    re: new RegExp(`\\b${PREFIJO}(\\d{1,2})[/-](\\d{1,2})(?:[/-](\\d{2}|\\d{4}))?\\b`),
+    fecha: (m, h) => diaMes(h, Number(m[1]), Number(m[2]) - 1, m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : undefined),
+  },
+  {
+    re: new RegExp(`\\b${PREFIJO}(\\d{1,2}) (?:de )?(ene|feb|mar|abr|may|jun|jul|ago|sep|set|oct|nov|dic)[a-z]*(?: (?:de |del )?(\\d{4}))?\\b`),
+    fecha: (m, h) => diaMes(h, Number(m[1]), MESES[m[2]], m[3] ? Number(m[3]) : undefined),
+  },
+];
+
+/** Encuentra al miembro que mejor calza con «@harold», «@harold.suarez», «@HaroldSuarez». */
+export function resolverMiembro(alias: string, miembros: MiembroParaParse[]): MiembroParaParse | null {
+  const a = normalizar(alias).replace(/[^a-z0-9.]/g, '');
+  if (!a) return null;
+  const candidatos = miembros.map((m) => {
+    const local = normalizar(m.email.split('@')[0]);
+    const nombre = normalizar(m.nombre);
+    const primero = nombre.split(/\s+/)[0] ?? '';
+    const junto = nombre.replace(/\s+/g, '');
+    const exacto = a === local || a === primero || a === junto || a === local.split('.')[0];
+    const prefijo = local.startsWith(a) || primero.startsWith(a) || junto.startsWith(a);
+    return { m, exacto, prefijo };
+  });
+  return candidatos.find((c) => c.exacto)?.m ?? candidatos.find((c) => c.prefijo)?.m ?? null;
+}
+
+export function interpretar(texto: string, miembros: MiembroParaParse[], hoy: Date = dia()): Interpretacion {
+  const hoyD = dia(hoy);
+  let resto = texto;
+  const asignados: string[] = [];
+  const noResueltos: string[] = [];
+  const etiquetas: string[] = [];
+  let prioridad: 'alta' | 'normal' = 'normal';
+
+  // @responsables
+  resto = resto.replace(/(^|\s)@([\w.\-]+)/g, (_, esp: string, alias: string) => {
+    const m = resolverMiembro(alias, miembros);
+    if (m) { if (!asignados.includes(m.email)) asignados.push(m.email); } else noResueltos.push(alias);
+    return esp;
+  });
+  // #etiquetas
+  resto = resto.replace(/(^|\s)#([\p{L}\p{N}_\-]+)/gu, (_, esp: string, tag: string) => {
+    const t = tag.toLowerCase();
+    if (!etiquetas.includes(t)) etiquetas.push(t);
+    return esp;
+  });
+  // ! prioridad
+  resto = resto.replace(/(^|\s)!(alta|urgente)?(?=\s|$)/gi, (_, esp: string) => { prioridad = 'alta'; return esp; });
+  if (/!\s*$/.test(resto)) { prioridad = 'alta'; resto = resto.replace(/\s*!+\s*$/, ''); }
+
+  // fecha límite: la primera regla que calce
+  let fechaLimite: string | null = null;
+  let fechaTexto: string | null = null;
+  const norm = normalizar(resto);
+  for (const regla of REGLAS) {
+    const m = norm.match(regla.re);
+    if (!m || m.index === undefined) continue;
+    const f = regla.fecha(m, hoyD);
+    if (!f) continue;
+    fechaLimite = aIso(f);
+    fechaTexto = resto.slice(m.index, m.index + m[0].length).trim();
+    resto = resto.slice(0, m.index) + ' ' + resto.slice(m.index + m[0].length);
+    break;
+  }
+
+  let titulo = resto.replace(/\s+/g, ' ').trim().replace(/^[\s,;:\-–]+|[\s,;:\-–]+$/g, '');
+  if (titulo) titulo = titulo[0].toUpperCase() + titulo.slice(1);
+
+  return { titulo, asignados, noResueltos, etiquetas, fechaLimite, fechaTexto, prioridad };
+}
