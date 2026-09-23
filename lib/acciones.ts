@@ -10,6 +10,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { COOKIE_USUARIO, esProduccion, miembroActual, usuarioActual } from './auth';
 import { interpretar } from './parseRapido';
+import { leerImportacion, type Borrador } from './importar';
 import * as repo from './repositorio';
 import type { Prioridad } from './modelo';
 
@@ -123,6 +124,36 @@ export async function crearTareaRapida(equipoId: string, linea: string): Promise
   });
   revalidatePath(`/e/${equipoId}`, 'layout');
   return { ok: true, tareaId: t.id };
+}
+
+// ── Importar en masa ────────────────────────────────────────────────────────
+
+export interface VistaPreviaImportacion { formato: 'csv' | 'lineas'; borradores: Borrador[] }
+
+/** Lee el texto pegado o subido y devuelve cómo se entendió, sin guardar nada. */
+export async function previsualizarImportacion(equipoId: string, texto: string): Promise<VistaPreviaImportacion> {
+  await miembroActual(equipoId);
+  const r = leerImportacion(texto, repo.miembrosDe(equipoId), repo.etapasDe(equipoId).map((e) => e.nombre));
+  return { formato: r.formato, borradores: r.borradores };
+}
+
+/** Vuelve a leer el mismo texto en el servidor y crea los pendientes válidos. */
+export async function importarPendientes(equipoId: string, texto: string): Promise<{ creados: number; omitidos: number }> {
+  const u = await miembroActual(equipoId);
+  const etapas = repo.etapasDe(equipoId);
+  const r = leerImportacion(texto, repo.miembrosDe(equipoId), etapas.map((e) => e.nombre));
+  let creados = 0;
+  for (const b of r.borradores) {
+    if (!b.valido) continue;
+    repo.crearTarea({
+      equipoId, titulo: b.titulo, descripcion: b.descripcion, asignados: b.asignados, etiquetas: b.etiquetas,
+      fechaLimite: b.fechaLimite, prioridad: b.prioridad, creadoPor: u.email,
+      etapaId: b.etapa ? etapas.find((e) => e.nombre === b.etapa)?.id : undefined,
+    });
+    creados++;
+  }
+  revalidatePath(`/e/${equipoId}`, 'layout');
+  return { creados, omitidos: r.borradores.length - creados };
 }
 
 export interface ResultadoGuardar { ok: boolean; error?: string }

@@ -10,7 +10,8 @@ export function GrupoAnimado({ children }: { children: React.ReactNode }) {
   return <LayoutGroup>{children}</LayoutGroup>;
 }
 
-export function TarjetaAnimada({ id, children }: { id: string; children: React.ReactNode }) {
+/** Con `etapaId`, la tarjeta también se puede arrastrar a otra columna del tablero. */
+export function TarjetaAnimada({ id, etapaId, children }: { id: string; etapaId?: string; children: React.ReactNode }) {
   return (
     <motion.div
       layout
@@ -18,6 +19,15 @@ export function TarjetaAnimada({ id, children }: { id: string; children: React.R
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, layout: { type: 'spring', stiffness: 400, damping: 32 } }}
+      draggable={!!etapaId}
+      className={etapaId ? 'cursor-grab active:cursor-grabbing' : undefined}
+      onDragStart={(e) => {
+        if (!etapaId) return;
+        const dt = (e as unknown as React.DragEvent).dataTransfer;
+        dt.setData('application/x-flujo-tarea', id);
+        dt.setData('text/x-flujo-etapa', etapaId);
+        dt.effectAllowed = 'move';
+      }}
     >
       {children}
     </motion.div>

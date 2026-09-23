@@ -80,6 +80,20 @@ const REGLAS: Regla[] = [
   },
 ];
 
+/** La primera fecha que se entiende en el texto, y dónde está, para poder quitarla del título. */
+export function leerFecha(texto: string, hoy: Date = dia()): { iso: string; inicio: number; fin: number } | null {
+  const hoyD = dia(hoy);
+  const norm = normalizar(texto);
+  for (const regla of REGLAS) {
+    const m = norm.match(regla.re);
+    if (!m || m.index === undefined) continue;
+    const f = regla.fecha(m, hoyD);
+    if (!f) continue;
+    return { iso: aIso(f), inicio: m.index, fin: m.index + m[0].length };
+  }
+  return null;
+}
+
 /** Encuentra al miembro que mejor calza con «@harold», «@harold.suarez», «@HaroldSuarez». */
 export function resolverMiembro(alias: string, miembros: MiembroParaParse[]): MiembroParaParse | null {
   const a = normalizar(alias).replace(/[^a-z0-9.]/g, '');
@@ -123,16 +137,11 @@ export function interpretar(texto: string, miembros: MiembroParaParse[], hoy: Da
   // fecha límite: la primera regla que calce
   let fechaLimite: string | null = null;
   let fechaTexto: string | null = null;
-  const norm = normalizar(resto);
-  for (const regla of REGLAS) {
-    const m = norm.match(regla.re);
-    if (!m || m.index === undefined) continue;
-    const f = regla.fecha(m, hoyD);
-    if (!f) continue;
-    fechaLimite = aIso(f);
-    fechaTexto = resto.slice(m.index, m.index + m[0].length).trim();
-    resto = resto.slice(0, m.index) + ' ' + resto.slice(m.index + m[0].length);
-    break;
+  const f = leerFecha(resto, hoyD);
+  if (f) {
+    fechaLimite = f.iso;
+    fechaTexto = resto.slice(f.inicio, f.fin).trim();
+    resto = resto.slice(0, f.inicio) + ' ' + resto.slice(f.fin);
   }
 
   let titulo = resto.replace(/\s+/g, ' ').trim().replace(/^[\s,;:\-–]+|[\s,;:\-–]+$/g, '');

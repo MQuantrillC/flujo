@@ -6,14 +6,14 @@ import { ChipFecha } from './ChipFecha';
 import { SelectorEtapa } from './SelectorEtapa';
 import { TarjetaAnimada } from './Animado';
 
-export function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = true }: {
-  tarea: Tarea; nombres: Record<string, string>; etapas: Etapa[]; hoy: Date; conEtapa?: boolean;
+export function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = true, arrastrable = false }: {
+  tarea: Tarea; nombres: Record<string, string>; etapas: Etapa[]; hoy: Date; conEtapa?: boolean; arrastrable?: boolean;
 }) {
   const terminada = !!tarea.terminadoEn;
   return (
-    <TarjetaAnimada id={tarea.id}>
+    <TarjetaAnimada id={tarea.id} etapaId={arrastrable ? tarea.etapaId : undefined}>
     <article className={`tarjeta group relative p-3 transition-colors hover:border-acento/50 ${terminada ? 'opacity-70' : ''}`}>
-      <Link href={`/e/${tarea.equipoId}/t/${tarea.id}`} className="absolute inset-0 rounded-xl" aria-label={tarea.titulo} />
+      <Link href={`/e/${tarea.equipoId}/t/${tarea.id}`} className="absolute inset-0 rounded-xl" aria-label={tarea.titulo} draggable={false} />
       <div className="flex items-start gap-2">
         {tarea.prioridad === 'alta' && <Flag size={14} className="mt-0.5 shrink-0 fill-red-500 text-red-500" aria-label="Prioridad alta" />}
         <h3 className={`min-w-0 flex-1 text-sm font-medium leading-snug text-gray-800 ${terminada ? 'line-through' : ''}`}>{tarea.titulo}</h3>

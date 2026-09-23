@@ -9,6 +9,7 @@ import { BarraRapida } from '@/components/BarraRapida';
 import { TarjetaTarea } from '@/components/TarjetaTarea';
 import { Avatar } from '@/components/Avatar';
 import { GrupoAnimado } from '@/components/Animado';
+import { ColumnaTablero } from '@/components/ColumnaTablero';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,13 +70,9 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
           {etapas.map((et) => {
             const tareas = ordenarPorPlazo(conEtiqueta.filter((t) => t.etapaId === et.id && (!et.esFinal || (t.terminadoEn ?? 0) >= corteHechas)));
             return (
-              <section key={et.id} className="flex w-72 shrink-0 flex-col gap-2 rounded-xl bg-gray-200/50 p-2">
-                <h2 className="flex items-center justify-between px-1 text-xs font-bold uppercase tracking-wider text-gray-500">
-                  {et.nombre} <span className="rounded-full bg-white px-1.5 text-[10px] text-gray-500">{tareas.length}</span>
-                </h2>
-                {tareas.map(tarjeta)}
-                {tareas.length === 0 && <p className="px-1 py-4 text-center text-xs text-gray-400">{et.esFinal ? `Nada en los últimos ${DIAS_HECHAS_VISIBLES} días` : 'Nada aquí'}</p>}
-              </section>
+              <ColumnaTablero key={et.id} etapaId={et.id} nombre={et.nombre} cantidad={tareas.length} vacio={et.esFinal ? `Nada en los últimos ${DIAS_HECHAS_VISIBLES} días` : 'Nada aquí'}>
+                {tareas.map((t) => <TarjetaTarea key={t.id} tarea={t} nombres={nombres} etapas={etapas} hoy={hoy} arrastrable />)}
+              </ColumnaTablero>
             );
           })}
         </div>

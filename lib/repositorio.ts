@@ -181,16 +181,19 @@ function registrarEvento(tareaId: string, autor: string, tipo: TipoEvento, detal
 export interface NuevaTarea {
   equipoId: string; titulo: string; descripcion?: string; asignados: string[]; etiquetas: string[];
   fechaLimite: string | null; prioridad: Prioridad; creadoPor: string;
+  /** Etapa inicial; sin ella, la primera que no sea «hecho». */
+  etapaId?: string;
 }
 
 export function crearTarea(n: NuevaTarea): Tarea {
   const tid = id();
   const t = ahora();
-  const primera = etapasDe(n.equipoId).find((e) => !e.esFinal) ?? etapasDe(n.equipoId)[0];
-  if (!primera) throw new Error('El equipo no tiene etapas');
+  const etapas = etapasDe(n.equipoId);
+  const etapaInicial = etapas.find((e) => e.id === n.etapaId) ?? etapas.find((e) => !e.esFinal) ?? etapas[0];
+  if (!etapaInicial) throw new Error('El equipo no tiene etapas');
   db.transaction(() => {
-    db.prepare('INSERT INTO tareas (id, equipo_id, titulo, descripcion, etapa_id, fecha_limite, prioridad, creado_por, creado_en, actualizado_en) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-      .run(tid, n.equipoId, n.titulo.trim(), (n.descripcion ?? '').trim(), primera.id, n.fechaLimite, n.prioridad, n.creadoPor, t, t);
+    db.prepare('INSERT INTO tareas (id, equipo_id, titulo, descripcion, etapa_id, fecha_limite, prioridad, creado_por, creado_en, actualizado_en, terminado_en) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(tid, n.equipoId, n.titulo.trim(), (n.descripcion ?? '').trim(), etapaInicial.id, n.fechaLimite, n.prioridad, n.creadoPor, t, t, etapaInicial.esFinal ? t : null);
     for (const a of new Set(n.asignados)) db.prepare('INSERT INTO asignados (tarea_id, email) VALUES (?, ?)').run(tid, a);
     for (const e of new Set(n.etiquetas)) db.prepare('INSERT INTO etiquetas (tarea_id, etiqueta) VALUES (?, ?)').run(tid, e);
     registrarEvento(tid, n.creadoPor, 'creada', { asignados: n.asignados, fechaLimite: n.fechaLimite });
