@@ -8,6 +8,7 @@ import type { Tarea } from '@/lib/modelo';
 import { BarraRapida } from '@/components/BarraRapida';
 import { TarjetaTarea } from '@/components/TarjetaTarea';
 import { Avatar } from '@/components/Avatar';
+import { GrupoAnimado } from '@/components/Animado';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,8 +47,9 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
   const vacio = (msg: string) => <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">{msg}</p>;
 
   return (
+    <GrupoAnimado>
     <div className="flex flex-col gap-4">
-      <BarraRapida equipoId={equipoId} miembros={miembros} />
+      <BarraRapida equipoId={equipoId} miembros={miembros} etiquetas={etiquetas.map((e) => e.etiqueta)} />
 
       {etiquetas.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
@@ -114,5 +116,6 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
         ));
       })()}
     </div>
+    </GrupoAnimado>
   );
 }

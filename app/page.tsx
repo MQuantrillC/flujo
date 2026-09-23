@@ -4,6 +4,8 @@ import { usuarioActual } from '@/lib/auth';
 import { equiposDe, miembrosDe } from '@/lib/repositorio';
 import { crearEquipoAccion, salir } from '@/lib/acciones';
 import { Avatar } from '@/components/Avatar';
+import ShinyText from '@/components/reactbits/ShinyText';
+import BlurText from '@/components/reactbits/BlurText';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +17,7 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8">
       <header className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-acento">Flujo</h1>
+        <h1 className="text-2xl font-bold tracking-tight"><ShinyText text="Flujo" color="#1899af" shineColor="#9fe3ee" speed={3} delay={4} /></h1>
         <div className="flex items-center gap-3 text-sm text-gray-600">
           <Avatar nombre={u.nombre} />
           <span>{u.nombre}</span>
@@ -47,7 +49,7 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
       )}
 
       <section className="tarjeta p-5">
-        <h2 className="mb-1 flex items-center gap-2 font-semibold text-gray-800"><Plus size={16} className="text-acento" /> {equipos.length ? 'Crear otro equipo' : 'Crea tu primer equipo'}</h2>
+        <h2 className="mb-1 flex items-center gap-2 font-semibold text-gray-800"><Plus size={16} className="text-acento" /> <BlurText text={equipos.length ? 'Crear otro equipo' : 'Crea tu primer equipo'} delay={60} /></h2>
         <p className="mb-4 text-sm text-gray-500">Un equipo es un grupo de personas con sus pendientes. Tú entras automáticamente.</p>
         <form action={crearEquipoAccion} className="flex flex-col gap-3">
           <label className="text-sm">

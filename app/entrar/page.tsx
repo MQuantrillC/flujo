@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { correoActual, esProduccion } from '@/lib/auth';
 import { entrar } from '@/lib/acciones';
+import BlurText from '@/components/reactbits/BlurText';
+import ShinyText from '@/components/reactbits/ShinyText';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,8 +13,8 @@ export default async function Entrar({ searchParams }: { searchParams: Promise<{
   return (
     <div className="grid flex-1 place-items-center px-4">
       <div className="tarjeta w-full max-w-sm p-6">
-        <h1 className="text-2xl font-bold tracking-tight text-acento">Flujo</h1>
-        <p className="mb-5 mt-1 text-sm text-gray-500">Pendientes del equipo, en una línea.</p>
+        <h1 className="text-3xl font-bold tracking-tight"><ShinyText text="Flujo" color="#1899af" shineColor="#9fe3ee" speed={3} delay={2} /></h1>
+        <BlurText text="Pendientes del equipo, en una línea." delay={80} className="mb-5 mt-1 text-sm text-gray-500" />
         {esProduccion() ? (
           <p className="text-sm text-gray-600">No se pudo saber quién eres. El acceso se hace con tu cuenta de Google de Xertica.</p>
         ) : (

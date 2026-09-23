@@ -4,12 +4,14 @@ import type { Etapa, Tarea } from '@/lib/modelo';
 import { Avatar } from './Avatar';
 import { ChipFecha } from './ChipFecha';
 import { SelectorEtapa } from './SelectorEtapa';
+import { TarjetaAnimada } from './Animado';
 
 export function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = true }: {
   tarea: Tarea; nombres: Record<string, string>; etapas: Etapa[]; hoy: Date; conEtapa?: boolean;
 }) {
   const terminada = !!tarea.terminadoEn;
   return (
+    <TarjetaAnimada id={tarea.id}>
     <article className={`tarjeta group relative p-3 transition-colors hover:border-acento/50 ${terminada ? 'opacity-70' : ''}`}>
       <Link href={`/e/${tarea.equipoId}/t/${tarea.id}`} className="absolute inset-0 rounded-xl" aria-label={tarea.titulo} />
       <div className="flex items-start gap-2">
@@ -39,5 +41,6 @@ export function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = true }: {
         </div>
       )}
     </article>
+    </TarjetaAnimada>
   );
 }
