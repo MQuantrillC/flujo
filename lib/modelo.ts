@@ -57,7 +57,14 @@ export interface Evento {
   creadoEn: number;
 }
 
-export const ETAPAS_INICIALES = ['Pendiente', 'En curso', 'En revisión', 'Hecho'];
+/** Las cuatro etapas con las que nace un equipo, en el idioma de quien lo crea. La última es «hecho». */
+export function etapasIniciales(idioma: 'es' | 'en' | 'pt'): string[] {
+  return {
+    es: ['Pendiente', 'En curso', 'En revisión', 'Hecho'],
+    en: ['To do', 'In progress', 'In review', 'Done'],
+    pt: ['Pendente', 'Em andamento', 'Em revisão', 'Feito'],
+  }[idioma];
+}
 
 /** «harold.suarez@xertica.com» → «Harold Suarez». */
 export function nombreDesdeCorreo(email: string): string {

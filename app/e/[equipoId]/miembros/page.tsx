@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, Check, Trash2, UserPlus } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { equipo, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
 import {
@@ -13,56 +14,58 @@ export const dynamic = 'force-dynamic';
 export default async function Miembros({ params }: { params: Promise<{ equipoId: string }> }) {
   const { equipoId } = await params;
   const u = await miembroActual(equipoId);
+  const t = await getTranslations('miembros');
+  const tc = await getTranslations('comun');
   const e = equipo(equipoId)!;
   const miembros = miembrosDe(equipoId);
   const etapas = etapasDe(equipoId);
   const tareas = tareasDe(equipoId);
-  const enUso = (etapaId: string) => tareas.filter((t) => t.etapaId === etapaId).length;
+  const enUso = (etapaId: string) => tareas.filter((x) => x.etapaId === etapaId).length;
 
   return (
     <div className="grid gap-5 lg:grid-cols-2">
       <section className="tarjeta p-5">
-        <h2 className="mb-3 font-semibold text-gray-800">Equipo</h2>
+        <h2 className="mb-3 font-semibold text-gray-800">{t('equipo')}</h2>
         <form action={renombrarEquipoAccion} className="flex gap-2">
           <input type="hidden" name="equipoId" value={equipoId} />
           <input name="nombre" defaultValue={e.nombre} className="campo" />
-          <button className="boton-suave"><Check size={14} /> Guardar</button>
+          <button className="boton-suave"><Check size={14} /> {tc('guardar')}</button>
         </form>
 
-        <h2 className="mb-3 mt-8 font-semibold text-gray-800">Miembros <span className="text-sm font-normal text-gray-400">{miembros.length}</span></h2>
+        <h2 className="mb-3 mt-8 font-semibold text-gray-800">{t('miembros')} <span className="text-sm font-normal text-gray-400">{miembros.length}</span></h2>
         <ul className="divide-y divide-gray-100">
           {miembros.map((m) => (
             <li key={m.email} className="flex items-center gap-3 py-2">
               <Avatar nombre={m.nombre} />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-gray-800">{m.nombre} {m.email === u.email && <span className="text-xs font-normal text-gray-400">(tú)</span>}</span>
+                <span className="block text-sm font-medium text-gray-800">{m.nombre} {m.email === u.email && <span className="text-xs font-normal text-gray-400">{t('tu')}</span>}</span>
                 <span className="block truncate text-xs text-gray-500">{m.email}</span>
               </span>
-              <FormConfirmar action={quitarMiembroAccion} mensaje={m.email === u.email ? '¿Salir de este equipo?' : `¿Quitar a ${m.nombre} del equipo? Sus pendientes se quedan.`}>
+              <FormConfirmar action={quitarMiembroAccion} mensaje={m.email === u.email ? t('confirmarSalir') : t('confirmarQuitar', { nombre: m.nombre })}>
                 <input type="hidden" name="equipoId" value={equipoId} />
                 <input type="hidden" name="email" value={m.email} />
-                <button className="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600" title={m.email === u.email ? 'Salir del equipo' : 'Quitar del equipo'}><Trash2 size={15} /></button>
+                <button className="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600" title={m.email === u.email ? t('salirEquipo') : t('quitar')}><Trash2 size={15} /></button>
               </FormConfirmar>
             </li>
           ))}
         </ul>
         <form action={agregarMiembroAccion} className="mt-3 flex gap-2">
           <input type="hidden" name="equipoId" value={equipoId} />
-          <input name="email" required className="campo" placeholder="correo@xertica.com (uno o varios)" autoComplete="off" />
-          <button className="boton"><UserPlus size={14} /> Agregar</button>
+          <input name="email" required className="campo" placeholder={t('correoPlaceholder')} autoComplete="off" />
+          <button className="boton"><UserPlus size={14} /> {tc('agregar')}</button>
         </form>
 
-        <h2 className="mb-1 mt-8 font-semibold text-gray-800">Tu nombre</h2>
-        <p className="mb-3 text-xs text-gray-500">Así te ven los demás y así te encuentran con @ en la línea rápida.</p>
+        <h2 className="mb-1 mt-8 font-semibold text-gray-800">{t('tuNombre')}</h2>
+        <p className="mb-3 text-xs text-gray-500">{t('tuNombreAyuda')}</p>
         <form action={renombrarmeAccion} className="flex gap-2">
           <input name="nombre" defaultValue={u.nombre} className="campo" />
-          <button className="boton-suave"><Check size={14} /> Guardar</button>
+          <button className="boton-suave"><Check size={14} /> {tc('guardar')}</button>
         </form>
       </section>
 
       <section className="tarjeta p-5">
-        <h2 className="mb-1 font-semibold text-gray-800">Etapas</h2>
-        <p className="mb-3 text-xs text-gray-500">Las columnas del tablero, en orden. La marcada como <b>hecho</b> cierra el pendiente.</p>
+        <h2 className="mb-1 font-semibold text-gray-800">{t('etapas')}</h2>
+        <p className="mb-3 text-xs text-gray-500">{t.rich('etapasAyuda', { b: (c) => <b>{c}</b> })}</p>
         <ul className="flex flex-col gap-2">
           {etapas.map((et, i) => {
             const n = enUso(et.id);
@@ -72,18 +75,18 @@ export default async function Miembros({ params }: { params: Promise<{ equipoId:
                   <input type="hidden" name="equipoId" value={equipoId} />
                   <input type="hidden" name="etapaId" value={et.id} />
                   <input name="nombre" defaultValue={et.nombre} className="campo py-1" />
-                  <button className="boton-suave py-1" title="Guardar nombre"><Check size={14} /></button>
+                  <button className="boton-suave py-1" title={t('guardarNombre')}><Check size={14} /></button>
                 </form>
-                <span className="w-8 text-center text-[11px] text-gray-400" title="Pendientes en esta etapa">{n}</span>
+                <span className="w-8 text-center text-[11px] text-gray-400" title={t('pendientesEn')}>{n}</span>
                 <form action={moverEtapaAccion}><input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} /><input type="hidden" name="direccion" value="-1" />
-                  <button disabled={i === 0} className="rounded-md p-1 text-gray-400 hover:bg-gray-200 disabled:opacity-30" title="Subir"><ArrowUp size={14} /></button></form>
+                  <button disabled={i === 0} className="rounded-md p-1 text-gray-400 hover:bg-gray-200 disabled:opacity-30" title={t('subir')}><ArrowUp size={14} /></button></form>
                 <form action={moverEtapaAccion}><input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} /><input type="hidden" name="direccion" value="1" />
-                  <button disabled={i === etapas.length - 1} className="rounded-md p-1 text-gray-400 hover:bg-gray-200 disabled:opacity-30" title="Bajar"><ArrowDown size={14} /></button></form>
+                  <button disabled={i === etapas.length - 1} className="rounded-md p-1 text-gray-400 hover:bg-gray-200 disabled:opacity-30" title={t('bajar')}><ArrowDown size={14} /></button></form>
                 <form action={marcarEtapaFinalAccion}><input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} />
-                  <button className={`rounded-md px-1.5 py-1 text-[11px] font-semibold ${et.esFinal ? 'bg-emerald-100 text-emerald-700' : 'text-gray-400 hover:bg-gray-200'}`} title="Esta etapa significa hecho">{et.esFinal ? 'hecho' : 'hecho?'}</button></form>
-                <FormConfirmar action={eliminarEtapaAccion} mensaje={`¿Eliminar la etapa «${et.nombre}»?`}>
+                  <button className={`rounded-md px-1.5 py-1 text-[11px] font-semibold ${et.esFinal ? 'bg-emerald-100 text-emerald-700' : 'text-gray-400 hover:bg-gray-200'}`} title={t('esHecho')}>{et.esFinal ? t('hecho') : t('hechoPregunta')}</button></form>
+                <FormConfirmar action={eliminarEtapaAccion} mensaje={t('confirmarEliminarEtapa', { nombre: et.nombre })}>
                   <input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} />
-                  <button disabled={n > 0 || etapas.length <= 1} className="rounded-md p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30" title={n > 0 ? 'Tiene pendientes: muévelos antes' : 'Eliminar'}><Trash2 size={14} /></button>
+                  <button disabled={n > 0 || etapas.length <= 1} className="rounded-md p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-30" title={n > 0 ? t('tienePendientes') : t('eliminar')}><Trash2 size={14} /></button>
                 </FormConfirmar>
               </li>
             );
@@ -91,8 +94,8 @@ export default async function Miembros({ params }: { params: Promise<{ equipoId:
         </ul>
         <form action={agregarEtapaAccion} className="mt-3 flex gap-2">
           <input type="hidden" name="equipoId" value={equipoId} />
-          <input name="nombre" required className="campo" placeholder="Nueva etapa, ej. Bloqueado" autoComplete="off" />
-          <button className="boton-suave">Agregar</button>
+          <input name="nombre" required className="campo" placeholder={t('nuevaEtapa')} autoComplete="off" />
+          <button className="boton-suave">{tc('agregar')}</button>
         </form>
       </section>
     </div>

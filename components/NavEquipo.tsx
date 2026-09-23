@@ -2,15 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
-const VISTAS = [
-  { vista: 'tablero', nombre: 'Tablero' },
-  { vista: 'mio', nombre: 'Lo mío' },
-  { vista: 'semana', nombre: 'Esta semana' },
-  { vista: 'persona', nombre: 'Por persona' },
-];
+const VISTAS = ['tablero', 'mio', 'semana', 'persona'] as const;
 
 export function NavEquipo({ equipoId }: { equipoId: string }) {
+  const t = useTranslations('nav');
   const ruta = usePathname();
   const params = useSearchParams();
   const base = `/e/${equipoId}`;
@@ -22,12 +19,12 @@ export function NavEquipo({ equipoId }: { equipoId: string }) {
   return (
     <nav className="flex items-center gap-1 overflow-x-auto">
       {VISTAS.map((v) => (
-        <Link key={v.vista} href={v.vista === 'tablero' ? base : `${base}?vista=${v.vista}`} className={clase(enTablero && vistaActual === v.vista)}>
-          {v.nombre}
+        <Link key={v} href={v === 'tablero' ? base : `${base}?vista=${v}`} className={clase(enTablero && vistaActual === v)}>
+          {t(v)}
         </Link>
       ))}
-      <Link href={`${base}/importar`} className={clase(ruta.startsWith(`${base}/importar`))}>Importar</Link>
-      <Link href={`${base}/miembros`} className={clase(ruta.startsWith(`${base}/miembros`))}>Miembros</Link>
+      <Link href={`${base}/importar`} className={clase(ruta.startsWith(`${base}/importar`))}>{t('importar')}</Link>
+      <Link href={`${base}/miembros`} className={clase(ruta.startsWith(`${base}/miembros`))}>{t('miembros')}</Link>
     </nav>
   );
 }

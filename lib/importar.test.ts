@@ -30,16 +30,18 @@ Ordenar el drive,Pedro,15/10/2026,,,Bloqueado,`;
   it('avisa lo que no puede resolver y marca inválida la fila sin título', () => {
     const r = leerImportacion(csv, equipo, etapas, hoy);
     expect(r.borradores[2].valido).toBe(false);
-    expect(r.borradores[2].avisos).toContain('Sin título');
+    expect(r.borradores[2].avisos).toEqual([{ clave: 'sinTitulo' }]);
     expect(r.borradores[3].valido).toBe(true);
     expect(r.borradores[3].fechaLimite).toBe('2026-10-15');
-    expect(r.borradores[3].avisos).toEqual(['«Pedro» no es de este equipo', 'La etapa «Bloqueado» no existe; va a la primera']);
+    expect(r.borradores[3].avisos).toEqual([{ clave: 'noEsDelEquipo', valor: 'Pedro' }, { clave: 'etapaNoExiste', valor: 'Bloqueado' }]);
   });
 
-  it('acepta encabezados en inglés, punto y coma, y un bloque de código alrededor', () => {
-    const r = leerImportacion('```csv\nTitle;Assignee;Due date\nLlamar al cliente;andrea;2026-10-01\n```', equipo, etapas, hoy);
-    expect(r.formato).toBe('csv');
-    expect(r.borradores[0]).toMatchObject({ titulo: 'Llamar al cliente', asignados: ['andrea.velarde@xertica.com'], fechaLimite: '2026-10-01' });
+  it('acepta encabezados en inglés o portugués, punto y coma, y un bloque de código alrededor', () => {
+    const en = leerImportacion('```csv\nTitle;Assignee;Due date\nLlamar al cliente;andrea;2026-10-01\n```', equipo, etapas, hoy);
+    expect(en.formato).toBe('csv');
+    expect(en.borradores[0]).toMatchObject({ titulo: 'Llamar al cliente', asignados: ['andrea.velarde@xertica.com'], fechaLimite: '2026-10-01' });
+    const pt = leerImportacion('titulo,responsaveis,data_limite,prioridade\nLigar para o cliente,Harold e Marco,15/10/2026,alta', equipo, etapas, hoy);
+    expect(pt.borradores[0]).toMatchObject({ asignados: ['harold.suarez@xertica.com', 'marco.quantrill@xertica.com'], fechaLimite: '2026-10-15', prioridad: 'alta' });
   });
 });
 
@@ -50,7 +52,7 @@ describe('importar una lista de líneas', () => {
     expect(r.borradores.map((b) => b.titulo)).toEqual(['Revisar /master/insights', 'Preparar demo', 'Algo', 'Sin fecha']);
     expect(r.borradores[0]).toMatchObject({ asignados: ['harold.suarez@xertica.com'], fechaLimite: '2026-09-25', etiquetas: ['insights'], linea: 1 });
     expect(r.borradores[1].prioridad).toBe('alta');
-    expect(r.borradores[2].avisos).toEqual(['@pedro no es de este equipo']);
+    expect(r.borradores[2].avisos).toEqual([{ clave: 'noEsDelEquipo', valor: '@pedro' }]);
     expect(r.borradores[3].linea).toBe(5);
   });
 });
@@ -63,13 +65,15 @@ describe('piezas', () => {
     expect(fechaDeCelda('2026-10-15', hoy).iso).toBe('2026-10-15');
     expect(fechaDeCelda('15/10/2026', hoy).iso).toBe('2026-10-15');
     expect(fechaDeCelda('el viernes', hoy).iso).toBe('2026-09-25');
-    expect(fechaDeCelda('cuando se pueda', hoy)).toEqual({ iso: null, aviso: 'No entendí la fecha «cuando se pueda»' });
+    expect(fechaDeCelda('cuando se pueda', hoy)).toEqual({ iso: null, aviso: { clave: 'fechaNoEntendida', valor: 'cuando se pueda' } });
   });
-  it('el encargo para la IA nombra al equipo, la fecha de hoy y las etapas', () => {
+  it('el encargo para la IA nombra al equipo, la fecha de hoy y las etapas, en cada idioma', () => {
     const p = promptParaIA('Equipo Marco', equipo, etapas, hoy);
     expect(p).toContain('titulo,responsables,fecha_limite,etiquetas,prioridad,etapa,descripcion');
     expect(p).toContain('Marco Quantrill, Andrea Velarde, Harold Suárez');
     expect(p).toContain('Hoy es 2026-09-23');
     expect(p).toContain('Pendiente, En curso, En revisión, Hecho');
+    expect(promptParaIA('Team', equipo, etapas, hoy, 'en')).toContain('title,assignees,due_date,tags,priority,stage,description');
+    expect(promptParaIA('Equipe', equipo, etapas, hoy, 'pt')).toContain('Hoje é 2026-09-23');
   });
 });

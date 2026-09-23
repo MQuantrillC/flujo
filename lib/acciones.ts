@@ -8,11 +8,13 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { getLocale } from 'next-intl/server';
 import { COOKIE_USUARIO, esProduccion, miembroActual, usuarioActual } from './auth';
 import { interpretar } from './parseRapido';
 import { leerImportacion, type Borrador } from './importar';
+import { idiomaValido } from './idioma';
 import * as repo from './repositorio';
-import type { Prioridad } from './modelo';
+import { etapasIniciales, type Prioridad } from './modelo';
 
 const texto = (fd: FormData, k: string) => String(fd.get(k) ?? '').trim();
 
@@ -38,7 +40,7 @@ export async function crearEquipoAccion(fd: FormData): Promise<void> {
   const nombre = texto(fd, 'nombre');
   if (!nombre) redirect('/?error=nombre');
   const correos = texto(fd, 'correos').split(/[\s,;]+/).filter(Boolean);
-  const e = repo.crearEquipo(nombre, u.email, correos);
+  const e = repo.crearEquipo(nombre, u.email, correos, etapasIniciales(idiomaValido(await getLocale())));
   redirect(`/e/${e.id}`);
 }
 
@@ -110,6 +112,7 @@ export async function marcarEtapaFinalAccion(fd: FormData): Promise<void> {
 
 // ── Tareas ──────────────────────────────────────────────────────────────────
 
+/** `error` es una clave de messages/*.json (errores.*): la pantalla la traduce. */
 export interface ResultadoRapido { ok: boolean; error?: string; tareaId?: string }
 
 /** La línea rápida: «@harold revisar /master/insights esta semana». */
@@ -117,7 +120,7 @@ export async function crearTareaRapida(equipoId: string, linea: string): Promise
   const u = await miembroActual(equipoId);
   const miembros = repo.miembrosDe(equipoId);
   const r = interpretar(linea, miembros);
-  if (!r.titulo) return { ok: false, error: 'Falta el título: escribe qué hay que hacer.' };
+  if (!r.titulo) return { ok: false, error: 'faltaTitulo' };
   const t = repo.crearTarea({
     equipoId, titulo: r.titulo, asignados: r.asignados, etiquetas: r.etiquetas,
     fechaLimite: r.fechaLimite, prioridad: r.prioridad, creadoPor: u.email,
@@ -161,10 +164,10 @@ export interface ResultadoGuardar { ok: boolean; error?: string }
 export async function actualizarTareaAccion(fd: FormData): Promise<ResultadoGuardar> {
   const tid = texto(fd, 'tareaId');
   const t = repo.tarea(tid);
-  if (!t) return { ok: false, error: 'La tarea ya no existe.' };
+  if (!t) return { ok: false, error: 'noExiste' };
   const u = await miembroActual(t.equipoId);
   const titulo = texto(fd, 'titulo');
-  if (!titulo) return { ok: false, error: 'El título no puede quedar vacío.' };
+  if (!titulo) return { ok: false, error: 'tituloVacio' };
   const prioridad = texto(fd, 'prioridad') === 'alta' ? 'alta' : 'normal';
   repo.actualizarTarea(tid, u.email, {
     titulo,

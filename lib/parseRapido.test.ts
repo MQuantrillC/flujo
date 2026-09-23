@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { interpretar, resolverMiembro } from './parseRapido';
-import { fechaCorta, viernesDeLaSemana, viernesProximaSemana } from './fechas';
+import { fechaCorta, haceCuanto, viernesDeLaSemana, viernesProximaSemana } from './fechas';
 
 const equipo = [
   { email: 'marco.quantrill@xertica.com', nombre: 'Marco Quantrill' },
@@ -54,14 +54,47 @@ describe('la línea rápida', () => {
     expect(r.titulo).toBe('Enviar propuesta');
   });
 
+  it.each([
+    ['send proposal today', '2026-09-23'],
+    ['send proposal tomorrow', '2026-09-24'],
+    ['send proposal this week', '2026-09-25'],
+    ['send proposal next week', '2026-10-02'],
+    ['send proposal by end of month', '2026-09-30'],
+    ['send proposal in 3 days', '2026-09-26'],
+    ['send proposal on monday', '2026-09-28'],
+    ['send proposal oct 15', '2026-10-15'],
+    ['send proposal october 15th, 2026', '2026-10-15'],
+    ['send proposal 15 oct', '2026-10-15'],
+  ])('in English: «%s» → %s', (texto, esperado) => {
+    const r = interpretar(texto, equipo, hoy);
+    expect(r.fechaLimite).toBe(esperado);
+    expect(r.titulo).toBe('Send proposal');
+  });
+
+  it.each([
+    ['enviar proposta hoje', '2026-09-23'],
+    ['enviar proposta amanhã', '2026-09-24'],
+    ['enviar proposta esta semana', '2026-09-25'],
+    ['enviar proposta semana que vem', '2026-10-02'],
+    ['enviar proposta até o fim do mês', '2026-09-30'],
+    ['enviar proposta em 3 dias', '2026-09-26'],
+    ['enviar proposta na segunda-feira', '2026-09-28'],
+    ['enviar proposta 15 out', '2026-10-15'],
+  ])('em português: «%s» → %s', (texto, esperado) => {
+    const r = interpretar(texto, equipo, hoy);
+    expect(r.fechaLimite).toBe(esperado);
+    expect(r.titulo).toBe('Enviar proposta');
+  });
+
   it('sin fecha, sin fecha', () => {
     const r = interpretar('ordenar el drive del equipo', equipo, hoy);
     expect(r.fechaLimite).toBeNull();
     expect(r.titulo).toBe('Ordenar el drive del equipo');
   });
 
-  it('una ruta con barras no se confunde con una fecha', () => {
+  it('una ruta con barras no se confunde con una fecha, ni «may» dentro de una frase', () => {
     expect(interpretar('revisar /master/insights', equipo, hoy).fechaLimite).toBeNull();
+    expect(interpretar('we may need a new demo', equipo, hoy).fechaLimite).toBeNull();
   });
 
   it('en fin de semana, «esta semana» es el viernes que viene y «la próxima» también', () => {
@@ -83,12 +116,22 @@ describe('resolver un @', () => {
   });
 });
 
-describe('fechas cortas', () => {
+describe('fechas cortas en tres idiomas', () => {
   it('hoy, mañana, ayer y el resto con día de semana', () => {
     expect(fechaCorta('2026-09-23', hoy)).toBe('hoy');
     expect(fechaCorta('2026-09-24', hoy)).toBe('mañana');
     expect(fechaCorta('2026-09-22', hoy)).toBe('ayer');
     expect(fechaCorta('2026-09-25', hoy)).toBe('vie 25 sep');
     expect(fechaCorta('2027-01-05', hoy)).toBe('mar 5 ene 2027');
+    expect(fechaCorta('2026-09-25', hoy, 'en')).toBe('Fri Sep 25');
+    expect(fechaCorta('2026-09-24', hoy, 'en')).toBe('tomorrow');
+    expect(fechaCorta('2026-09-25', hoy, 'pt')).toBe('sex 25 set');
+    expect(fechaCorta('2026-09-23', hoy, 'pt')).toBe('hoje');
+  });
+  it('hace cuánto', () => {
+    const ahora = hoy.getTime();
+    expect(haceCuanto(ahora - 5 * 60_000, ahora)).toBe('hace 5 min');
+    expect(haceCuanto(ahora - 3 * 3_600_000, ahora, 'en')).toBe('3 h ago');
+    expect(haceCuanto(ahora - 30_000, ahora, 'pt')).toBe('agora');
   });
 });

@@ -27,20 +27,20 @@ const escapar = (s: string) => (/[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"
 
 export async function POST(req: Request, { params }: { params: Promise<{ equipoId: string }> }) {
   const email = await correoActual();
-  if (!email) return NextResponse.json({ error: 'Sin sesión' }, { status: 401 });
+  if (!email) return NextResponse.json({ error: 'sinSesion' }, { status: 401 });
   const { equipoId } = await params;
-  if (!esMiembro(equipoId, email)) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+  if (!esMiembro(equipoId, email)) return NextResponse.json({ error: 'noEncontrado' }, { status: 404 });
 
   const fd = await req.formData();
   const archivo = fd.get('archivo');
-  if (!(archivo instanceof File) || archivo.size === 0) return NextResponse.json({ error: 'Falta el archivo.' }, { status: 400 });
-  if (archivo.size > MAX_BYTES) return NextResponse.json({ error: 'El archivo pesa más de 5 MB.' }, { status: 400 });
+  if (!(archivo instanceof File) || archivo.size === 0) return NextResponse.json({ error: 'faltaArchivo' }, { status: 400 });
+  if (archivo.size > MAX_BYTES) return NextResponse.json({ error: 'muyGrande', nombre: archivo.name }, { status: 400 });
 
   try {
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(await archivo.arrayBuffer());
     const ws = wb.worksheets[0];
-    if (!ws) return NextResponse.json({ error: 'El Excel no tiene hojas.' }, { status: 400 });
+    if (!ws) return NextResponse.json({ error: 'sinHojas' }, { status: 400 });
     const lineas: string[] = [];
     ws.eachRow((fila) => {
       const celdas: string[] = [];
@@ -49,6 +49,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ equipoI
     });
     return NextResponse.json({ texto: lineas.join('\n'), hoja: ws.name, filas: Math.max(0, lineas.length - 1) });
   } catch {
-    return NextResponse.json({ error: 'No se pudo leer el Excel.' }, { status: 400 });
+    return NextResponse.json({ error: 'noLegible' }, { status: 400 });
   }
 }

@@ -1,10 +1,63 @@
 @import "tailwindcss";
 
+/* El tema oscuro se activa con la clase «dark» en <html> (cookie flujo_tema o
+   preferencia del sistema). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #f3f6f8;
-  --foreground: #1b2430;
-  --acento: #1899af;
-  --acento-oscuro: #12798a;
+  --background: #f4f5f2;
+  --foreground: #182225;
+  --acento: #137a8b;
+  --acento-oscuro: #0d5f6d;
+  color-scheme: light;
+}
+
+/* Tema oscuro. Además de los colores de marca, se redefinen los grises y los
+   tintes de Tailwind que usa la interfaz: así «bg-white», «text-gray-800» o
+   «bg-amber-50» cambian solos, sin tocar cada componente. */
+.dark {
+  --background: #0f1719;
+  --foreground: #e6ebec;
+  --acento: #2ea9bc;
+  --acento-oscuro: #45bfd1;
+  color-scheme: dark;
+
+  --color-white: #17232a;
+  --color-gray-50: #1b282f;
+  --color-gray-100: #202f37;
+  --color-gray-200: #2c3d46;
+  --color-gray-300: #3b4f59;
+  --color-gray-400: #8798a1;
+  --color-gray-500: #a2b1b8;
+  --color-gray-600: #b8c4ca;
+  --color-gray-700: #cdd6da;
+  --color-gray-800: #e6ebec;
+  --color-gray-900: #f2f5f6;
+
+  --color-red-50: #3a1d1f;
+  --color-red-200: #6e2f33;
+  --color-red-500: #f0716f;
+  --color-red-600: #f28e8c;
+  --color-red-700: #f5a7a5;
+  --color-amber-50: #3a2e12;
+  --color-amber-100: #4a3a14;
+  --color-amber-200: #6b5220;
+  --color-amber-700: #e9c06a;
+  --color-amber-800: #f3cf84;
+  --color-emerald-50: #12332a;
+  --color-emerald-100: #164033;
+  --color-emerald-200: #1f5a45;
+  --color-emerald-700: #6fd3ad;
+  --color-emerald-800: #8fe0c0;
+  --color-emerald-900: #b6ecd5;
+  --color-sky-100: #12303d;
+  --color-sky-800: #8fd3f0;
+  --color-rose-100: #3f1c2a;
+  --color-rose-800: #f3a7c0;
+  --color-violet-100: #2a2140;
+  --color-violet-800: #c7b4f5;
+  --color-teal-100: #0f3a3a;
+  --color-teal-800: #8be0dc;
 }
 
 @theme inline {
@@ -12,19 +65,22 @@
   --color-foreground: var(--foreground);
   --color-acento: var(--acento);
   --color-acento-oscuro: var(--acento-oscuro);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-onest);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-onest), system-ui, sans-serif;
 }
 
 /* Un botón y un campo de texto iguales en toda la app. */
 .boton {
   @apply inline-flex items-center gap-1.5 rounded-lg bg-acento px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-acento-oscuro disabled:cursor-not-allowed disabled:opacity-50;
+}
+.dark .boton {
+  color: #0f1719;
 }
 .boton-suave {
   @apply inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50;

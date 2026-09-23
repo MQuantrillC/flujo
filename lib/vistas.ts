@@ -1,12 +1,13 @@
 // ──────────────────────────────────────────────────────────────────────────────
 // VISTAS — cómo se agrupan las tareas para «Lo mío», «Esta semana» y «Por persona».
-// Puro, para poder probarlo.
+// Puro, para poder probarlo. Los títulos de grupo son claves que la pantalla traduce.
 // ──────────────────────────────────────────────────────────────────────────────
 
 import { aIso, diasHasta, sumarDias, viernesDeLaSemana } from './fechas';
 import type { Tarea, Usuario } from './modelo';
 
-export interface Grupo { titulo: string; tareas: Tarea[] }
+export type ClaveGrupo = 'vencidas' | 'hoy' | 'estaSemana' | 'proximaSemana' | 'despues' | 'sinFecha';
+export interface Grupo { clave: ClaveGrupo | string; tareas: Tarea[] }
 
 /** Por fecha límite, en orden (nulos al final) y con las de prioridad alta primero dentro del mismo día. */
 export function ordenarPorPlazo(tareas: Tarea[]): Tarea[] {
@@ -25,10 +26,8 @@ export function ordenarPorPlazo(tareas: Tarea[]): Tarea[] {
 export function agruparPorPlazo(tareas: Tarea[], hoy: Date): Grupo[] {
   const viernes = aIso(viernesDeLaSemana(hoy));
   const viernesSiguiente = aIso(sumarDias(viernesDeLaSemana(hoy), 7));
-  const grupos: Grupo[] = [
-    { titulo: 'Vencidas', tareas: [] }, { titulo: 'Hoy', tareas: [] }, { titulo: 'Esta semana', tareas: [] },
-    { titulo: 'Próxima semana', tareas: [] }, { titulo: 'Después', tareas: [] }, { titulo: 'Sin fecha', tareas: [] },
-  ];
+  const claves: ClaveGrupo[] = ['vencidas', 'hoy', 'estaSemana', 'proximaSemana', 'despues', 'sinFecha'];
+  const grupos: Grupo[] = claves.map((clave) => ({ clave, tareas: [] }));
   for (const t of ordenarPorPlazo(tareas)) {
     if (!t.fechaLimite) grupos[5].tareas.push(t);
     else {
@@ -43,7 +42,7 @@ export function agruparPorPlazo(tareas: Tarea[], hoy: Date): Grupo[] {
   return grupos.filter((g) => g.tareas.length > 0);
 }
 
-/** Lo que vence hasta el viernes, día por día, con las vencidas primero. */
+/** Lo que vence hasta el viernes, día por día (clave = fecha ISO), con las vencidas primero. */
 export function agruparSemana(tareas: Tarea[], hoy: Date): Grupo[] {
   const viernes = aIso(viernesDeLaSemana(hoy));
   const vencidas: Tarea[] = [];
@@ -53,19 +52,19 @@ export function agruparSemana(tareas: Tarea[], hoy: Date): Grupo[] {
     if (diasHasta(t.fechaLimite, hoy) < 0) vencidas.push(t);
     else porDia.set(t.fechaLimite, [...(porDia.get(t.fechaLimite) ?? []), t]);
   }
-  const grupos: Grupo[] = vencidas.length ? [{ titulo: 'Vencidas', tareas: vencidas }] : [];
-  for (const [iso, lista] of [...porDia.entries()].sort()) grupos.push({ titulo: iso, tareas: lista });
+  const grupos: Grupo[] = vencidas.length ? [{ clave: 'vencidas', tareas: vencidas }] : [];
+  for (const [iso, lista] of [...porDia.entries()].sort()) grupos.push({ clave: iso, tareas: lista });
   return grupos;
 }
 
 export interface GrupoPersona { email: string | null; nombre: string; tareas: Tarea[] }
 
-/** Una lista por persona del equipo (en su orden) y, al final, las que no tienen responsable. */
+/** Una lista por persona del equipo (en su orden) y, al final, las sin responsable (email null). */
 export function agruparPorPersona(tareas: Tarea[], miembros: Usuario[]): GrupoPersona[] {
   const ordenadas = ordenarPorPlazo(tareas);
   const grupos: GrupoPersona[] = miembros.map((m) => ({ email: m.email, nombre: m.nombre, tareas: ordenadas.filter((t) => t.asignados.includes(m.email)) }));
   const sinNadie = ordenadas.filter((t) => t.asignados.length === 0);
-  if (sinNadie.length) grupos.push({ email: null, nombre: 'Sin responsable', tareas: sinNadie });
+  if (sinNadie.length) grupos.push({ email: null, nombre: '', tareas: sinNadie });
   return grupos.filter((g) => g.tareas.length > 0);
 }
 

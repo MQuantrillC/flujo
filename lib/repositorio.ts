@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import { ADJUNTOS_DIR, db } from './db';
 import {
-  ETAPAS_INICIALES, nombreDesdeCorreo,
+  nombreDesdeCorreo,
   type Adjunto, type Comentario, type Equipo, type Etapa, type Evento, type Prioridad, type Tarea, type TipoEvento, type Usuario,
 } from './modelo';
 
@@ -43,7 +43,8 @@ export function usuarios(emails: string[]): Usuario[] {
 
 const equipoDeFila = (r: any): Equipo => ({ id: r.id, nombre: r.nombre, creadoPor: r.creado_por, creadoEn: r.creado_en });
 
-export function crearEquipo(nombre: string, creador: string, correos: string[]): Equipo {
+/** `etapas`: los nombres iniciales, en orden; la última es la de «hecho». */
+export function crearEquipo(nombre: string, creador: string, correos: string[], etapas: string[]): Equipo {
   const eid = id();
   const t = ahora();
   const tx = db.transaction(() => {
@@ -52,8 +53,8 @@ export function crearEquipo(nombre: string, creador: string, correos: string[]):
       asegurarUsuario(c);
       db.prepare('INSERT OR IGNORE INTO miembros (equipo_id, email, agregado_en) VALUES (?, ?, ?)').run(eid, c, t);
     }
-    ETAPAS_INICIALES.forEach((n, i) => {
-      db.prepare('INSERT INTO etapas (id, equipo_id, nombre, posicion, es_final) VALUES (?, ?, ?, ?, ?)').run(id(), eid, n, i, i === ETAPAS_INICIALES.length - 1 ? 1 : 0);
+    etapas.forEach((n, i) => {
+      db.prepare('INSERT INTO etapas (id, equipo_id, nombre, posicion, es_final) VALUES (?, ?, ?, ?, ?)').run(id(), eid, n, i, i === etapas.length - 1 ? 1 : 0);
     });
   });
   tx();

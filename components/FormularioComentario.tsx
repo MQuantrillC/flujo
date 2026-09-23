@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ImagePlus, Send, X } from 'lucide-react';
 
 const MAX_MB = 10;
@@ -12,6 +13,8 @@ const MAX_MB = 10;
  * sólo imágenes, o ambos.
  */
 export function FormularioComentario({ tareaId }: { tareaId: string }) {
+  const t = useTranslations('comentarios');
+  const te = useTranslations('errores');
   const [texto, setTexto] = useState('');
   const [archivos, setArchivos] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -27,8 +30,8 @@ export function FormularioComentario({ tareaId }: { tareaId: string }) {
     if (!lista) return;
     const nuevos: File[] = [];
     for (const f of Array.from(lista)) {
-      if (!f.type.startsWith('image/')) { setError(`«${f.name}» no es una imagen.`); continue; }
-      if (f.size > MAX_MB * 1024 * 1024) { setError(`«${f.name}» pesa más de ${MAX_MB} MB.`); continue; }
+      if (!f.type.startsWith('image/')) { setError(te('noImagen', { nombre: f.name })); continue; }
+      if (f.size > MAX_MB * 1024 * 1024) { setError(te('muyGrande', { nombre: f.name, mb: MAX_MB })); continue; }
       nuevos.push(f);
     }
     if (nuevos.length) { setError(null); setArchivos((a) => [...a, ...nuevos]); }
@@ -42,10 +45,13 @@ export function FormularioComentario({ tareaId }: { tareaId: string }) {
     archivos.forEach((a) => fd.append('archivos', a, a.name || 'imagen.png'));
     try {
       const r = await fetch(`/api/tareas/${tareaId}/comentarios`, { method: 'POST', body: fd });
-      if (!r.ok) throw new Error((await r.json().catch(() => ({})))?.error ?? 'No se pudo guardar.');
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(te(j?.error ?? 'generico', { nombre: j?.nombre ?? '', mb: MAX_MB }));
+      }
       setTexto(''); setArchivos([]); router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'No se pudo guardar.');
+      setError(e instanceof Error ? e.message : te('generico'));
     } finally {
       setEnviando(false);
     }
@@ -65,7 +71,7 @@ export function FormularioComentario({ tareaId }: { tareaId: string }) {
         onKeyDown={(e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') void enviar(); }}
         rows={3}
         className="w-full resize-y bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
-        placeholder="Comenta el avance… Pega o arrastra una imagen aquí."
+        placeholder={t('placeholder')}
       />
       {archivos.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-2">
@@ -73,18 +79,18 @@ export function FormularioComentario({ tareaId }: { tareaId: string }) {
             <span key={i} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={vistas[i]} alt={a.name} className="h-20 w-20 rounded-lg border border-gray-200 object-cover" />
-              <button type="button" onClick={() => setArchivos((l) => l.filter((_, k) => k !== i))} className="absolute -right-1.5 -top-1.5 rounded-full bg-gray-800 p-0.5 text-white" title="Quitar"><X size={12} /></button>
+              <button type="button" onClick={() => setArchivos((l) => l.filter((_, k) => k !== i))} className="absolute -right-1.5 -top-1.5 rounded-full bg-black/70 p-0.5 text-white" title={t('quitar')}><X size={12} /></button>
             </span>
           ))}
         </div>
       )}
       <div className="mt-2 flex items-center gap-2">
         <input ref={entrada} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { agregar(e.target.files); e.target.value = ''; }} />
-        <button type="button" onClick={() => entrada.current?.click()} className="boton-suave"><ImagePlus size={14} /> Imagen</button>
+        <button type="button" onClick={() => entrada.current?.click()} className="boton-suave"><ImagePlus size={14} /> {t('imagen')}</button>
         {error && <span className="text-xs text-red-600">{error}</span>}
         <span className="ml-auto text-[11px] text-gray-400">Ctrl+Enter</span>
         <button type="button" onClick={() => void enviar()} disabled={enviando || (!texto.trim() && archivos.length === 0)} className="boton">
-          <Send size={14} /> {enviando ? 'Enviando…' : archivos.length && !texto.trim() ? 'Adjuntar' : 'Comentar'}
+          <Send size={14} /> {enviando ? t('enviando') : archivos.length && !texto.trim() ? t('adjuntar') : t('comentar')}
         </button>
       </div>
     </div>

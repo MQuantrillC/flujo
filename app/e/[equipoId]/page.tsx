@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { Tag, X } from 'lucide-react';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
 import { agruparPorPersona, agruparPorPlazo, agruparSemana, etiquetasEnUso, ordenarPorPlazo } from '@/lib/vistas';
 import { dia, fechaCorta } from '@/lib/fechas';
+import { idiomaValido } from '@/lib/idioma';
 import type { Tarea } from '@/lib/modelo';
 import { BarraRapida } from '@/components/BarraRapida';
 import { TarjetaTarea } from '@/components/TarjetaTarea';
@@ -22,6 +24,8 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
   const { equipoId } = await params;
   const { vista = 'tablero', etiqueta } = await searchParams;
   const u = await miembroActual(equipoId);
+  const t = await getTranslations('tablero');
+  const idioma = idiomaValido(await getLocale());
   const etapas = etapasDe(equipoId);
   const miembros = miembrosDe(equipoId);
   const nombres = Object.fromEntries(miembros.map((m) => [m.email, m.nombre]));
@@ -30,9 +34,9 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
   const corteHechas = hoy.getTime() - DIAS_HECHAS_VISIBLES * 86_400_000;
 
   const todas = tareasDe(equipoId);
-  const conEtiqueta = etiqueta ? todas.filter((t) => t.etiquetas.includes(etiqueta)) : todas;
+  const conEtiqueta = etiqueta ? todas.filter((x) => x.etiquetas.includes(etiqueta)) : todas;
   const finales = new Set(etapas.filter((e) => e.esFinal).map((e) => e.id));
-  const activas = conEtiqueta.filter((t) => !finales.has(t.etapaId));
+  const activas = conEtiqueta.filter((x) => !finales.has(x.etapaId));
   const etiquetas = etiquetasEnUso(todas);
   const base = `/e/${equipoId}`;
   const conVista = (extra: Record<string, string | undefined>) => {
@@ -43,9 +47,10 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
     return s ? `${base}?${s}` : base;
   };
 
-  const tarjeta = (t: Tarea) => <TarjetaTarea key={t.id} tarea={t} nombres={nombres} etapas={etapas} hoy={hoy} />;
+  const tarjeta = (x: Tarea) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapas} hoy={hoy} />;
   const lista = (tareas: Tarea[]) => <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{tareas.map(tarjeta)}</div>;
   const vacio = (msg: string) => <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">{msg}</p>;
+  const tituloGrupo = (clave: string) => (/^\d{4}-\d{2}-\d{2}$/.test(clave) ? fechaCorta(clave, hoy, idioma) : t(`grupos.${clave}`));
 
   return (
     <GrupoAnimado>
@@ -57,21 +62,21 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
           <Tag size={12} className="text-gray-400" />
           {etiquetas.map((e) => (
             <Link key={e.etiqueta} href={conVista({ etiqueta: e.etiqueta === etiqueta ? undefined : e.etiqueta })}
-              className={`rounded-md px-1.5 py-0.5 font-semibold ${e.etiqueta === etiqueta ? 'bg-acento text-white' : 'bg-acento/10 text-acento hover:bg-acento/20'}`}>
+              className={`rounded-md px-1.5 py-0.5 font-semibold ${e.etiqueta === etiqueta ? 'bg-acento text-white dark:text-gray-900' : 'bg-acento/10 text-acento hover:bg-acento/20'}`}>
               #{e.etiqueta} <span className="opacity-60">{e.n}</span>
             </Link>
           ))}
-          {etiqueta && <Link href={conVista({ etiqueta: undefined })} className="flex items-center gap-0.5 text-gray-500 hover:text-gray-800"><X size={12} /> quitar filtro</Link>}
+          {etiqueta && <Link href={conVista({ etiqueta: undefined })} className="flex items-center gap-0.5 text-gray-500 hover:text-gray-800"><X size={12} /> {t('quitarFiltro')}</Link>}
         </div>
       )}
 
       {vista === 'tablero' && (
         <div className="flex gap-3 overflow-x-auto pb-2">
           {etapas.map((et) => {
-            const tareas = ordenarPorPlazo(conEtiqueta.filter((t) => t.etapaId === et.id && (!et.esFinal || (t.terminadoEn ?? 0) >= corteHechas)));
+            const tareas = ordenarPorPlazo(conEtiqueta.filter((x) => x.etapaId === et.id && (!et.esFinal || (x.terminadoEn ?? 0) >= corteHechas)));
             return (
-              <ColumnaTablero key={et.id} etapaId={et.id} nombre={et.nombre} cantidad={tareas.length} vacio={et.esFinal ? `Nada en los últimos ${DIAS_HECHAS_VISIBLES} días` : 'Nada aquí'}>
-                {tareas.map((t) => <TarjetaTarea key={t.id} tarea={t} nombres={nombres} etapas={etapas} hoy={hoy} arrastrable />)}
+              <ColumnaTablero key={et.id} etapaId={et.id} nombre={et.nombre} cantidad={tareas.length} vacio={et.esFinal ? t('nadaHechas', { dias: DIAS_HECHAS_VISIBLES }) : t('nadaAqui')}>
+                {tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapas} hoy={hoy} arrastrable />)}
               </ColumnaTablero>
             );
           })}
@@ -79,11 +84,10 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
       )}
 
       {vista === 'mio' && (() => {
-        const mias = activas.filter((t) => t.asignados.includes(u.email));
-        const grupos = agruparPorPlazo(mias, hoy);
-        return grupos.length === 0 ? vacio('No tienes pendientes abiertos. Escribe uno arriba con @' + u.nombre.split(' ')[0].toLowerCase() + '.') : grupos.map((g) => (
-          <section key={g.titulo}>
-            <h2 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.titulo === 'Vencidas' ? 'text-red-600' : 'text-gray-500'}`}>{g.titulo} · {g.tareas.length}</h2>
+        const grupos = agruparPorPlazo(activas.filter((x) => x.asignados.includes(u.email)), hoy);
+        return grupos.length === 0 ? vacio(t('sinMios', { alias: u.nombre.split(' ')[0].toLowerCase() })) : grupos.map((g) => (
+          <section key={g.clave}>
+            <h2 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.clave === 'vencidas' ? 'text-red-600' : 'text-gray-500'}`}>{tituloGrupo(g.clave)} · {g.tareas.length}</h2>
             {lista(g.tareas)}
           </section>
         ));
@@ -91,11 +95,9 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
 
       {vista === 'semana' && (() => {
         const grupos = agruparSemana(activas, hoy);
-        return grupos.length === 0 ? vacio('Nada vence esta semana.') : grupos.map((g) => (
-          <section key={g.titulo}>
-            <h2 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.titulo === 'Vencidas' ? 'text-red-600' : 'text-gray-500'}`}>
-              {g.titulo === 'Vencidas' ? 'Vencidas' : fechaCorta(g.titulo, hoy)} · {g.tareas.length}
-            </h2>
+        return grupos.length === 0 ? vacio(t('nadaSemana')) : grupos.map((g) => (
+          <section key={g.clave}>
+            <h2 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.clave === 'vencidas' ? 'text-red-600' : 'text-gray-500'}`}>{tituloGrupo(g.clave)} · {g.tareas.length}</h2>
             {lista(g.tareas)}
           </section>
         ));
@@ -103,10 +105,10 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
 
       {vista === 'persona' && (() => {
         const grupos = agruparPorPersona(activas, miembros);
-        return grupos.length === 0 ? vacio('No hay pendientes abiertos.') : grupos.map((g) => (
+        return grupos.length === 0 ? vacio(t('nadaAbierto')) : grupos.map((g) => (
           <section key={g.email ?? '-'}>
             <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-              {g.email ? <Avatar nombre={g.nombre} tam="sm" /> : null}{g.nombre} <span className="text-xs font-normal text-gray-400">{g.tareas.length}</span>
+              {g.email ? <Avatar nombre={g.nombre} tam="sm" /> : null}{g.email ? g.nombre : t('sinResponsable')} <span className="text-xs font-normal text-gray-400">{g.tareas.length}</span>
             </h2>
             {lista(g.tareas)}
           </section>

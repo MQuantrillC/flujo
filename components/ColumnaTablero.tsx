@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { moverTareaAccion } from '@/lib/acciones';
 
 export const TIPO_ARRASTRE = 'application/x-flujo-tarea';
@@ -10,6 +11,7 @@ export const TIPO_ARRASTRE = 'application/x-flujo-tarea';
 export function ColumnaTablero({ etapaId, nombre, cantidad, vacio, children }: {
   etapaId: string; nombre: string; cantidad: number; vacio: string; children: React.ReactNode;
 }) {
+  const t = useTranslations('tablero');
   const [encima, setEncima] = useState(false);
   const [, iniciar] = useTransition();
   const router = useRouter();
@@ -32,7 +34,7 @@ export function ColumnaTablero({ etapaId, nombre, cantidad, vacio, children }: {
         {nombre} <span className="rounded-full bg-white px-1.5 text-[10px] text-gray-500">{cantidad}</span>
       </h2>
       {children}
-      {cantidad === 0 && <p className="px-1 py-4 text-center text-xs text-gray-400">{encima ? 'Suelta aquí' : vacio}</p>}
+      {cantidad === 0 && <p className="px-1 py-4 text-center text-xs text-gray-400">{encima ? t('sueltaAqui') : vacio}</p>}
     </section>
   );
 }

@@ -1,7 +1,10 @@
 // ──────────────────────────────────────────────────────────────────────────────
 // FECHAS — todo en fecha local, sin horas. Una fecha límite es un día («2026-09-25»),
 // y se guarda como texto ISO para que ordene bien y no dependa de la zona horaria.
+// Lo que se muestra («vie 25 sep», «hace 3 h») sale en el idioma que se pida.
 // ──────────────────────────────────────────────────────────────────────────────
+
+import type { Idioma } from './idioma';
 
 const p2 = (n: number) => String(n).padStart(2, '0');
 
@@ -49,27 +52,44 @@ export function diasHasta(iso: string, hoy: Date = dia()): number {
   return Math.round((deIso(iso).getTime() - dia(hoy).getTime()) / 86_400_000);
 }
 
-const DIAS_CORTOS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
-const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const NOMBRES: Record<Idioma, { dias: string[]; meses: string[]; hoy: string; manana: string; ayer: string; ahora: string; min: (n: number) => string; horas: (n: number) => string }> = {
+  es: {
+    dias: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+    meses: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+    hoy: 'hoy', manana: 'mañana', ayer: 'ayer', ahora: 'ahora', min: (n) => `hace ${n} min`, horas: (n) => `hace ${n} h`,
+  },
+  en: {
+    dias: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    meses: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    hoy: 'today', manana: 'tomorrow', ayer: 'yesterday', ahora: 'now', min: (n) => `${n} min ago`, horas: (n) => `${n} h ago`,
+  },
+  pt: {
+    dias: ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'],
+    meses: ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'],
+    hoy: 'hoje', manana: 'amanhã', ayer: 'ontem', ahora: 'agora', min: (n) => `há ${n} min`, horas: (n) => `há ${n} h`,
+  },
+};
 
-/** «hoy», «mañana», «ayer», «vie 25 sep», «lun 12 ene 2027». */
-export function fechaCorta(iso: string, hoy: Date = dia()): string {
+/** «hoy», «mañana», «ayer», «vie 25 sep», «lun 12 ene 2027» — o su equivalente en inglés y portugués. */
+export function fechaCorta(iso: string, hoy: Date = dia(), idioma: Idioma = 'es'): string {
   const n = diasHasta(iso, hoy);
-  if (n === 0) return 'hoy';
-  if (n === 1) return 'mañana';
-  if (n === -1) return 'ayer';
+  const x = NOMBRES[idioma];
+  if (n === 0) return x.hoy;
+  if (n === 1) return x.manana;
+  if (n === -1) return x.ayer;
   const d = deIso(iso);
-  const base = `${DIAS_CORTOS[d.getDay()]} ${d.getDate()} ${MESES_CORTOS[d.getMonth()]}`;
+  const base = idioma === 'en' ? `${x.dias[d.getDay()]} ${x.meses[d.getMonth()]} ${d.getDate()}` : `${x.dias[d.getDay()]} ${d.getDate()} ${x.meses[d.getMonth()]}`;
   return d.getFullYear() === hoy.getFullYear() ? base : `${base} ${d.getFullYear()}`;
 }
 
 /** «hace 5 min», «hace 3 h», «ayer», «12 sep». */
-export function haceCuanto(epochMs: number, ahora: number = Date.now()): string {
+export function haceCuanto(epochMs: number, ahora: number = Date.now(), idioma: Idioma = 'es'): string {
+  const x = NOMBRES[idioma];
   const s = Math.max(0, Math.round((ahora - epochMs) / 1000));
-  if (s < 60) return 'ahora';
+  if (s < 60) return x.ahora;
   const m = Math.round(s / 60);
-  if (m < 60) return `hace ${m} min`;
+  if (m < 60) return x.min(m);
   const h = Math.round(m / 60);
-  if (h < 24) return `hace ${h} h`;
-  return fechaCorta(aIso(new Date(epochMs)), dia(new Date(ahora)));
+  if (h < 24) return x.horas(h);
+  return fechaCorta(aIso(new Date(epochMs)), dia(new Date(ahora)), idioma);
 }

@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import { Flag, Sparkles } from 'lucide-react';
 import { interpretar, type MiembroParaParse } from '@/lib/parseRapido';
 import { fechaCorta } from '@/lib/fechas';
+import { idiomaValido } from '@/lib/idioma';
 import { crearTareaRapida } from '@/lib/acciones';
 import { Avatar } from './Avatar';
 import { Aparece } from './Animado';
@@ -27,6 +29,9 @@ interface Sugerencia { clave: string; texto: string; detalle?: string; avatar?: 
  * sin lista abierta crea el pendiente.
  */
 export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: string; miembros: MiembroParaParse[]; etiquetas?: string[] }) {
+  const t = useTranslations('barra');
+  const te = useTranslations('errores');
+  const idioma = idiomaValido(useLocale());
   const [texto, setTexto] = useState('');
   const [caret, setCaret] = useState(0);
   const [indice, setIndice] = useState(0);
@@ -56,9 +61,9 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
         .map((m) => ({ clave: m.email, texto: m.nombre, detalle: m.email, avatar: m.nombre }));
     }
     const lista: Sugerencia[] = etiquetas.filter((e) => !q || normalizar(e).startsWith(q)).map((e) => ({ clave: e, texto: `#${e}` }));
-    if (q && !etiquetas.some((e) => normalizar(e) === q)) lista.unshift({ clave: token.consulta, texto: `#${token.consulta}`, detalle: 'nueva etiqueta' });
+    if (q && !etiquetas.some((e) => normalizar(e) === q)) lista.unshift({ clave: token.consulta, texto: `#${token.consulta}`, detalle: t('nuevaEtiqueta') });
     return lista;
-  }, [token, miembros, etiquetas]);
+  }, [token, miembros, etiquetas, t]);
 
   const listaAbierta = !!token && !cerrada && sugerencias.length > 0;
 
@@ -91,7 +96,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
     iniciar(async () => {
       const r = await crearTareaRapida(equipoId, texto);
       if (r.ok) { setTexto(''); setCaret(0); setCreadas((n) => n + 1); router.refresh(); campo.current?.focus(); }
-      else setError(r.error ?? 'No se pudo crear.');
+      else setError(te(r.error ?? 'generico'));
     });
   };
 
@@ -127,7 +132,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
           onClick={actualizarCaret}
           onBlur={() => setCerrada(true)}
           onFocus={() => setCerrada(false)}
-          placeholder="@harold revisar /master/insights esta semana #insights"
+          placeholder={t('placeholder')}
           className="min-w-0 flex-1 bg-transparent text-[15px] text-gray-800 outline-none placeholder:text-gray-400"
           autoComplete="off"
           autoFocus
@@ -136,7 +141,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
           aria-controls="sugerencias-linea-rapida"
           aria-autocomplete="list"
         />
-        <button type="submit" disabled={!texto.trim() || pendiente} className="boton">{pendiente ? 'Creando…' : 'Crear'}</button>
+        <button type="submit" disabled={!texto.trim() || pendiente} className="boton">{pendiente ? t('creando') : t('crear')}</button>
       </form>
 
       <Aparece visible={listaAbierta} className="absolute left-9 top-12 z-30 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
@@ -156,27 +161,27 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
             </li>
           ))}
         </ul>
-        <p className="border-t border-gray-100 px-3 py-1.5 text-[10px] text-gray-400">↑ ↓ para moverte · Enter o Tab para elegir · Esc para cerrar</p>
+        <p className="border-t border-gray-100 px-3 py-1.5 text-[10px] text-gray-400">{t('atajos')}</p>
       </Aparece>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
         {lectura ? (
           <>
-            <span className="font-medium text-gray-700">Se creará:</span>
-            <span className={`font-semibold ${lectura.titulo ? 'text-gray-800' : 'text-red-600'}`}>{lectura.titulo || 'sin título'}</span>
+            <span className="font-medium text-gray-700">{t('seCreara')}</span>
+            <span className={`font-semibold ${lectura.titulo ? 'text-gray-800' : 'text-red-600'}`}>{lectura.titulo || t('sinTitulo')}</span>
             {lectura.asignados.map((a) => <span key={a} className="rounded-md bg-gray-100 px-1.5 py-0.5">@{nombreDe(a)}</span>)}
-            {lectura.fechaLimite && <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-amber-800">vence {fechaCorta(lectura.fechaLimite)}</span>}
+            {lectura.fechaLimite && <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-amber-800">{t('vence', { fecha: fechaCorta(lectura.fechaLimite, undefined, idioma) })}</span>}
             {lectura.etiquetas.map((e) => <span key={e} className="rounded-md bg-acento/10 px-1.5 py-0.5 text-acento">#{e}</span>)}
-            {lectura.prioridad === 'alta' && <span className="flex items-center gap-1 text-red-600"><Flag size={11} className="fill-red-500" /> alta</span>}
-            {lectura.noResueltos.map((n) => <span key={n} className="text-red-600">@{n} no es de este equipo</span>)}
+            {lectura.prioridad === 'alta' && <span className="flex items-center gap-1 text-red-600"><Flag size={11} className="fill-red-500" /> {t('alta')}</span>}
+            {lectura.noResueltos.map((n) => <span key={n} className="text-red-600">{t('noEsDelEquipo', { alias: n })}</span>)}
           </>
         ) : (
           <>
-            <span><b className="text-gray-600">@nombre</b> responsable</span>
-            <span><b className="text-gray-600">#etiqueta</b></span>
-            <span><b className="text-gray-600">!</b> prioridad alta</span>
-            <span><b className="text-gray-600">hoy · mañana · esta semana · el lunes · 15 oct · en 3 días</b> fecha</span>
-            {creadas > 0 && <span className="ml-auto text-emerald-700">{creadas === 1 ? 'Pendiente creado ✓' : `${creadas} pendientes creados ✓`}</span>}
+            <span><b className="text-gray-600">@nombre</b> {t('ayudaResponsable')}</span>
+            <span><b className="text-gray-600">#{t('ayudaEtiqueta')}</b></span>
+            <span><b className="text-gray-600">!</b> {t('ayudaPrioridad')}</span>
+            <span><b className="text-gray-600">{t('ayudaFechas')}</b> {t('ayudaFecha')}</span>
+            {creadas > 0 && <span className="ml-auto text-emerald-700">{t('creados', { n: creadas })}</span>}
           </>
         )}
       </div>

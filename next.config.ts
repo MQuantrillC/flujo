@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   // better-sqlite3 es un módulo nativo: se carga desde node_modules, no se empaqueta.
   serverExternalPackages: ["better-sqlite3"],
 };
 
-export default nextConfig;
+// Lee i18n/request.ts: el idioma sale de una cookie, sin rutas por idioma.
+export default createNextIntlPlugin()(nextConfig);

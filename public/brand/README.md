@@ -1,20 +1,5 @@
-# Marca de Flujo — dónde dejar cada cosa
+# Marca de Flujo
 
-Flujo es un rastreador de pendientes de equipo: escribes una línea
-(«@harold revisar /master/insights esta semana») y se crea el pendiente con
-responsable, fecha y etiquetas. Tono: ligero, claro, sin ruido. Color actual de
-acento: `#1899af` (teal), sobre fondo `#f3f6f8`.
-
-Archivos que la app espera:
-
-| Qué                         | Dónde                                | Notas                                            |
-|-----------------------------|--------------------------------------|--------------------------------------------------|
-| Logotipo (símbolo + nombre) | `public/brand/logo.svg`              | Fondo transparente; versión oscura `logo-dark.svg` |
-| Símbolo solo                | `public/brand/simbolo.svg`           | Cuadrado, para tamaños chicos                    |
-| Favicon / icono de la app   | `app/icon.png`                       | 512×512, Next.js lo sirve solo                   |
-| Icono Apple                 | `app/apple-icon.png`                 | 180×180 (opcional)                               |
-| Imagen para compartir       | `app/opengraph-image.png`            | 1200×630 (opcional)                              |
-| Colores y tipografía        | `app/globals.css` (bloque `:root`)   | `--acento`, `--acento-oscuro`, `--background`, `--foreground` |
-
-Si el brand kit trae una fuente, indicar el nombre de Google Fonts: se carga en
-`app/layout.tsx` (hoy usa Geist).
+Aplicada el 23 sept 2026 desde el brand kit «opción Etapas»: logo.svg, logo-dark.svg y simbolo.svg aquí;
+app/icon.png, app/apple-icon.png y app/opengraph-image.png; colores en app/globals.css (:root y .dark);
+tipografía Onest en app/layout.tsx. El componente components/Marca.tsx elige el logo según el tema.
