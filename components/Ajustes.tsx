@@ -28,7 +28,7 @@ export function SelectorTema() {
   );
 }
 
-/** ES · EN · PT. Cambiar recarga los textos del servidor en el idioma nuevo. */
+/** ES · EN · PT. Cada botón mide lo mismo, así nada se mueve al cambiar. */
 export function SelectorIdioma() {
   const actual = useLocale() as Idioma;
   const t = useTranslations('comun');
@@ -40,7 +40,7 @@ export function SelectorIdioma() {
           key={i}
           type="button"
           onClick={() => { guardarCookie(COOKIE_IDIOMA, i); router.refresh(); }}
-          className={`rounded px-1.5 py-0.5 uppercase transition-colors ${i === actual ? 'bg-acento text-white dark:text-gray-900' : 'text-gray-400 hover:text-gray-700'}`}
+          className={`w-7 rounded py-0.5 text-center uppercase transition-colors ${i === actual ? 'bg-acento text-white dark:text-gray-900' : 'text-gray-400 hover:text-gray-700'}`}
           aria-pressed={i === actual}
         >
           {i}

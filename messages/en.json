@@ -31,7 +31,7 @@
     "ejemploNombre": "E.g. Sales Peru",
     "ponleNombre": "Give it a name.",
     "correos": "Members' emails",
-    "correosAyuda": "(separated by comma, space or line; you can add more later)",
+    "correosAyuda": "(you can add more later)",
     "crearEquipo": "Create team",
     "loMio": "My to-dos",
     "loMioAyuda": "Everything open that is yours, across all your teams and your personal space.",
@@ -40,7 +40,10 @@
     "tuEspacio": "Your space: only you can see it",
     "personalAyuda": "Your own to-dos, with no team: only you can see them. Once you have a personal space, the quick line on this screen saves there.",
     "crearPersonal": "Create my personal space",
-    "rapidaPersonal": "goes to your personal space"
+    "rapidaPersonal": "goes to your personal space",
+    "correoPlaceholder": "email@xertica.com",
+    "agregarCorreo": "Add another email",
+    "quitarCorreo": "Remove"
   },
   "nav": {
     "tablero": "Board",
@@ -108,7 +111,8 @@
     "faltaArchivo": "Missing file.",
     "sinHojas": "The Excel file has no sheets.",
     "noLegible": "The file couldn't be read.",
-    "generico": "Couldn't save."
+    "generico": "Couldn't save.",
+    "tipoNoPermitido": "\"{nombre}\": that file type cannot be uploaded."
   },
   "tarea": {
     "descripcion": "Description, context, links…",
@@ -124,7 +128,6 @@
     "confirmarBorrar": "Delete this to-do with its comments and images? This can't be undone.",
     "marcarAlta": "Mark as high priority",
     "quitarAlta": "High priority (remove)",
-    "imagenes": "Images",
     "seguimiento": "Follow-up",
     "comentarios": "{n, plural, one {# comment} other {# comments}}",
     "ficha": "Details",
@@ -134,8 +137,12 @@
     "terminado": "Done",
     "historial": "History",
     "enlaces": "Links",
-    "enlacesAyuda": "documents, sheets, tickets… one per line",
-    "enlacesPlaceholder": "https://docs.google.com/…"
+    "enlacesAyuda": "documents, sheets, tickets…",
+    "enlacesPlaceholder": "https://…",
+    "adjuntos": "Attachments",
+    "enlaceNombre": "Name (optional)",
+    "agregarEnlace": "Add link",
+    "quitarEnlace": "Remove link"
   },
   "historial": {
     "creada": "created the to-do",
@@ -155,13 +162,15 @@
     "enlaces": "{n, plural, =0 {removed the links} one {left # link} other {left # links}}"
   },
   "comentarios": {
-    "placeholder": "Comment on progress… Paste or drop an image here.",
-    "imagen": "Image",
+    "placeholder": "Comment on progress… Paste or drop images or files here.",
     "quitar": "Remove",
     "comentar": "Comment",
     "adjuntar": "Attach",
     "enviando": "Sending…",
-    "confirmarQuitarImagen": "Remove this image?"
+    "confirmarQuitarImagen": "Remove this image?",
+    "archivo": "Attach",
+    "tiposAyuda": "images, PDF, Office, CSV, text or zip · up to {mb} MB",
+    "confirmarQuitarArchivo": "Remove \"{nombre}\"?"
   },
   "miembros": {
     "equipo": "Team",
@@ -240,7 +249,7 @@
     "cumpleanos": "Birthday",
     "opcional": "(optional)",
     "contrasena": "Password",
-    "contrasenaAyuda": "(at least {n} characters)",
+    "contrasenaAyuda": "At least {n} characters.",
     "repetir": "Repeat password",
     "crear": "Create account",
     "creando": "Creating…",
@@ -268,7 +277,7 @@
     "contrasenaTitulo": "Password",
     "actual": "Current password",
     "nueva": "New password",
-    "contrasenaAyuda": "(at least {n} characters)",
+    "contrasenaAyuda": "At least {n} characters.",
     "repetir": "Repeat new password",
     "cambiar": "Change password",
     "cambiada": "Password changed ✓",

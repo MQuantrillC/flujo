@@ -31,7 +31,7 @@
     "ejemploNombre": "Ej. Comercial Perú",
     "ponleNombre": "Ponle un nombre.",
     "correos": "Correos de los miembros",
-    "correosAyuda": "(separados por coma, espacio o línea; puedes agregar más después)",
+    "correosAyuda": "(puedes agregar más después)",
     "crearEquipo": "Crear equipo",
     "loMio": "Mis pendientes",
     "loMioAyuda": "Todo lo que tienes abierto, de todos tus equipos y de tu espacio personal.",
@@ -40,7 +40,10 @@
     "tuEspacio": "Tu espacio: sólo tú lo ves",
     "personalAyuda": "Tus pendientes propios, sin equipo: sólo tú los ves. Con el espacio personal, la línea rápida de esta pantalla guarda ahí.",
     "crearPersonal": "Crear mi espacio personal",
-    "rapidaPersonal": "va a tu espacio personal"
+    "rapidaPersonal": "va a tu espacio personal",
+    "correoPlaceholder": "correo@xertica.com",
+    "agregarCorreo": "Agregar otro correo",
+    "quitarCorreo": "Quitar"
   },
   "nav": {
     "tablero": "Tablero",
@@ -108,7 +111,8 @@
     "faltaArchivo": "Falta el archivo.",
     "sinHojas": "El Excel no tiene hojas.",
     "noLegible": "No se pudo leer el archivo.",
-    "generico": "No se pudo guardar."
+    "generico": "No se pudo guardar.",
+    "tipoNoPermitido": "«{nombre}»: ese tipo de archivo no se puede subir."
   },
   "tarea": {
     "descripcion": "Descripción, contexto, enlaces…",
@@ -124,7 +128,6 @@
     "confirmarBorrar": "¿Borrar este pendiente con sus comentarios e imágenes? No se puede deshacer.",
     "marcarAlta": "Marcar prioridad alta",
     "quitarAlta": "Prioridad alta (quitar)",
-    "imagenes": "Imágenes",
     "seguimiento": "Seguimiento",
     "comentarios": "{n, plural, one {# comentario} other {# comentarios}}",
     "ficha": "Ficha",
@@ -134,8 +137,12 @@
     "terminado": "Terminado",
     "historial": "Historial",
     "enlaces": "Enlaces",
-    "enlacesAyuda": "documentos, hojas, tickets… uno por línea",
-    "enlacesPlaceholder": "https://docs.google.com/…"
+    "enlacesAyuda": "documentos, hojas, tickets…",
+    "enlacesPlaceholder": "https://…",
+    "adjuntos": "Adjuntos",
+    "enlaceNombre": "Nombre (opcional)",
+    "agregarEnlace": "Agregar enlace",
+    "quitarEnlace": "Quitar enlace"
   },
   "historial": {
     "creada": "creó el pendiente",
@@ -155,13 +162,15 @@
     "enlaces": "{n, plural, =0 {quitó los enlaces} one {dejó # enlace} other {dejó # enlaces}}"
   },
   "comentarios": {
-    "placeholder": "Comenta el avance… Pega o arrastra una imagen aquí.",
-    "imagen": "Imagen",
+    "placeholder": "Comenta el avance… Pega o arrastra aquí imágenes o archivos.",
     "quitar": "Quitar",
     "comentar": "Comentar",
     "adjuntar": "Adjuntar",
     "enviando": "Enviando…",
-    "confirmarQuitarImagen": "¿Quitar esta imagen?"
+    "confirmarQuitarImagen": "¿Quitar esta imagen?",
+    "archivo": "Adjuntar",
+    "tiposAyuda": "imágenes, PDF, Office, CSV, texto o zip · hasta {mb} MB",
+    "confirmarQuitarArchivo": "¿Quitar «{nombre}»?"
   },
   "miembros": {
     "equipo": "Equipo",
@@ -240,7 +249,7 @@
     "cumpleanos": "Cumpleaños",
     "opcional": "(opcional)",
     "contrasena": "Contraseña",
-    "contrasenaAyuda": "(mínimo {n} caracteres)",
+    "contrasenaAyuda": "Mínimo {n} caracteres.",
     "repetir": "Repetir contraseña",
     "crear": "Crear cuenta",
     "creando": "Creando…",
@@ -268,7 +277,7 @@
     "contrasenaTitulo": "Contraseña",
     "actual": "Contraseña actual",
     "nueva": "Nueva contraseña",
-    "contrasenaAyuda": "(mínimo {n} caracteres)",
+    "contrasenaAyuda": "Mínimo {n} caracteres.",
     "repetir": "Repetir la nueva",
     "cambiar": "Cambiar contraseña",
     "cambiada": "Contraseña cambiada ✓",

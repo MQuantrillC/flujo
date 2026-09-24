@@ -31,7 +31,7 @@
     "ejemploNombre": "Ex.: Comercial Brasil",
     "ponleNombre": "Dê um nome.",
     "correos": "E-mails dos membros",
-    "correosAyuda": "(separados por vírgula, espaço ou linha; dá para adicionar mais depois)",
+    "correosAyuda": "(pode adicionar mais depois)",
     "crearEquipo": "Criar equipe",
     "loMio": "Minhas pendências",
     "loMioAyuda": "Tudo o que está aberto com você, de todas as suas equipes e do seu espaço pessoal.",
@@ -40,7 +40,10 @@
     "tuEspacio": "Seu espaço: só você vê",
     "personalAyuda": "Suas pendências próprias, sem equipe: só você as vê. Com o espaço pessoal, a linha rápida desta tela salva ali.",
     "crearPersonal": "Criar meu espaço pessoal",
-    "rapidaPersonal": "vai para o seu espaço pessoal"
+    "rapidaPersonal": "vai para o seu espaço pessoal",
+    "correoPlaceholder": "email@xertica.com",
+    "agregarCorreo": "Adicionar outro e-mail",
+    "quitarCorreo": "Remover"
   },
   "nav": {
     "tablero": "Quadro",
@@ -108,7 +111,8 @@
     "faltaArchivo": "Falta o arquivo.",
     "sinHojas": "O Excel não tem planilhas.",
     "noLegible": "Não foi possível ler o arquivo.",
-    "generico": "Não foi possível salvar."
+    "generico": "Não foi possível salvar.",
+    "tipoNoPermitido": "«{nombre}»: esse tipo de arquivo não pode ser enviado."
   },
   "tarea": {
     "descripcion": "Descrição, contexto, links…",
@@ -124,7 +128,6 @@
     "confirmarBorrar": "Excluir esta pendência com seus comentários e imagens? Não dá para desfazer.",
     "marcarAlta": "Marcar prioridade alta",
     "quitarAlta": "Prioridade alta (remover)",
-    "imagenes": "Imagens",
     "seguimiento": "Acompanhamento",
     "comentarios": "{n, plural, one {# comentário} other {# comentários}}",
     "ficha": "Ficha",
@@ -134,8 +137,12 @@
     "terminado": "Concluído",
     "historial": "Histórico",
     "enlaces": "Links",
-    "enlacesAyuda": "documentos, planilhas, tickets… um por linha",
-    "enlacesPlaceholder": "https://docs.google.com/…"
+    "enlacesAyuda": "documentos, planilhas, tickets…",
+    "enlacesPlaceholder": "https://…",
+    "adjuntos": "Anexos",
+    "enlaceNombre": "Nome (opcional)",
+    "agregarEnlace": "Adicionar link",
+    "quitarEnlace": "Remover link"
   },
   "historial": {
     "creada": "criou a pendência",
@@ -155,13 +162,15 @@
     "enlaces": "{n, plural, =0 {removeu os links} one {deixou # link} other {deixou # links}}"
   },
   "comentarios": {
-    "placeholder": "Comente o andamento… Cole ou arraste uma imagem aqui.",
-    "imagen": "Imagem",
+    "placeholder": "Comente o andamento… Cole ou arraste imagens ou arquivos aqui.",
     "quitar": "Remover",
     "comentar": "Comentar",
     "adjuntar": "Anexar",
     "enviando": "Enviando…",
-    "confirmarQuitarImagen": "Remover esta imagem?"
+    "confirmarQuitarImagen": "Remover esta imagem?",
+    "archivo": "Anexar",
+    "tiposAyuda": "imagens, PDF, Office, CSV, texto ou zip · até {mb} MB",
+    "confirmarQuitarArchivo": "Remover «{nombre}»?"
   },
   "miembros": {
     "equipo": "Equipe",
@@ -240,7 +249,7 @@
     "cumpleanos": "Aniversário",
     "opcional": "(opcional)",
     "contrasena": "Senha",
-    "contrasenaAyuda": "(mínimo de {n} caracteres)",
+    "contrasenaAyuda": "Mínimo de {n} caracteres.",
     "repetir": "Repetir a senha",
     "crear": "Criar conta",
     "creando": "Criando…",
@@ -268,7 +277,7 @@
     "contrasenaTitulo": "Senha",
     "actual": "Senha atual",
     "nueva": "Nova senha",
-    "contrasenaAyuda": "(mínimo de {n} caracteres)",
+    "contrasenaAyuda": "Mínimo de {n} caracteres.",
     "repetir": "Repetir a nova",
     "cambiar": "Mudar senha",
     "cambiada": "Senha alterada ✓",

@@ -11,7 +11,7 @@ import type { Evento } from '@/lib/modelo';
 import { Avatar } from '@/components/Avatar';
 import { EditorTarea } from '@/components/EditorTarea';
 import { FormularioComentario } from '@/components/FormularioComentario';
-import { ImagenAdjunta } from '@/components/ImagenAdjunta';
+import { AdjuntoVista } from '@/components/AdjuntoVista';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 
 export const dynamic = 'force-dynamic';
@@ -54,7 +54,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
   const eventos = eventosDe(tareaId);
   const hace = (ms: number) => haceCuanto(ms, undefined, idioma);
   // Los enlaces propios más los que aparezcan en la descripción, sin repetir.
-  const enlaces = [...new Set([...x.enlaces, ...extraerEnlaces(x.descripcion)])];
+  const enlaces = [...x.enlaces, ...extraerEnlaces(x.descripcion).filter((u) => !x.enlaces.some((e) => e.url === u)).map((url) => ({ url, nombre: '' }))];
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
@@ -67,8 +67,8 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
 
         {sueltos.length > 0 && (
           <section className="tarjeta p-5">
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">{t('imagenes')}</h2>
-            <div className="flex flex-wrap gap-3">{sueltos.map((a) => <ImagenAdjunta key={a.id} adjunto={a} />)}</div>
+            <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">{t('adjuntos')}</h2>
+            <div className="flex flex-wrap gap-3">{sueltos.map((a) => <AdjuntoVista key={a.id} adjunto={a} />)}</div>
           </section>
         )}
 
@@ -80,7 +80,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-gray-500"><span className="font-semibold text-gray-700">{nombre(c.autor)}</span> · {hace(c.creadoEn)}</p>
                 {c.texto && <TextoConEnlaces texto={c.texto} className="mt-1 whitespace-pre-wrap text-sm text-gray-800" />}
-                {c.adjuntos.length > 0 && <div className="mt-2 flex flex-wrap gap-3">{c.adjuntos.map((a) => <ImagenAdjunta key={a.id} adjunto={a} />)}</div>}
+                {c.adjuntos.length > 0 && <div className="mt-2 flex flex-wrap gap-3">{c.adjuntos.map((a) => <AdjuntoVista key={a.id} adjunto={a} />)}</div>}
               </div>
             </article>
           ))}
@@ -93,13 +93,13 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
           <section className="tarjeta p-4">
             <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('enlaces')}</h2>
             <ul className="flex flex-col gap-1.5">
-              {enlaces.map((u) => (
-                <li key={u}>
-                  <a href={u} target="_blank" rel="noopener noreferrer" className="group flex items-start gap-2 rounded-lg px-1.5 py-1 text-sm transition-colors hover:bg-acento/10">
+              {enlaces.map((e) => (
+                <li key={e.url}>
+                  <a href={e.url} target="_blank" rel="noopener noreferrer" className="group flex items-start gap-2 rounded-lg px-1.5 py-1 text-sm transition-colors hover:bg-acento/10">
                     <Link2 size={14} className="mt-0.5 shrink-0 text-gray-400 group-hover:text-acento" />
                     <span className="min-w-0">
-                      <span className="block font-medium text-gray-800 group-hover:text-acento">{etiquetaEnlace(u)}</span>
-                      <span className="block truncate text-[11px] text-gray-400">{u.replace(/^https?:\/\//, '')}</span>
+                      <span className="block font-medium text-gray-800 group-hover:text-acento">{e.nombre || etiquetaEnlace(e.url)}</span>
+                      <span className="block truncate text-[11px] text-gray-400">{e.url.replace(/^https?:\/\//, '')}</span>
                     </span>
                   </a>
                 </li>

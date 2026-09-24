@@ -64,11 +64,11 @@ export function SelectorEtapa({ etapas, etapaId, tareaId, name, tam = 'sm' }: {
         aria-haspopup="listbox"
         aria-expanded={abierto}
         aria-label={t('etapa')}
-        className={`inline-flex max-w-full items-center gap-1.5 rounded-lg border border-gray-200 bg-white font-medium text-gray-700 outline-none transition-colors hover:border-acento/60 focus-visible:border-acento focus-visible:ring-2 focus-visible:ring-acento/20 disabled:opacity-50 ${chico ? 'px-2 py-0.5 text-[11px]' : 'campo justify-between'}`}
+        className={`inline-flex max-w-full items-center gap-1.5 rounded-lg border border-gray-200 bg-white font-medium text-gray-700 outline-none transition-colors hover:border-acento/60 focus-visible:border-acento focus-visible:ring-2 focus-visible:ring-acento/20 disabled:opacity-50 ${chico ? 'px-2 py-0.5 text-[11px]' : 'campo'}`}
       >
         <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${color}`} />
         <span className="truncate">{actual?.nombre}</span>
-        <ChevronDown size={chico ? 12 : 14} className={`shrink-0 text-gray-400 transition-transform ${abierto ? 'rotate-180' : ''}`} />
+        <ChevronDown size={chico ? 12 : 14} className={`ml-auto shrink-0 text-gray-400 transition-transform ${abierto ? 'rotate-180' : ''}`} />
       </button>
 
       <Flotante abierto={abierto} ancla={ancla} lado="abajo" alinear={chico ? 'derecha' : 'izquierda'} alto={etapas.length * 34 + 12} onCerrar={cerrar} rol="listbox" className="min-w-40">

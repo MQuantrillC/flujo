@@ -18,6 +18,9 @@ export interface Etapa { id: string; equipoId: string; nombre: string; posicion:
 
 export type Prioridad = 'normal' | 'alta';
 
+/** Un enlace de la tarea; el nombre es opcional (sin él se muestra el servicio o el dominio). */
+export interface Enlace { url: string; nombre: string }
+
 export interface Tarea {
   id: string;
   equipoId: string;
@@ -32,7 +35,7 @@ export interface Tarea {
   terminadoEn: number | null;
   asignados: string[];
   etiquetas: string[];
-  enlaces: string[];
+  enlaces: Enlace[];
   comentarios: number;
   adjuntos: number;
 }

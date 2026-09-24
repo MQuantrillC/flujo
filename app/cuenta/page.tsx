@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { usuarioActual } from '@/lib/auth';
-import { salir } from '@/lib/acciones';
 import { Ajustes } from '@/components/Ajustes';
 import { Avatar } from '@/components/Avatar';
+import { BotonSalir } from '@/components/BotonSalir';
 import { FormularioContrasena, FormularioPerfil } from '@/components/FormulariosCuenta';
 import { Marca } from '@/components/Marca';
 
@@ -20,7 +20,7 @@ export default async function Cuenta() {
         <Link href="/" className="flex items-center"><Marca alto={30} /></Link>
         <div className="flex items-center gap-3 text-sm text-gray-600">
           <Ajustes />
-          <form action={salir}><button className="text-gray-400 hover:text-gray-700">{tc('salir')}</button></form>
+          <BotonSalir />
         </div>
       </header>
       <Link href="/" className="mb-4 flex w-fit items-center gap-1 text-sm text-gray-500 hover:text-gray-800"><ArrowLeft size={14} /> {tc('volverInicio')}</Link>

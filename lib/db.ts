@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS etiquetas (
 CREATE TABLE IF NOT EXISTS enlaces (
   tarea_id TEXT NOT NULL REFERENCES tareas(id) ON DELETE CASCADE,
   url TEXT NOT NULL,
+  nombre TEXT NOT NULL DEFAULT '',
   posicion INTEGER NOT NULL,
   PRIMARY KEY (tarea_id, url)
 );
@@ -113,6 +114,7 @@ const COLUMNAS_NUEVAS: [tabla: string, columna: string, definicion: string][] = 
   ['usuarios', 'cumpleanos', 'TEXT'],
   ['usuarios', 'hash', 'TEXT'],
   ['equipos', 'personal', 'INTEGER NOT NULL DEFAULT 0'],
+  ['enlaces', 'nombre', "TEXT NOT NULL DEFAULT ''"],
 ];
 
 function migrar(db: Database.Database): void {

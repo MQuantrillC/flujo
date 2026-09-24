@@ -11,7 +11,7 @@ import path from 'path';
 import { ADJUNTOS_DIR, db } from './db';
 import {
   nombreDesdeCorreo,
-  type Adjunto, type Comentario, type Equipo, type Etapa, type Evento, type Prioridad, type Tarea, type TipoEvento, type Usuario,
+  type Adjunto, type Comentario, type Enlace, type Equipo, type Etapa, type Evento, type Prioridad, type Tarea, type TipoEvento, type Usuario,
 } from './modelo';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -230,7 +230,7 @@ function tareasDeFilas(filas: any[]): Tarea[] {
   const marcas = ids.map(() => '?').join(',');
   const asig = db.prepare(`SELECT tarea_id, email FROM asignados WHERE tarea_id IN (${marcas})`).all(...ids) as any[];
   const etq = db.prepare(`SELECT tarea_id, etiqueta FROM etiquetas WHERE tarea_id IN (${marcas}) ORDER BY etiqueta`).all(...ids) as any[];
-  const enl = db.prepare(`SELECT tarea_id, url FROM enlaces WHERE tarea_id IN (${marcas}) ORDER BY posicion`).all(...ids) as any[];
+  const enl = db.prepare(`SELECT tarea_id, url, nombre FROM enlaces WHERE tarea_id IN (${marcas}) ORDER BY posicion`).all(...ids) as any[];
   const com = db.prepare(`SELECT tarea_id, COUNT(*) n FROM comentarios WHERE tarea_id IN (${marcas}) GROUP BY tarea_id`).all(...ids) as any[];
   const adj = db.prepare(`SELECT tarea_id, COUNT(*) n FROM adjuntos WHERE tarea_id IN (${marcas}) GROUP BY tarea_id`).all(...ids) as any[];
   return filas.map((r) => ({
@@ -239,7 +239,7 @@ function tareasDeFilas(filas: any[]): Tarea[] {
     creadoEn: r.creado_en, actualizadoEn: r.actualizado_en, terminadoEn: r.terminado_en,
     asignados: asig.filter((a) => a.tarea_id === r.id).map((a) => a.email),
     etiquetas: etq.filter((a) => a.tarea_id === r.id).map((a) => a.etiqueta),
-    enlaces: enl.filter((a) => a.tarea_id === r.id).map((a) => a.url),
+    enlaces: enl.filter((a) => a.tarea_id === r.id).map((a) => ({ url: a.url, nombre: a.nombre ?? '' })),
     comentarios: com.find((c) => c.tarea_id === r.id)?.n ?? 0,
     adjuntos: adj.find((c) => c.tarea_id === r.id)?.n ?? 0,
   }));
@@ -276,13 +276,22 @@ function registrarEvento(tareaId: string, autor: string, tipo: TipoEvento, detal
   db.prepare('INSERT INTO eventos (id, tarea_id, autor, tipo, detalle, creado_en) VALUES (?, ?, ?, ?, ?, ?)').run(id(), tareaId, autor, tipo, JSON.stringify(detalle), ahora());
 }
 
-function guardarEnlaces(tid: string, enlaces: string[]): void {
+function guardarEnlaces(tid: string, enlaces: Enlace[]): void {
   db.prepare('DELETE FROM enlaces WHERE tarea_id = ?').run(tid);
-  [...new Set(enlaces.map((u) => u.trim()).filter(Boolean))].forEach((u, i) => db.prepare('INSERT INTO enlaces (tarea_id, url, posicion) VALUES (?, ?, ?)').run(tid, u, i));
+  const vistos = new Set<string>();
+  let i = 0;
+  for (const e of enlaces) {
+    const url = e.url.trim();
+    if (!url || vistos.has(url)) continue;
+    vistos.add(url);
+    db.prepare('INSERT INTO enlaces (tarea_id, url, nombre, posicion) VALUES (?, ?, ?, ?)').run(tid, url, e.nombre.trim(), i++);
+  }
 }
 
+const mismosEnlaces = (a: Enlace[], b: Enlace[]) => a.length === b.length && a.every((x, i) => x.url === b[i]?.url && x.nombre === b[i]?.nombre);
+
 export interface NuevaTarea {
-  equipoId: string; titulo: string; descripcion?: string; asignados: string[]; etiquetas: string[]; enlaces?: string[];
+  equipoId: string; titulo: string; descripcion?: string; asignados: string[]; etiquetas: string[]; enlaces?: Enlace[];
   fechaLimite: string | null; prioridad: Prioridad; creadoPor: string;
   /** Etapa inicial; sin ella, la primera que no sea «hecho». */
   etapaId?: string;
@@ -307,7 +316,7 @@ export function crearTarea(n: NuevaTarea): Tarea {
 
 export interface CambiosTarea {
   titulo?: string; descripcion?: string; fechaLimite?: string | null; prioridad?: Prioridad;
-  etapaId?: string; asignados?: string[]; etiquetas?: string[]; enlaces?: string[];
+  etapaId?: string; asignados?: string[]; etiquetas?: string[]; enlaces?: Enlace[];
 }
 
 /** Aplica sólo lo que cambió y deja un evento por cada cambio. */
@@ -350,7 +359,7 @@ export function actualizarTarea(tid: string, autor: string, c: CambiosTarea): Ta
       for (const e of new Set(c.etiquetas)) db.prepare('INSERT INTO etiquetas (tarea_id, etiqueta) VALUES (?, ?)').run(tid, e);
       registrarEvento(tid, autor, 'etiquetas', { de: antes.etiquetas, a: c.etiquetas });
     }
-    if (c.enlaces !== undefined && !mismos(c.enlaces, antes.enlaces)) {
+    if (c.enlaces !== undefined && !mismosEnlaces(c.enlaces, antes.enlaces)) {
       guardarEnlaces(tid, c.enlaces);
       registrarEvento(tid, autor, 'enlaces', { de: antes.enlaces, a: c.enlaces });
     }

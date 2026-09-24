@@ -1,15 +1,16 @@
 import Link from 'next/link';
 import { ChevronRight, Plus, UserRound, Users } from 'lucide-react';
-import { getLocale, getTranslations } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import { usuarioActual } from '@/lib/auth';
 import { equiposDe, etapasDeEquipos, miembrosDe, tareasAbiertasDe, tareasDe } from '@/lib/repositorio';
-import { crearEquipoAccion, crearEspacioPersonalAccion, salir } from '@/lib/acciones';
+import { crearEquipoAccion, crearEspacioPersonalAccion } from '@/lib/acciones';
 import { agruparPorPlazo, etiquetasEnUso } from '@/lib/vistas';
 import { dia } from '@/lib/fechas';
-import { idiomaValido } from '@/lib/idioma';
 import { Avatar } from '@/components/Avatar';
 import { Ajustes } from '@/components/Ajustes';
 import { BarraRapida } from '@/components/BarraRapida';
+import { BotonSalir } from '@/components/BotonSalir';
+import { Filas } from '@/components/Filas';
 import { GrupoAnimado } from '@/components/Animado';
 import { Marca } from '@/components/Marca';
 import { TarjetaTarea } from '@/components/TarjetaTarea';
@@ -18,8 +19,8 @@ import BlurText from '@/components/reactbits/BlurText';
 export const dynamic = 'force-dynamic';
 
 /**
- * El inicio: todo lo tuyo de todos los equipos, agrupado por plazo, y la línea
- * rápida apuntando a tu espacio personal. Debajo, tus equipos.
+ * El inicio: la línea rápida (a tu espacio personal), tus equipos a mano, y
+ * debajo todo lo tuyo de todos los equipos agrupado por plazo.
  */
 export default async function Inicio({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const u = await usuarioActual();
@@ -27,7 +28,6 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
   const t = await getTranslations('inicio');
   const tt = await getTranslations('tablero');
   const tc = await getTranslations('comun');
-  idiomaValido(await getLocale());
   const equipos = equiposDe(u.email);
   const personal = equipos.find((e) => e.personal && e.creadoPor === u.email) ?? null;
   const hoy = dia();
@@ -44,13 +44,13 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:py-8">
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1><Marca alto={30} /></h1>
-        <div className="flex items-center gap-3 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
           <Ajustes />
           <Link href="/cuenta" className="flex items-center gap-2 rounded-md px-1 py-0.5 hover:bg-gray-100" aria-label={tc('cuenta')}>
             <Avatar nombre={u.nombre} sinTooltip />
             <span className="hidden sm:inline">{u.nombre}</span>
           </Link>
-          <form action={salir}><button className="text-gray-400 hover:text-gray-700">{tc('salir')}</button></form>
+          <BotonSalir />
         </div>
       </header>
 
@@ -64,25 +64,6 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
             <form action={crearEspacioPersonalAccion}><button className="boton">{t('crearPersonal')}</button></form>
           </section>
         )}
-
-        <section>
-          <h2 className="mb-1 text-xs font-bold uppercase tracking-wider text-gray-400">{t('loMio')} <span className="font-normal">· {abiertas.length}</span></h2>
-          <p className="mb-3 text-sm text-gray-500">{t('loMioAyuda')}</p>
-          {grupos.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">{t('sinPendientes')}</p>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {grupos.map((g) => (
-                <section key={g.clave}>
-                  <h3 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.clave === 'vencidas' ? 'text-red-600' : 'text-gray-500'}`}>{tt(`grupos.${g.clave}`)} · {g.tareas.length}</h3>
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {g.tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapasPor[x.equipoId] ?? []} hoy={hoy} equipoNombre={nombreEquipo[x.equipoId]} />)}
-                  </div>
-                </section>
-              ))}
-            </div>
-          )}
-        </section>
 
         {equipos.length > 0 && (
           <section>
@@ -107,6 +88,25 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
           </section>
         )}
 
+        <section>
+          <h2 className="mb-1 text-xs font-bold uppercase tracking-wider text-gray-400">{t('loMio')} <span className="font-normal">· {abiertas.length}</span></h2>
+          <p className="mb-3 text-sm text-gray-500">{t('loMioAyuda')}</p>
+          {grupos.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">{t('sinPendientes')}</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {grupos.map((g) => (
+                <section key={g.clave}>
+                  <h3 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.clave === 'vencidas' ? 'text-red-600' : 'text-gray-500'}`}>{tt(`grupos.${g.clave}`)} · {g.tareas.length}</h3>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {g.tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapasPor[x.equipoId] ?? []} hoy={hoy} equipoNombre={nombreEquipo[x.equipoId]} />)}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </section>
+
         <section className="tarjeta p-5">
           <h2 className="mb-1 flex items-center gap-2 font-semibold text-gray-800"><Plus size={16} className="text-acento" /> <BlurText text={equipos.length ? t('crearOtro') : t('crearPrimero')} delay={60} /></h2>
           <p className="mb-4 text-sm text-gray-500">{t('queEs')}</p>
@@ -116,10 +116,10 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
               <input name="nombre" required className="campo" placeholder={t('ejemploNombre')} autoComplete="off" />
               {error === 'nombre' && <span className="mt-1 block text-xs text-red-600">{t('ponleNombre')}</span>}
             </label>
-            <label className="text-sm">
+            <div className="text-sm">
               <span className="mb-1 block font-medium text-gray-700">{t('correos')} <span className="font-normal text-gray-400">{t('correosAyuda')}</span></span>
-              <textarea name="correos" rows={3} className="campo" placeholder="andrea.velarde@xertica.com, harold.suarez@xertica.com" />
-            </label>
+              <Filas columnas={[{ name: 'correos', type: 'email', placeholder: t('correoPlaceholder'), className: 'max-w-md' }]} inicial={[]} agregar={t('agregarCorreo')} quitar={t('quitarCorreo')} />
+            </div>
             <div><button className="boton">{t('crearEquipo')}</button></div>
           </form>
         </section>

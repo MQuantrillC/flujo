@@ -38,10 +38,10 @@ export async function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = tru
       )}
       {tarea.enlaces.length > 0 && (
         <div className="relative z-10 mt-1.5 flex flex-wrap items-center gap-1">
-          {tarea.enlaces.slice(0, MAX_ENLACES).map((u) => (
-            <Tooltip key={u} texto={u}>
-              <a href={u} target="_blank" rel="noopener noreferrer" draggable={false} className="inline-flex max-w-40 items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600 transition-colors hover:bg-acento/10 hover:text-acento">
-                <Link2 size={10} className="shrink-0" /> <span className="truncate">{etiquetaEnlace(u)}</span>
+          {tarea.enlaces.slice(0, MAX_ENLACES).map((e) => (
+            <Tooltip key={e.url} texto={e.url}>
+              <a href={e.url} target="_blank" rel="noopener noreferrer" draggable={false} className="inline-flex max-w-40 items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold text-gray-600 transition-colors hover:bg-acento/10 hover:text-acento">
+                <Link2 size={10} className="shrink-0" /> <span className="truncate">{e.nombre || etiquetaEnlace(e.url)}</span>
               </a>
             </Tooltip>
           ))}

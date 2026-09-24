@@ -4,8 +4,8 @@ import { UserRound } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { equipo } from '@/lib/repositorio';
-import { salir } from '@/lib/acciones';
 import { Avatar } from '@/components/Avatar';
+import { BotonSalir } from '@/components/BotonSalir';
 import { NavEquipo } from '@/components/NavEquipo';
 import { Ajustes } from '@/components/Ajustes';
 import { Marca } from '@/components/Marca';
@@ -32,7 +32,7 @@ export default async function LayoutEquipo({ children, params }: { children: Rea
               <Avatar nombre={u.nombre} tam="sm" sinTooltip />
               <span className="hidden sm:inline">{u.nombre}</span>
             </Link>
-            <form action={salir}><button className="text-gray-400 hover:text-gray-700">{tc('salir')}</button></form>
+            <BotonSalir />
           </div>
           <div className="basis-full">
             <NavEquipo equipoId={equipoId} />

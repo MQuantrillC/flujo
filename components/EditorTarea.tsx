@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Check, Flag, Trash2 } from 'lucide-react';
 import { actualizarTareaAccion, eliminarTareaAccion, type ResultadoGuardar } from '@/lib/acciones';
 import type { Etapa, Tarea, Usuario } from '@/lib/modelo';
+import { Filas } from './Filas';
 import { FormConfirmar } from './FormConfirmar';
 import { SelectorEtapa } from './SelectorEtapa';
 import { Tooltip } from './Tooltip';
@@ -42,10 +43,18 @@ export function EditorTarea({ tarea, etapas, miembros }: { tarea: Tarea; etapas:
 
       <textarea name="descripcion" defaultValue={tarea.descripcion} rows={4} className="campo" placeholder={t('descripcion')} />
 
-      <label className="text-sm">
+      <div className="text-sm">
         <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">{t('enlaces')} <span className="font-normal normal-case tracking-normal">· {t('enlacesAyuda')}</span></span>
-        <textarea name="enlaces" defaultValue={tarea.enlaces.join('\n')} rows={Math.min(4, Math.max(2, tarea.enlaces.length + 1))} className="campo font-mono text-xs" placeholder={t('enlacesPlaceholder')} />
-      </label>
+        <Filas
+          columnas={[
+            { name: 'enlaceUrl', placeholder: t('enlacesPlaceholder'), className: 'flex-[3] font-mono text-xs' },
+            { name: 'enlaceNombre', placeholder: t('enlaceNombre'), className: 'flex-[2]' },
+          ]}
+          inicial={tarea.enlaces.map((e) => [e.url, e.nombre])}
+          agregar={t('agregarEnlace')}
+          quitar={t('quitarEnlace')}
+        />
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="text-sm">

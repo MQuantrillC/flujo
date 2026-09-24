@@ -53,9 +53,12 @@ export function FormularioRegistro() {
       </div>
       <Campo etiqueta={t('correo')}><input {...campo('email')} type="email" required autoComplete="email" className="campo" placeholder="nombre.apellido@xertica.com" /></Campo>
       <Campo etiqueta={t('cumpleanos')} ayuda={t('opcional')}><input {...campo('cumpleanos')} type="date" autoComplete="bday" className="campo" /></Campo>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Campo etiqueta={t('contrasena')} ayuda={t('contrasenaAyuda', { n: LARGO_MINIMO })}><input name="contrasena" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>
-        <Campo etiqueta={t('repetir')}><input name="repetir" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>
+      <div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Campo etiqueta={t('contrasena')}><input name="contrasena" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>
+          <Campo etiqueta={t('repetir')}><input name="repetir" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>
+        </div>
+        <p className="mt-1 text-xs text-gray-400">{t('contrasenaAyuda', { n: LARGO_MINIMO })}</p>
       </div>
       {!estado.ok && estado.error && <p className="text-xs text-red-600">{t(`errores.${estado.error}`)}</p>}
       <button className="boton justify-center" disabled={pendiente}><UserPlus size={14} /> {pendiente ? t('creando') : t('crear')}</button>

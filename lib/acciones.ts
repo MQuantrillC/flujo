@@ -11,7 +11,7 @@ import { revalidatePath } from 'next/cache';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { COOKIE_SESION, DURACION_SESION, esProduccion, miembroActual, tokenActual, usuarioActual } from './auth';
 import { cifrar, coincide, LARGO_MINIMO } from './contrasenas';
-import { extraerEnlaces } from './enlaces';
+import { completarEnlace, extraerEnlaces } from './enlaces';
 import { interpretar } from './parseRapido';
 import { leerImportacion, type Borrador } from './importar';
 import { idiomaValido } from './idioma';
@@ -20,6 +20,8 @@ import { CORREO_VALIDO, etapasIniciales, type Prioridad } from './modelo';
 
 const texto = (fd: FormData, k: string) => String(fd.get(k) ?? '').trim();
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
+/** Direcciones sueltas → enlaces sin nombre. */
+const sinNombre = (urls: string[]) => urls.map((url) => ({ url, nombre: '' }));
 
 /** `error` es una clave de messages/*.json que la pantalla traduce. */
 export interface Resultado { ok: boolean; error?: string }
@@ -90,7 +92,8 @@ export async function crearEquipoAccion(fd: FormData): Promise<void> {
   const u = await usuarioActual();
   const nombre = texto(fd, 'nombre');
   if (!nombre) redirect('/?error=nombre');
-  const correos = texto(fd, 'correos').split(/[\s,;]+/).filter(Boolean);
+  // Un campo por correo (las filas del formulario), pero también vale pegar varios en uno.
+  const correos = fd.getAll('correos').flatMap((c) => String(c).split(/[\s,;]+/)).map((c) => c.trim()).filter(Boolean);
   const e = repo.crearEquipo(nombre, u.email, correos, etapasIniciales(idiomaValido(await getLocale())));
   redirect(`/e/${e.id}`);
 }
@@ -176,7 +179,7 @@ export async function crearTareaRapida(equipoId: string, linea: string): Promise
   const r = interpretar(linea, miembros);
   if (!r.titulo) return { ok: false, error: 'faltaTitulo' };
   const t = repo.crearTarea({
-    equipoId, titulo: r.titulo, asignados: r.asignados, etiquetas: r.etiquetas, enlaces: r.enlaces,
+    equipoId, titulo: r.titulo, asignados: r.asignados, etiquetas: r.etiquetas, enlaces: sinNombre(r.enlaces),
     fechaLimite: r.fechaLimite, prioridad: r.prioridad, creadoPor: u.email,
   });
   revalidatePath(`/e/${equipoId}`, 'layout');
@@ -205,7 +208,7 @@ export async function importarPendientes(equipoId: string, texto: string): Promi
     if (!b.valido) continue;
     repo.crearTarea({
       equipoId, titulo: b.titulo, descripcion: b.descripcion, asignados: b.asignados, etiquetas: b.etiquetas,
-      enlaces: extraerEnlaces(b.descripcion),
+      enlaces: sinNombre(extraerEnlaces(b.descripcion)),
       fechaLimite: b.fechaLimite, prioridad: b.prioridad, creadoPor: u.email,
       etapaId: b.etapa ? etapas.find((e) => e.nombre === b.etapa)?.id : undefined,
     });
@@ -216,6 +219,13 @@ export async function importarPendientes(equipoId: string, texto: string): Promi
 }
 
 export type ResultadoGuardar = Resultado;
+
+/** Las filas [enlace][nombre] del editor: se completan («drive.google.com/…» → https://) y se saltan las vacías. */
+function leerEnlaces(fd: FormData) {
+  const urls = fd.getAll('enlaceUrl').map(String);
+  const nombres = fd.getAll('enlaceNombre').map(String);
+  return urls.map((u, i) => ({ url: completarEnlace(u), nombre: (nombres[i] ?? '').trim() })).filter((e) => e.url);
+}
 
 export async function actualizarTareaAccion(fd: FormData): Promise<ResultadoGuardar> {
   const tid = texto(fd, 'tareaId');
@@ -233,8 +243,7 @@ export async function actualizarTareaAccion(fd: FormData): Promise<ResultadoGuar
     etapaId: texto(fd, 'etapaId') || undefined,
     asignados: fd.getAll('asignados').map(String),
     etiquetas: [...new Set(texto(fd, 'etiquetas').split(/[\s,;#]+/).map((x) => x.toLowerCase()).filter(Boolean))],
-    // Vale pegar las direcciones como sea: una por línea, separadas por espacios o dentro de una frase.
-    enlaces: extraerEnlaces(texto(fd, 'enlaces')),
+    enlaces: leerEnlaces(fd),
   });
   revalidatePath(`/e/${t.equipoId}`, 'layout');
   revalidatePath('/');

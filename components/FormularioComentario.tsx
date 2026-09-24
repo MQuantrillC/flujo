@@ -3,14 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ImagePlus, Send, X } from 'lucide-react';
-
-const MAX_MB = 10;
+import { FileText, Paperclip, Send, X } from 'lucide-react';
+import { ACEPTA_ADJUNTOS, extensionPermitida, MAX_MB_ADJUNTO, tamanoLegible } from '@/lib/adjuntos';
 
 /**
- * Comentar y adjuntar imágenes. Las imágenes entran de tres formas: el botón,
- * pegándolas (Ctrl+V) o arrastrándolas al cuadro. Se puede mandar sólo texto,
- * sólo imágenes, o ambos.
+ * Comentar y adjuntar archivos (imágenes, PDF, Office, CSV…). Entran de tres
+ * formas: el botón, pegándolos (Ctrl+V) o arrastrándolos al cuadro. Se puede
+ * mandar sólo texto, sólo archivos, o ambos.
  */
 export function FormularioComentario({ tareaId }: { tareaId: string }) {
   const t = useTranslations('comentarios');
@@ -23,16 +22,19 @@ export function FormularioComentario({ tareaId }: { tareaId: string }) {
   const entrada = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const vistas = archivos.map((a) => URL.createObjectURL(a));
-  useEffect(() => () => vistas.forEach((v) => URL.revokeObjectURL(v)), [vistas]);
+  const vistas = archivos.map((a) => (a.type.startsWith('image/') ? URL.createObjectURL(a) : null));
+  useEffect(() => () => vistas.forEach((v) => { if (v) URL.revokeObjectURL(v); }), [vistas]);
 
   const agregar = (lista: FileList | File[] | null) => {
     if (!lista) return;
     const nuevos: File[] = [];
     for (const f of Array.from(lista)) {
-      if (!f.type.startsWith('image/')) { setError(te('noImagen', { nombre: f.name })); continue; }
-      if (f.size > MAX_MB * 1024 * 1024) { setError(te('muyGrande', { nombre: f.name, mb: MAX_MB })); continue; }
-      nuevos.push(f);
+      // Lo pegado desde el portapapeles llega sin nombre: se le pone uno según el tipo.
+      const nombre = f.name || (f.type.startsWith('image/') ? `imagen.${f.type.split('/')[1] || 'png'}` : 'archivo');
+      const archivo = f.name ? f : new File([f], nombre, { type: f.type });
+      if (!extensionPermitida(archivo.name)) { setError(te('tipoNoPermitido', { nombre: archivo.name })); continue; }
+      if (archivo.size > MAX_MB_ADJUNTO * 1024 * 1024) { setError(te('muyGrande', { nombre: archivo.name, mb: MAX_MB_ADJUNTO })); continue; }
+      nuevos.push(archivo);
     }
     if (nuevos.length) { setError(null); setArchivos((a) => [...a, ...nuevos]); }
   };
@@ -42,12 +44,12 @@ export function FormularioComentario({ tareaId }: { tareaId: string }) {
     setEnviando(true); setError(null);
     const fd = new FormData();
     fd.set('texto', texto);
-    archivos.forEach((a) => fd.append('archivos', a, a.name || 'imagen.png'));
+    archivos.forEach((a) => fd.append('archivos', a, a.name));
     try {
       const r = await fetch(`/api/tareas/${tareaId}/comentarios`, { method: 'POST', body: fd });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
-        throw new Error(te(j?.error ?? 'generico', { nombre: j?.nombre ?? '', mb: MAX_MB }));
+        throw new Error(te(j?.error ?? 'generico', { nombre: j?.nombre ?? '', mb: MAX_MB_ADJUNTO }));
       }
       setTexto(''); setArchivos([]); router.refresh();
     } catch (e) {
@@ -77,16 +79,24 @@ export function FormularioComentario({ tareaId }: { tareaId: string }) {
         <div className="mt-2 flex flex-wrap gap-2">
           {archivos.map((a, i) => (
             <span key={i} className="relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={vistas[i]} alt={a.name} className="h-20 w-20 rounded-lg border border-gray-200 object-cover" />
+              {vistas[i] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={vistas[i]} alt={a.name} className="h-20 w-20 rounded-lg border border-gray-200 object-cover" />
+              ) : (
+                <span className="flex max-w-56 items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-2 text-xs">
+                  <FileText size={16} className="shrink-0 text-gray-500" />
+                  <span className="min-w-0"><span className="block truncate font-medium text-gray-800">{a.name}</span><span className="text-gray-400">{tamanoLegible(a.size)}</span></span>
+                </span>
+              )}
               <button type="button" onClick={() => setArchivos((l) => l.filter((_, k) => k !== i))} className="absolute -right-1.5 -top-1.5 rounded-full bg-black/70 p-0.5 text-white" aria-label={t('quitar')}><X size={12} /></button>
             </span>
           ))}
         </div>
       )}
-      <div className="mt-2 flex items-center gap-2">
-        <input ref={entrada} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { agregar(e.target.files); e.target.value = ''; }} />
-        <button type="button" onClick={() => entrada.current?.click()} className="boton-suave"><ImagePlus size={14} /> {t('imagen')}</button>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <input ref={entrada} type="file" accept={ACEPTA_ADJUNTOS} multiple className="hidden" onChange={(e) => { agregar(e.target.files); e.target.value = ''; }} />
+        <button type="button" onClick={() => entrada.current?.click()} className="boton-suave"><Paperclip size={14} /> {t('archivo')}</button>
+        <span className="text-[11px] text-gray-400">{t('tiposAyuda', { mb: MAX_MB_ADJUNTO })}</span>
         {error && <span className="text-xs text-red-600">{error}</span>}
         <span className="ml-auto text-[11px] text-gray-400">Ctrl+Enter</span>
         <button type="button" onClick={() => void enviar()} disabled={enviando || (!texto.trim() && archivos.length === 0)} className="boton">

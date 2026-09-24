@@ -15,6 +15,15 @@ export function normalizarEnlace(url: string): string {
   return u;
 }
 
+/** Lo que alguien escribe en un campo de enlace: «drive.google.com/x» también vale, se le pone https://. */
+export function completarEnlace(texto: string): string {
+  const u = texto.trim();
+  if (!u) return '';
+  if (/^https?:\/\//i.test(u)) return normalizarEnlace(u);
+  if (/^[\w.-]+\.[a-z]{2,}(?:[/?#:]|$)/i.test(u)) return normalizarEnlace('https://' + u);
+  return '';
+}
+
 export function extraerEnlaces(texto: string): string[] {
   const lista: string[] = [];
   for (const m of texto.matchAll(RE_ENLACE)) {

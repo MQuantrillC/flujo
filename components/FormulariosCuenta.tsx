@@ -48,9 +48,12 @@ export function FormularioContrasena() {
   return (
     <form action={enviar} className="flex flex-col gap-3">
       <Campo etiqueta={t('actual')}><input name="actual" type="password" required autoComplete="current-password" className="campo" /></Campo>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Campo etiqueta={t('nueva')} ayuda={t('contrasenaAyuda', { n: LARGO_MINIMO })}><input name="nueva" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>
-        <Campo etiqueta={t('repetir')}><input name="repetir" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>
+      <div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Campo etiqueta={t('nueva')}><input name="nueva" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>
+          <Campo etiqueta={t('repetir')}><input name="repetir" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>
+        </div>
+        <p className="mt-1 text-xs text-gray-400">{t('contrasenaAyuda', { n: LARGO_MINIMO })}</p>
       </div>
       <div className="flex items-center gap-3">
         <button className="boton-suave" disabled={pendiente}><KeyRound size={14} /> {t('cambiar')}</button>
