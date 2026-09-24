@@ -161,6 +161,23 @@ export function quitarMiembro(eid: string, email: string): void {
   db.prepare('DELETE FROM miembros WHERE equipo_id = ? AND email = ?').run(eid, email);
 }
 
+/** Quién puede borrar el equipo: quien lo creó; si ya no está, cualquier miembro. */
+export function puedeEliminarEquipo(eid: string, email: string): boolean {
+  const e = equipo(eid);
+  return !!e && (e.creadoPor === email || !esMiembro(eid, e.creadoPor));
+}
+
+/** Borra el equipo con todo lo suyo: etapas, miembros, pendientes, comentarios y archivos. Sin vuelta atrás. */
+export function eliminarEquipo(eid: string): void {
+  const archivos = db.prepare('SELECT a.ruta FROM adjuntos a JOIN tareas t ON t.id = a.tarea_id WHERE t.equipo_id = ?').all(eid) as any[];
+  db.transaction(() => {
+    // Primero los pendientes: apuntan a las etapas sin cascada.
+    db.prepare('DELETE FROM tareas WHERE equipo_id = ?').run(eid);
+    db.prepare('DELETE FROM equipos WHERE id = ?').run(eid);
+  })();
+  for (const a of archivos) fs.rmSync(path.join(ADJUNTOS_DIR, a.ruta), { force: true });
+}
+
 export function renombrarEquipo(eid: string, nombre: string): void {
   if (nombre.trim()) db.prepare('UPDATE equipos SET nombre = ? WHERE id = ?').run(nombre.trim(), eid);
 }

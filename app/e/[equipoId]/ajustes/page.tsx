@@ -2,11 +2,12 @@ import { Check, Download, Trash2, UserPlus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { correoConfigurado } from '@/lib/correo';
-import { equipo, equiposDe, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
+import { equipo, equiposDe, etapasDe, miembrosDe, puedeEliminarEquipo, tareasDe, usuario } from '@/lib/repositorio';
 import { agregarMiembroAccion, quitarMiembroAccion, renombrarEquipoAccion } from '@/lib/acciones';
 import { Avatar } from '@/components/Avatar';
 import { CopiarInvitacion } from '@/components/CopiarInvitacion';
 import { EditorEtapas } from '@/components/EditorEtapas';
+import { EliminarEquipo } from '@/components/EliminarEquipo';
 import { FormConfirmar } from '@/components/FormConfirmar';
 import { PasarPendientes } from '@/components/PasarPendientes';
 import { Tooltip } from '@/components/Tooltip';
@@ -25,6 +26,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
   const miembros = miembrosDe(equipoId);
   const etapas = etapasDe(equipoId);
   const tareas = tareasDe(equipoId);
+  const puedeEliminar = puedeEliminarEquipo(equipoId, u.email);
   const enUso: Record<string, number> = {};
   for (const x of tareas) enUso[x.etapaId] = (enUso[x.etapaId] ?? 0) + 1;
 
@@ -112,6 +114,12 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
             etiquetas={[...new Set(tareas.flatMap((x) => x.etiquetas))].sort()}
             yo={u.email}
           />
+        </section>
+
+        <section className="tarjeta border-red-200 p-5">
+          <h2 className="mb-1 font-semibold text-red-700">{t('eliminarEquipo')}</h2>
+          <p className="mb-3 text-xs text-gray-500">{t('eliminarAyuda')}</p>
+          {puedeEliminar ? <EliminarEquipo equipoId={equipoId} nombre={e.nombre} /> : <p className="text-xs text-gray-500">{t('soloCreador', { nombre: usuario(e.creadoPor)?.nombre ?? e.creadoPor })}</p>}
         </section>
       </div>
     </div>

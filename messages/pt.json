@@ -224,7 +224,13 @@
     "copiado": "Copiado",
     "invitacionTexto": "Convidei você para a equipe {equipo} no Flujo: {enlace}",
     "invitarCorreo": "Vai receber um e-mail com o link.",
-    "invitarSinCorreo": "O Flujo não envia e-mails: copie o link de convite (o ícone ao lado de cada membro) e mande você mesmo."
+    "invitarSinCorreo": "O Flujo não envia e-mails: copie o link de convite (o ícone ao lado de cada membro) e mande você mesmo.",
+    "eliminarEquipo": "Excluir equipe",
+    "eliminarAyuda": "Suas pendências, comentários e arquivos são apagados para todos. Não dá para desfazer. Se quiser guardá-los, exporte antes; o que você copiou para outras equipes fica lá.",
+    "eliminarEscribe": "Para confirmar, escreva o nome da equipe:",
+    "eliminarBoton": "Excluir {equipo} para sempre",
+    "confirmarEliminarEquipo": "Excluir a equipe {equipo} com todas as pendências? Não dá para desfazer.",
+    "soloCreador": "Só quem criou a equipe ({nombre}) pode excluí-la."
   },
   "importar": {
     "titulo": "Importar pendências",

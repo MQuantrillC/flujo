@@ -224,7 +224,13 @@
     "copiado": "Copiado",
     "invitacionTexto": "Te invité al equipo {equipo} en Flujo: {enlace}",
     "invitarCorreo": "Le llegará un correo con el enlace.",
-    "invitarSinCorreo": "Flujo no manda correos: copia el enlace de invitación (el icono junto a cada miembro) y pásaselo."
+    "invitarSinCorreo": "Flujo no manda correos: copia el enlace de invitación (el icono junto a cada miembro) y pásaselo.",
+    "eliminarEquipo": "Eliminar equipo",
+    "eliminarAyuda": "Se borran para todos sus pendientes, comentarios y archivos. No se puede deshacer. Si quieres conservarlos, expórtalos antes; lo que copiaste a otros equipos se queda allí.",
+    "eliminarEscribe": "Para confirmar, escribe el nombre del equipo:",
+    "eliminarBoton": "Eliminar {equipo} para siempre",
+    "confirmarEliminarEquipo": "¿Eliminar el equipo {equipo} con todos sus pendientes? No se puede deshacer.",
+    "soloCreador": "Solo quien creó el equipo ({nombre}) puede eliminarlo."
   },
   "importar": {
     "titulo": "Importar pendientes",

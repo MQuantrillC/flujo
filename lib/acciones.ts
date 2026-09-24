@@ -150,6 +150,17 @@ export async function renombrarEquipoAccion(fd: FormData): Promise<void> {
   revalidatePath(`/e/${eid}`, 'layout');
 }
 
+export async function eliminarEquipoAccion(fd: FormData): Promise<void> {
+  const eid = texto(fd, 'equipoId');
+  const u = await miembroActual(eid);
+  const e = repo.equipo(eid)!;
+  if (!repo.puedeEliminarEquipo(eid, u.email)) redirect(`/e/${eid}/ajustes`);
+  if (texto(fd, 'confirmacion').toLowerCase() !== e.nombre.trim().toLowerCase()) redirect(`/e/${eid}/ajustes`);
+  repo.eliminarEquipo(eid);
+  revalidatePath('/', 'layout');
+  redirect('/');
+}
+
 export async function agregarMiembroAccion(fd: FormData): Promise<void> {
   const eid = texto(fd, 'equipoId');
   const u = await miembroActual(eid);

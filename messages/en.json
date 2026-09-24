@@ -224,7 +224,13 @@
     "copiado": "Copied",
     "invitacionTexto": "I invited you to the {equipo} team on Flujo: {enlace}",
     "invitarCorreo": "They will get an email with the link.",
-    "invitarSinCorreo": "Flujo does not send emails: copy the invitation link (the icon next to each member) and send it yourself."
+    "invitarSinCorreo": "Flujo does not send emails: copy the invitation link (the icon next to each member) and send it yourself.",
+    "eliminarEquipo": "Delete team",
+    "eliminarAyuda": "Its to-dos, comments and files are deleted for everyone. This cannot be undone. Export them first if you want to keep them; what you copied to other teams stays there.",
+    "eliminarEscribe": "To confirm, type the team name:",
+    "eliminarBoton": "Delete {equipo} forever",
+    "confirmarEliminarEquipo": "Delete the {equipo} team with all its to-dos? This cannot be undone.",
+    "soloCreador": "Only the person who created the team ({nombre}) can delete it."
   },
   "importar": {
     "titulo": "Import to-dos",
