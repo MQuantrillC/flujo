@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Flag, Link2, Sparkles } from 'lucide-react';
+import { nombresCortos } from '@/lib/nombres';
 import { interpretar, type MiembroParaParse } from '@/lib/parseRapido';
 import { fechaCorta } from '@/lib/fechas';
 import { etiquetaEnlace } from '@/lib/enlaces';
@@ -51,6 +52,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
 
   const lectura = useMemo(() => (texto.trim() ? interpretar(texto, miembros) : null), [texto, miembros]);
   const nombreDe = (email: string) => miembros.find((m) => m.email === email)?.nombre ?? email;
+  const cortos = useMemo(() => nombresCortos(miembros), [miembros]);
 
   // Los ejemplos: uno genérico y luego frases con la gente del equipo (o nombres inventados si son pocos).
   const ejemplos = useMemo(() => {
@@ -203,7 +205,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
       <div className="mt-2 flex flex-wrap items-center gap-1">
         {miembros.map((m) => (
           <button key={m.email} type="button" onClick={() => insertar('@' + aliasDe(m, miembros))} className="rounded-md border border-gray-200 px-1.5 py-0.5 text-[11px] text-gray-500 hover:border-acento hover:text-acento">
-            @{m.nombre.split(' ')[0]}
+            @{cortos[m.email]}
           </button>
         ))}
         {nota && <span className="ml-auto text-[11px] text-gray-400">{nota}</span>}

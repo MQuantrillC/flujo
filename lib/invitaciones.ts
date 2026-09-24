@@ -41,6 +41,9 @@ const FUENTE = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Ari
  */
 export function correoInvitacion(r: RotulosInvitacion, i: Invitado, enlace: string, icono: string): Correo {
   const paso = i.tieneCuenta ? r.entrar : r.crearCuenta;
+  // El nombre del equipo, en negrita donde aparezca (en vez de entrecomillarlo).
+  const equipo = esc(i.equipoNombre.trim());
+  const marcar = (s: string) => (equipo ? esc(s).split(equipo).join(`<strong style="color:#132229">${equipo}</strong>`) : esc(s));
   const texto = [r.titulo, '', r.cuerpo, '', paso, enlace, '', r.pie, '', r.firma].join('\n');
   const html = `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${esc(r.asunto)}</title></head>
@@ -56,9 +59,9 @@ export function correoInvitacion(r: RotulosInvitacion, i: Invitado, enlace: stri
   </td></tr>
   <tr><td style="padding:32px 32px 8px">
     <h1 style="margin:0 0 14px;font-size:22px;line-height:1.3;font-weight:700;color:#132229">${esc(r.titulo)}</h1>
-    <p style="margin:0 0 20px;font-size:16px;line-height:1.55;color:#3b4f59">${esc(r.cuerpo)}</p>
+    <p style="margin:0 0 20px;font-size:16px;line-height:1.55;color:#3b4f59">${marcar(r.cuerpo)}</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-      <td style="background:#f2f7f8;border-left:4px solid ${ACENTO};border-radius:0 10px 10px 0;padding:14px 16px;font-size:15px;line-height:1.5;color:#1f2f37">${esc(paso)}</td>
+      <td style="background:#f2f7f8;border-left:4px solid ${ACENTO};border-radius:0 10px 10px 0;padding:14px 16px;font-size:15px;line-height:1.5;color:#1f2f37">${marcar(paso)}</td>
     </tr></table>
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:26px 0 22px"><tr>
       <td style="background:${ACENTO};border-radius:10px"><a href="${esc(enlace)}" style="display:inline-block;padding:13px 26px;font-size:16px;font-weight:600;color:#ffffff;text-decoration:none">${esc(r.boton)} &rarr;</a></td>

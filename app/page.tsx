@@ -5,6 +5,7 @@ import { usuarioActual } from '@/lib/auth';
 import { equiposDe, etapasDeEquipos, miembrosDe, tareasAbiertasDe, tareasDe } from '@/lib/repositorio';
 import { crearEquipoAccion, crearEspacioPersonalAccion } from '@/lib/acciones';
 import { agruparPorPlazo, etiquetasEnUso } from '@/lib/vistas';
+import { nombresCortos } from '@/lib/nombres';
 import { hoyActual } from '@/lib/hoy';
 import { Avatar } from '@/components/Avatar';
 import { Ajustes } from '@/components/Ajustes';
@@ -71,13 +72,14 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {equipos.map((e) => {
                 const miembros = miembrosDe(e.id);
+                const cortos = nombresCortos(miembros);
                 return (
                   <li key={e.id}>
                     <Link href={`/e/${e.id}`} className="tarjeta flex items-center gap-3 p-4 transition-colors hover:border-acento/50">
                       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-acento/10 text-acento">{e.personal ? <UserRound size={20} /> : <Users size={20} />}</span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold text-gray-800">{e.nombre}</span>
-                        <span className="block truncate text-xs text-gray-500">{e.personal ? t('tuEspacio') : miembros.map((m) => m.nombre.split(' ')[0]).join(', ')}</span>
+                        <span className="block truncate text-xs text-gray-500">{e.personal ? t('tuEspacio') : miembros.map((m) => cortos[m.email]).join(', ')}</span>
                       </span>
                       <ChevronRight size={16} className="text-gray-300" />
                     </Link>

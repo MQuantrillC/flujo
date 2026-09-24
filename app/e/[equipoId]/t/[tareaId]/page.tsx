@@ -9,6 +9,7 @@ import { aIso, fechaCorta, haceCuanto } from '@/lib/fechas';
 import { hoyActual } from '@/lib/hoy';
 import { etiquetaEnlace, extraerEnlaces } from '@/lib/enlaces';
 import { idiomaValido, type Idioma } from '@/lib/idioma';
+import { nombresCortos } from '@/lib/nombres';
 import type { Evento } from '@/lib/modelo';
 import { Avatar } from '@/components/Avatar';
 import { EditorTarea } from '@/components/EditorTarea';
@@ -58,6 +59,8 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
   const etapas = etapasDe(equipoId);
   const miembros = miembrosDe(equipoId);
   const nombre = (email: string) => miembros.find((m) => m.email === email)?.nombre ?? email;
+  const cortos = nombresCortos(miembros);
+  const corto = (email: string) => cortos[email] ?? nombre(email).split(' ')[0];
   const comentarios = comentariosDe(tareaId);
   const sueltos = adjuntosSueltos(tareaId);
   const eventos = eventosDe(tareaId);
@@ -162,7 +165,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
             {eventos.map((e) => (
               <li key={e.id} className="flex gap-2">
                 <Avatar nombre={nombre(e.autor)} tam="sm" />
-                <span><span className="font-semibold text-gray-700">{nombre(e.autor).split(' ')[0]}</span> {describir(e, nombre, th, idioma, hoy)} <span className="text-gray-400">· {hace(e.creadoEn)}</span></span>
+                <span><span className="font-semibold text-gray-700">{corto(e.autor)}</span> {describir(e, nombre, th, idioma, hoy)} <span className="text-gray-400">· {hace(e.creadoEn)}</span></span>
               </li>
             ))}
           </ol>

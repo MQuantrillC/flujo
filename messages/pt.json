@@ -222,7 +222,7 @@
     "hechoEtapa": "Esta etapa encerra a pendência",
     "copiarInvitacion": "Copiar link de convite",
     "copiado": "Copiado",
-    "invitacionTexto": "Convidei você para a equipe «{equipo}» no Flujo: {enlace}",
+    "invitacionTexto": "Convidei você para a equipe {equipo} no Flujo: {enlace}",
     "invitarCorreo": "Vai receber um e-mail com o link.",
     "invitarSinCorreo": "O Flujo não envia e-mails: copie o link de convite (o ícone ao lado de cada membro) e mande você mesmo."
   },
@@ -413,13 +413,13 @@
   },
   "correo": {
     "invitacion": {
-      "asunto": "{quien} convidou você para a equipe «{equipo}» no Flujo",
-      "cuerpo": "{quien} adicionou você à equipe «{equipo}» no Flujo, o app de pendências da equipe.",
+      "asunto": "{quien} convidou você para {equipo} no Flujo",
+      "cuerpo": "{quien} adicionou você à equipe {equipo} no Flujo, o app de pendências da equipe.",
       "crearCuenta": "Crie sua conta com este e-mail ({email}) e a equipe aparece ao entrar:",
       "entrar": "Você já tem conta: entre e a equipe está lá:",
       "boton": "Abrir Flujo",
       "pie": "Se não esperava este e-mail, pode ignorá-lo.",
-      "titulo": "Você foi convidado para a equipe «{equipo}»",
+      "titulo": "Você foi convidado para a equipe {equipo}",
       "oEnlace": "Se o botão não funcionar, cole este link no navegador:",
       "firma": "Flujo · as pendências da equipe, em um só lugar."
     }

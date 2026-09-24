@@ -222,7 +222,7 @@
     "hechoEtapa": "This stage closes the to-do",
     "copiarInvitacion": "Copy invitation link",
     "copiado": "Copied",
-    "invitacionTexto": "I invited you to the \"{equipo}\" team on Flujo: {enlace}",
+    "invitacionTexto": "I invited you to the {equipo} team on Flujo: {enlace}",
     "invitarCorreo": "They will get an email with the link.",
     "invitarSinCorreo": "Flujo does not send emails: copy the invitation link (the icon next to each member) and send it yourself."
   },
@@ -413,13 +413,13 @@
   },
   "correo": {
     "invitacion": {
-      "asunto": "{quien} invited you to the \"{equipo}\" team on Flujo",
-      "cuerpo": "{quien} added you to the \"{equipo}\" team on Flujo, the team to-do app.",
+      "asunto": "{quien} invited you to {equipo} on Flujo",
+      "cuerpo": "{quien} added you to the {equipo} team on Flujo, the team to-do app.",
       "crearCuenta": "Create your account with this email ({email}) and you will see the team once you sign in:",
       "entrar": "You already have an account: sign in and the team is there:",
       "boton": "Open Flujo",
       "pie": "If you were not expecting this email, you can ignore it.",
-      "titulo": "You were invited to the \"{equipo}\" team",
+      "titulo": "You were invited to the {equipo} team",
       "oEnlace": "If the button does not work, paste this link in your browser:",
       "firma": "Flujo · the team’s to-dos, in one place."
     }

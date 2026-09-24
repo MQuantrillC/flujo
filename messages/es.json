@@ -222,7 +222,7 @@
     "hechoEtapa": "Esta etapa cierra el pendiente",
     "copiarInvitacion": "Copiar enlace de invitación",
     "copiado": "Copiado",
-    "invitacionTexto": "Te invité al equipo «{equipo}» en Flujo: {enlace}",
+    "invitacionTexto": "Te invité al equipo {equipo} en Flujo: {enlace}",
     "invitarCorreo": "Le llegará un correo con el enlace.",
     "invitarSinCorreo": "Flujo no manda correos: copia el enlace de invitación (el icono junto a cada miembro) y pásaselo."
   },
@@ -413,13 +413,13 @@
   },
   "correo": {
     "invitacion": {
-      "asunto": "{quien} te invitó al equipo «{equipo}» en Flujo",
-      "cuerpo": "{quien} te agregó al equipo «{equipo}» en Flujo, la app de pendientes del equipo.",
+      "asunto": "{quien} te invitó a {equipo} en Flujo",
+      "cuerpo": "{quien} te agregó al equipo {equipo} en Flujo, la app de pendientes del equipo.",
       "crearCuenta": "Crea tu cuenta con este correo ({email}) y verás el equipo al entrar:",
       "entrar": "Ya tienes cuenta: entra y ahí está el equipo:",
       "boton": "Abrir Flujo",
       "pie": "Si no esperabas este correo, puedes ignorarlo.",
-      "titulo": "Te invitaron al equipo «{equipo}»",
+      "titulo": "Te invitaron al equipo {equipo}",
       "oEnlace": "Si el botón no funciona, copia este enlace en el navegador:",
       "firma": "Flujo · los pendientes del equipo, en un solo lugar."
     }
