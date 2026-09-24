@@ -1,4 +1,4 @@
-import { Check, Trash2, UserPlus } from 'lucide-react';
+import { Check, Download, Trash2, UserPlus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { equipo, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
@@ -16,6 +16,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
   const u = await miembroActual(equipoId);
   const t = await getTranslations('miembros');
   const tc = await getTranslations('comun');
+  const tx = await getTranslations('exportar');
   const e = equipo(equipoId)!;
   const miembros = miembrosDe(equipoId);
   const etapas = etapasDe(equipoId);
@@ -69,11 +70,31 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
         </form>
       </section>
 
-      <section className="tarjeta p-5">
-        <h2 className="mb-1 font-semibold text-gray-800">{t('etapas')}</h2>
-        <p className="mb-3 text-xs text-gray-500">{t.rich('etapasAyuda', { b: (c) => <b>{c}</b> })} {t('etapasOrden')}</p>
-        <EditorEtapas equipoId={equipoId} etapas={etapas} enUso={enUso} />
-      </section>
+      <div className="flex flex-col gap-5">
+        <section className="tarjeta p-5">
+          <h2 className="mb-1 font-semibold text-gray-800">{t('etapas')}</h2>
+          <p className="mb-3 text-xs text-gray-500">{t.rich('etapasAyuda', { b: (c) => <b>{c}</b> })} {t('etapasOrden')}</p>
+          <EditorEtapas equipoId={equipoId} etapas={etapas} enUso={enUso} />
+        </section>
+
+        <section className="tarjeta p-5">
+          <h2 className="mb-1 font-semibold text-gray-800">{tx('titulo')}</h2>
+          <p className="mb-3 text-xs text-gray-500">{tx('ayuda')}</p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {(['md', 'json', 'csv', 'xlsx'] as const).map((f) => (
+              <li key={f}>
+                <a href={`/api/equipos/${equipoId}/exportar?formato=${f}`} download className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50/60 px-3 py-2 transition-colors hover:border-acento hover:bg-acento/5">
+                  <Download size={15} className="shrink-0 text-acento" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-gray-800">{tx(f)}</span>
+                    <span className="block text-xs leading-snug text-gray-500">{tx(`${f}Ayuda`)}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
     </div>
   );
 }

@@ -308,5 +308,56 @@
       "noCoinciden": "As senhas não coincidem."
     },
     "elegirFecha": "Escolher data"
+  },
+  "exportar": {
+    "titulo": "Exportar pendências",
+    "ayuda": "Todas as pendências da equipe, com responsáveis, datas, etiquetas, links e comentários, no formato que servir.",
+    "md": "Markdown",
+    "mdAyuda": "para colar no Claude, ChatGPT ou Gemini",
+    "json": "JSON",
+    "jsonAyuda": "todo o detalhe, para scripts",
+    "csv": "CSV",
+    "csvAyuda": "para planilhas; pode ser importado de volta",
+    "xlsx": "Excel",
+    "xlsxAyuda": "a mesma tabela, pronta para abrir",
+    "columnas": {
+      "titulo": "Pendência",
+      "etapa": "Etapa",
+      "responsables": "Responsáveis",
+      "fecha_limite": "Prazo",
+      "prioridad": "Prioridade",
+      "etiquetas": "Etiquetas",
+      "descripcion": "Descrição",
+      "enlaces": "Links",
+      "creado_por": "Criado por",
+      "creado_en": "Criado",
+      "terminado_en": "Concluído",
+      "comentarios": "Comentários",
+      "id": "Id"
+    },
+    "rotulos": {
+      "titulo": "Pendências de {equipo}",
+      "exportado": "Exportado em",
+      "etapas": "Etapas",
+      "miembros": "Membros",
+      "hecho": "feito",
+      "sinResponsable": "sem responsável",
+      "responsables": "Responsáveis",
+      "correos": "E-mails",
+      "vence": "Prazo",
+      "prioridad": "Prioridade",
+      "alta": "alta",
+      "normal": "normal",
+      "etiquetas": "Etiquetas",
+      "descripcion": "Descrição",
+      "enlaces": "Links",
+      "creadoPor": "Criado por",
+      "creadoEn": "Criado",
+      "terminadoEn": "Concluído",
+      "comentarios": "Comentários",
+      "estado": "Estado",
+      "abierto": "aberto",
+      "id": "Id"
+    }
   }
 }

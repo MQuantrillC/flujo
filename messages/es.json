@@ -308,5 +308,56 @@
       "noCoinciden": "Las contraseñas no coinciden."
     },
     "elegirFecha": "Elegir fecha"
+  },
+  "exportar": {
+    "titulo": "Exportar pendientes",
+    "ayuda": "Todos los pendientes del equipo, con responsables, fechas, etiquetas, enlaces y comentarios, en el formato que te sirva.",
+    "md": "Markdown",
+    "mdAyuda": "para pegar en Claude, ChatGPT o Gemini",
+    "json": "JSON",
+    "jsonAyuda": "todo el detalle, para scripts",
+    "csv": "CSV",
+    "csvAyuda": "para hojas de cálculo; se puede volver a importar",
+    "xlsx": "Excel",
+    "xlsxAyuda": "la misma tabla, lista para abrir",
+    "columnas": {
+      "titulo": "Pendiente",
+      "etapa": "Etapa",
+      "responsables": "Responsables",
+      "fecha_limite": "Vence",
+      "prioridad": "Prioridad",
+      "etiquetas": "Etiquetas",
+      "descripcion": "Descripción",
+      "enlaces": "Enlaces",
+      "creado_por": "Creado por",
+      "creado_en": "Creado",
+      "terminado_en": "Terminado",
+      "comentarios": "Comentarios",
+      "id": "Id"
+    },
+    "rotulos": {
+      "titulo": "Pendientes de {equipo}",
+      "exportado": "Exportado el",
+      "etapas": "Etapas",
+      "miembros": "Miembros",
+      "hecho": "hecho",
+      "sinResponsable": "sin responsable",
+      "responsables": "Responsables",
+      "correos": "Correos",
+      "vence": "Vence",
+      "prioridad": "Prioridad",
+      "alta": "alta",
+      "normal": "normal",
+      "etiquetas": "Etiquetas",
+      "descripcion": "Descripción",
+      "enlaces": "Enlaces",
+      "creadoPor": "Creado por",
+      "creadoEn": "Creado",
+      "terminadoEn": "Terminado",
+      "comentarios": "Comentarios",
+      "estado": "Estado",
+      "abierto": "abierto",
+      "id": "Id"
+    }
   }
 }

@@ -308,5 +308,56 @@
       "noCoinciden": "The passwords do not match."
     },
     "elegirFecha": "Pick a date"
+  },
+  "exportar": {
+    "titulo": "Export to-dos",
+    "ayuda": "Every to-do of the team, with assignees, dates, tags, links and comments, in whatever format suits you.",
+    "md": "Markdown",
+    "mdAyuda": "to paste into Claude, ChatGPT or Gemini",
+    "json": "JSON",
+    "jsonAyuda": "full detail, for scripts",
+    "csv": "CSV",
+    "csvAyuda": "for spreadsheets; can be imported back",
+    "xlsx": "Excel",
+    "xlsxAyuda": "the same table, ready to open",
+    "columnas": {
+      "titulo": "To-do",
+      "etapa": "Stage",
+      "responsables": "Assignees",
+      "fecha_limite": "Due",
+      "prioridad": "Priority",
+      "etiquetas": "Tags",
+      "descripcion": "Description",
+      "enlaces": "Links",
+      "creado_por": "Created by",
+      "creado_en": "Created",
+      "terminado_en": "Done on",
+      "comentarios": "Comments",
+      "id": "Id"
+    },
+    "rotulos": {
+      "titulo": "{equipo} to-dos",
+      "exportado": "Exported on",
+      "etapas": "Stages",
+      "miembros": "Members",
+      "hecho": "done",
+      "sinResponsable": "unassigned",
+      "responsables": "Assignees",
+      "correos": "Emails",
+      "vence": "Due",
+      "prioridad": "Priority",
+      "alta": "high",
+      "normal": "normal",
+      "etiquetas": "Tags",
+      "descripcion": "Description",
+      "enlaces": "Links",
+      "creadoPor": "Created by",
+      "creadoEn": "Created",
+      "terminadoEn": "Done on",
+      "comentarios": "Comments",
+      "estado": "Status",
+      "abierto": "open",
+      "id": "Id"
+    }
   }
 }
