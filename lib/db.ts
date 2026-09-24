@@ -115,6 +115,8 @@ const COLUMNAS_NUEVAS: [tabla: string, columna: string, definicion: string][] = 
   ['usuarios', 'hash', 'TEXT'],
   ['equipos', 'personal', 'INTEGER NOT NULL DEFAULT 0'],
   ['enlaces', 'nombre', "TEXT NOT NULL DEFAULT ''"],
+  // Pendientes vinculados entre equipos: comparten este id (el del primero).
+  ['tareas', 'vinculo_id', 'TEXT'],
 ];
 
 function migrar(db: Database.Database): void {

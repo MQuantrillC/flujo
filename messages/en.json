@@ -78,7 +78,8 @@
   },
   "tarjeta": {
     "prioridadAlta": "High priority",
-    "etapa": "Stage"
+    "etapa": "Stage",
+    "vinculada": "{n, plural, one {Also in # more team} other {Also in # more teams}}"
   },
   "barra": {
     "placeholder": "Write a to-do…",
@@ -153,7 +154,15 @@
     "quitarFecha": "Clear date",
     "mesAnterior": "Previous month",
     "mesSiguiente": "Next month",
-    "cambiarMesAnio": "Change month or year"
+    "cambiarMesAnio": "Change month or year",
+    "equipos": "Teams",
+    "esteEquipo": "(this one)",
+    "vinculadosAyuda": "They are linked: changing the stage, title, description, date or priority in one changes the others. Assignees, tags and comments belong to each team.",
+    "copiarA": "Copy",
+    "copiarAyuda": "Creates a linked twin in that team: they share stage and content",
+    "moverA": "Move",
+    "moverAyuda": "Takes the to-do with its whole history; it leaves this team",
+    "confirmarMover": "Move this to-do to \"{equipo}\"? It will disappear from this team."
   },
   "historial": {
     "creada": "created the to-do",
@@ -379,7 +388,7 @@
       "copiar": "Copy (they stay here)",
       "mover": "Move (they leave here)"
     },
-    "nota": "Copying creates new to-dos, without comments or attachments; moving takes their whole history along. Stages are matched by name (if none matches, the first one) and assignees who are not in the other team are dropped.",
+    "nota": "Copying creates linked twins (without comments or attachments): changing the stage or content in one changes the other. Moving takes their whole history along. Stages are matched by name (if none matches, the first one) and assignees who are not in the other team are dropped.",
     "boton": {
       "copiar": "{n, plural, =0 {Nothing to copy} one {Copy # to-do to {equipo}} other {Copy # to-dos to {equipo}}}",
       "mover": "{n, plural, =0 {Nothing to move} one {Move # to-do to {equipo}} other {Move # to-dos to {equipo}}}"

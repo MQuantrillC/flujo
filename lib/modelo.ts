@@ -38,6 +38,10 @@ export interface Tarea {
   enlaces: Enlace[];
   comentarios: number;
   adjuntos: number;
+  /** Grupo de pendientes vinculados entre equipos (comparten etapa y contenido); null si no tiene gemelos. */
+  vinculoId: string | null;
+  /** Cuántos gemelos tiene en otros equipos. */
+  vinculadas: number;
 }
 
 export interface Adjunto {

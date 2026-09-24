@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Flag, Link2, MessageSquare, Paperclip, Users } from 'lucide-react';
+import { Copy, Flag, Link2, MessageSquare, Paperclip, Users } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { Etapa, Tarea } from '@/lib/modelo';
 import { etiquetaEnlace } from '@/lib/enlaces';
@@ -50,10 +50,15 @@ export async function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = tru
       )}
       <div className="mt-2 flex items-center gap-2">
         <ChipFecha iso={tarea.fechaLimite} hoy={hoy} idioma={idioma} terminada={terminada} />
-        {(tarea.comentarios > 0 || tarea.adjuntos > 0) && (
+        {(tarea.comentarios > 0 || tarea.adjuntos > 0 || tarea.vinculadas > 0) && (
           <span className="flex items-center gap-1.5 text-[11px] text-gray-400">
             {tarea.comentarios > 0 && <span className="flex items-center gap-0.5"><MessageSquare size={11} /> {tarea.comentarios}</span>}
             {tarea.adjuntos > 0 && <span className="flex items-center gap-0.5"><Paperclip size={11} /> {tarea.adjuntos}</span>}
+            {tarea.vinculadas > 0 && (
+              <Tooltip texto={t('vinculada', { n: tarea.vinculadas })} className="relative z-10">
+                <span className="flex items-center gap-0.5 text-acento/80"><Copy size={11} /> {tarea.vinculadas + 1}</span>
+              </Tooltip>
+            )}
           </span>
         )}
         <span className="relative z-10 ml-auto flex -space-x-1.5">

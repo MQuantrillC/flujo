@@ -78,7 +78,8 @@
   },
   "tarjeta": {
     "prioridadAlta": "Prioridade alta",
-    "etapa": "Etapa"
+    "etapa": "Etapa",
+    "vinculada": "{n, plural, one {Também está em mais # equipe} other {Também está em mais # equipes}}"
   },
   "barra": {
     "placeholder": "Escreva uma pendência…",
@@ -153,7 +154,15 @@
     "quitarFecha": "Remover data",
     "mesAnterior": "Mês anterior",
     "mesSiguiente": "Próximo mês",
-    "cambiarMesAnio": "Mudar mês ou ano"
+    "cambiarMesAnio": "Mudar mês ou ano",
+    "equipos": "Equipes",
+    "esteEquipo": "(esta)",
+    "vinculadosAyuda": "Estão vinculadas: mudar a etapa, o título, a descrição, a data ou a prioridade em uma muda nas outras. Responsáveis, etiquetas e comentários são de cada equipe.",
+    "copiarA": "Copiar",
+    "copiarAyuda": "Cria uma gêmea vinculada nessa equipe: compartilham etapa e conteúdo",
+    "moverA": "Mover",
+    "moverAyuda": "Leva a pendência com todo o histórico; some daqui",
+    "confirmarMover": "Mover esta pendência para «{equipo}»? Ela vai sumir desta equipe."
   },
   "historial": {
     "creada": "criou a pendência",
@@ -379,7 +388,7 @@
       "copiar": "Copiar (aqui ficam)",
       "mover": "Mover (daqui somem)"
     },
-    "nota": "Ao copiar se criam pendências novas, sem comentários nem anexos; ao mover levam todo o histórico. As etapas se emparelham pelo nome (se não existir, vai para a primeira) e os responsáveis que não estão na outra equipe são removidos.",
+    "nota": "Ao copiar se criam gêmeas vinculadas (sem comentários nem anexos): mudar a etapa ou o conteúdo em uma muda na outra. Ao mover levam todo o histórico. As etapas se emparelham pelo nome (se não existir, vai para a primeira) e os responsáveis que não estão na outra equipe são removidos.",
     "boton": {
       "copiar": "{n, plural, =0 {Nada para copiar} one {Copiar # pendência para {equipo}} other {Copiar # pendências para {equipo}}}",
       "mover": "{n, plural, =0 {Nada para mover} one {Mover # pendência para {equipo}} other {Mover # pendências para {equipo}}}"

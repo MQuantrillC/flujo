@@ -149,6 +149,22 @@ export async function pasarPendientesAccion(_p: ResultadoPase, fd: FormData): Pr
   return { ok: true, n, destino: d.nombre, modo };
 }
 
+/** Desde la ficha de un pendiente: copiarlo (vinculado) o moverlo a otro de mis equipos. */
+export async function pasarTareaAccion(fd: FormData): Promise<void> {
+  const tid = texto(fd, 'tareaId');
+  const t = repo.tarea(tid);
+  if (!t) redirect('/');
+  const u = await miembroActual(t.equipoId);
+  const destino = texto(fd, 'destino');
+  const mover = texto(fd, 'modo') === 'mover';
+  if (destino === t.equipoId || !repo.esMiembro(destino, u.email)) return;
+  const n = repo.pasarTareas([tid], t.equipoId, destino, u.email, mover);
+  revalidatePath(`/e/${t.equipoId}`, 'layout');
+  revalidatePath(`/e/${destino}`, 'layout');
+  revalidatePath('/');
+  if (mover && n > 0) redirect(`/e/${destino}/t/${tid}`);
+}
+
 export async function quitarMiembroAccion(fd: FormData): Promise<void> {
   const eid = texto(fd, 'equipoId');
   const u = await miembroActual(eid);

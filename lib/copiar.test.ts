@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { etapaEquivalente, seleccionar } from './copiar';
+import { etapaEquivalente, etapaEspejo, seleccionar } from './copiar';
 import type { Etapa } from './modelo';
 
 const et = (id: string, nombre: string, esFinal = false): Etapa => ({ id, equipoId: 'x', nombre, posicion: 0, esFinal });
@@ -32,5 +32,10 @@ describe('etapa equivalente en el otro equipo', () => {
   it('sin nombre igual: «hecho» va a «hecho», lo demás a la primera abierta', () => {
     expect(etapaEquivalente(et('o', 'Hecho', true), destino).id).toBe('d3');
     expect(etapaEquivalente(et('o', 'Bloqueado'), destino).id).toBe('d1');
+  });
+  it('el espejo de un vinculado sólo se mueve con nombre igual o a «hecho»; si no, se queda', () => {
+    expect(etapaEspejo(et('o', 'EN REVISIÓN'), destino)?.id).toBe('d2');
+    expect(etapaEspejo(et('o', 'Terminado', true), destino)?.id).toBe('d3');
+    expect(etapaEspejo(et('o', 'Bloqueado'), destino)).toBeNull();
   });
 });

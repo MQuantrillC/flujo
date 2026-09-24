@@ -9,7 +9,7 @@ import { randomBytes, randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ADJUNTOS_DIR, db } from './db';
-import { etapaEquivalente } from './copiar';
+import { etapaEquivalente, etapaEspejo } from './copiar';
 import {
   nombreDesdeCorreo,
   type Adjunto, type Comentario, type Enlace, type Equipo, type Etapa, type Evento, type Prioridad, type Tarea, type TipoEvento, type Usuario,
@@ -243,6 +243,10 @@ function tareasDeFilas(filas: any[]): Tarea[] {
   const enl = db.prepare(`SELECT tarea_id, url, nombre FROM enlaces WHERE tarea_id IN (${marcas}) ORDER BY posicion`).all(...ids) as any[];
   const com = db.prepare(`SELECT tarea_id, COUNT(*) n FROM comentarios WHERE tarea_id IN (${marcas}) GROUP BY tarea_id`).all(...ids) as any[];
   const adj = db.prepare(`SELECT tarea_id, COUNT(*) n FROM adjuntos WHERE tarea_id IN (${marcas}) GROUP BY tarea_id`).all(...ids) as any[];
+  const vinculos = [...new Set(filas.map((f) => f.vinculo_id).filter(Boolean))] as string[];
+  const gemelos = vinculos.length
+    ? (db.prepare(`SELECT vinculo_id, COUNT(*) n FROM tareas WHERE vinculo_id IN (${vinculos.map(() => '?').join(',')}) GROUP BY vinculo_id`).all(...vinculos) as any[])
+    : [];
   return filas.map((r) => ({
     id: r.id, equipoId: r.equipo_id, titulo: r.titulo, descripcion: r.descripcion, etapaId: r.etapa_id,
     fechaLimite: r.fecha_limite, prioridad: r.prioridad as Prioridad, creadoPor: r.creado_por,
@@ -252,6 +256,8 @@ function tareasDeFilas(filas: any[]): Tarea[] {
     enlaces: enl.filter((a) => a.tarea_id === r.id).map((a) => ({ url: a.url, nombre: a.nombre ?? '' })),
     comentarios: com.find((c) => c.tarea_id === r.id)?.n ?? 0,
     adjuntos: adj.find((c) => c.tarea_id === r.id)?.n ?? 0,
+    vinculoId: r.vinculo_id ?? null,
+    vinculadas: r.vinculo_id ? Math.max(0, (gemelos.find((g) => g.vinculo_id === r.vinculo_id)?.n ?? 1) - 1) : 0,
   }));
 }
 
@@ -305,6 +311,8 @@ export interface NuevaTarea {
   fechaLimite: string | null; prioridad: Prioridad; creadoPor: string;
   /** Etapa inicial; sin ella, la primera que no sea «hecho». */
   etapaId?: string;
+  /** Si es gemela de un pendiente de otro equipo, el grupo que comparten. */
+  vinculoId?: string;
 }
 
 export function crearTarea(n: NuevaTarea): Tarea {
@@ -314,8 +322,8 @@ export function crearTarea(n: NuevaTarea): Tarea {
   const etapaInicial = etapas.find((e) => e.id === n.etapaId) ?? etapas.find((e) => !e.esFinal) ?? etapas[0];
   if (!etapaInicial) throw new Error('El equipo no tiene etapas');
   db.transaction(() => {
-    db.prepare('INSERT INTO tareas (id, equipo_id, titulo, descripcion, etapa_id, fecha_limite, prioridad, creado_por, creado_en, actualizado_en, terminado_en) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-      .run(tid, n.equipoId, n.titulo.trim(), (n.descripcion ?? '').trim(), etapaInicial.id, n.fechaLimite, n.prioridad, n.creadoPor, t, t, etapaInicial.esFinal ? t : null);
+    db.prepare('INSERT INTO tareas (id, equipo_id, titulo, descripcion, etapa_id, fecha_limite, prioridad, creado_por, creado_en, actualizado_en, terminado_en, vinculo_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(tid, n.equipoId, n.titulo.trim(), (n.descripcion ?? '').trim(), etapaInicial.id, n.fechaLimite, n.prioridad, n.creadoPor, t, t, etapaInicial.esFinal ? t : null, n.vinculoId ?? null);
     for (const a of new Set(n.asignados)) db.prepare('INSERT INTO asignados (tarea_id, email) VALUES (?, ?)').run(tid, a);
     for (const e of new Set(n.etiquetas)) db.prepare('INSERT INTO etiquetas (tarea_id, etiqueta) VALUES (?, ?)').run(tid, e);
     if (n.enlaces?.length) guardarEnlaces(tid, n.enlaces);
@@ -329,10 +337,45 @@ export interface CambiosTarea {
   etapaId?: string; asignados?: string[]; etiquetas?: string[]; enlaces?: Enlace[];
 }
 
-/** Aplica sólo lo que cambió y deja un evento por cada cambio. */
+/**
+ * Aplica sólo lo que cambió y deja un evento por cada cambio. Si el pendiente
+ * tiene gemelos en otros equipos, lo compartido (etapa, título, descripción,
+ * fecha, prioridad y enlaces) se replica en ellos; responsables y etiquetas
+ * son de cada equipo. La etapa sólo se replica cuando allá hay una con el
+ * mismo nombre o cuando pasa a «hecho».
+ */
 export function actualizarTarea(tid: string, autor: string, c: CambiosTarea): Tarea | null {
   const antes = tarea(tid);
   if (!antes) return null;
+  const despues = aplicarCambios(antes, autor, c);
+  if (antes.vinculoId) {
+    const nuevaEtapa = c.etapaId !== undefined && c.etapaId !== antes.etapaId ? etapa(c.etapaId) : null;
+    for (const g of gemelasDe(antes)) {
+      const espejo = nuevaEtapa ? etapaEspejo(nuevaEtapa, etapasDe(g.equipoId)) : null;
+      aplicarCambios(g, autor, {
+        titulo: c.titulo, descripcion: c.descripcion, fechaLimite: c.fechaLimite, prioridad: c.prioridad, enlaces: c.enlaces,
+        ...(espejo ? { etapaId: espejo.id } : {}),
+      });
+    }
+  }
+  return despues;
+}
+
+/** Los otros pendientes del mismo vínculo (en otros equipos). */
+function gemelasDe(t: Tarea): Tarea[] {
+  if (!t.vinculoId) return [];
+  return tareasDeFilas(db.prepare('SELECT * FROM tareas WHERE vinculo_id = ? AND id != ?').all(t.vinculoId, t.id) as any[]);
+}
+
+/** Los gemelos de un pendiente con el nombre de su equipo, para la ficha. */
+export function vinculadasDe(tid: string): { tarea: Tarea; equipo: Equipo }[] {
+  const t = tarea(tid);
+  if (!t) return [];
+  return gemelasDe(t).map((g) => ({ tarea: g, equipo: equipo(g.equipoId)! })).filter((x) => x.equipo).sort((a, b) => a.equipo.nombre.localeCompare(b.equipo.nombre));
+}
+
+function aplicarCambios(antes: Tarea, autor: string, c: CambiosTarea): Tarea | null {
+  const tid = antes.id;
   const t = ahora();
   const mismos = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
   db.transaction(() => {
@@ -379,11 +422,13 @@ export function actualizarTarea(tid: string, autor: string, c: CambiosTarea): Ta
 }
 
 /**
- * Pasa pendientes a otro equipo. Copiar crea pendientes nuevos (título,
+ * Pasa pendientes a otro equipo. Copiar crea un gemelo vinculado (título,
  * descripción, fecha, prioridad, etiquetas y enlaces; sin comentarios ni
- * adjuntos). Mover cambia el equipo del mismo pendiente y conserva todo su
- * historial. En los dos casos la etapa se empareja por nombre y se quitan los
- * responsables que no son del otro equipo. Devuelve cuántos pasaron.
+ * adjuntos) que desde entonces comparte etapa y contenido con el original.
+ * Mover cambia el equipo del mismo pendiente y conserva todo su historial.
+ * En los dos casos la etapa se empareja por nombre y se quitan los
+ * responsables que no son del otro equipo. Un pendiente que ya tiene gemelo
+ * en el destino no se copia otra vez. Devuelve cuántos pasaron.
  */
 export function pasarTareas(ids: string[], origenId: string, destinoId: string, autor: string, mover: boolean): number {
   const etapasDestino = etapasDe(destinoId);
@@ -399,13 +444,17 @@ export function pasarTareas(ids: string[], origenId: string, destinoId: string, 
       const etapa = desde ? etapaEquivalente(desde, etapasDestino) : etapasDestino[0];
       const asignados = t.asignados.filter((a) => miembros.has(a));
       if (mover) {
+        if (gemelasDe(t).some((g) => g.equipoId === destinoId)) continue; // allá ya está su gemelo
         const ahoraMs = ahora();
         const terminado = etapa.esFinal ? (t.terminadoEn ?? ahoraMs) : null;
         db.prepare('UPDATE tareas SET equipo_id = ?, etapa_id = ?, terminado_en = ?, actualizado_en = ? WHERE id = ?').run(destinoId, etapa.id, terminado, ahoraMs, tid);
         db.prepare('DELETE FROM asignados WHERE tarea_id = ?').run(tid);
         for (const a of asignados) db.prepare('INSERT INTO asignados (tarea_id, email) VALUES (?, ?)').run(tid, a);
       } else {
-        crearTarea({ equipoId: destinoId, titulo: t.titulo, descripcion: t.descripcion, asignados, etiquetas: t.etiquetas, enlaces: t.enlaces, fechaLimite: t.fechaLimite, prioridad: t.prioridad, creadoPor: autor, etapaId: etapa.id });
+        if (gemelasDe(t).some((g) => g.equipoId === destinoId)) continue;
+        const vinculoId = t.vinculoId ?? t.id;
+        if (!t.vinculoId) db.prepare('UPDATE tareas SET vinculo_id = ? WHERE id = ?').run(vinculoId, t.id);
+        crearTarea({ equipoId: destinoId, titulo: t.titulo, descripcion: t.descripcion, asignados, etiquetas: t.etiquetas, enlaces: t.enlaces, fechaLimite: t.fechaLimite, prioridad: t.prioridad, creadoPor: autor, etapaId: etapa.id, vinculoId });
       }
       n++;
     }

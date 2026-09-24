@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Link2 } from 'lucide-react';
+import { ArrowLeft, Copy, Link2, Users } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
-import { adjuntosSueltos, comentariosDe, etapasDe, eventosDe, miembrosDe, tarea } from '@/lib/repositorio';
+import { adjuntosSueltos, comentariosDe, equipo, equiposDe, esMiembro, etapasDe, eventosDe, miembrosDe, tarea, vinculadasDe } from '@/lib/repositorio';
+import { pasarTareaAccion } from '@/lib/acciones';
 import { aIso, fechaCorta, haceCuanto } from '@/lib/fechas';
 import { hoyActual } from '@/lib/hoy';
 import { etiquetaEnlace, extraerEnlaces } from '@/lib/enlaces';
@@ -13,6 +14,8 @@ import { Avatar } from '@/components/Avatar';
 import { EditorTarea } from '@/components/EditorTarea';
 import { FormularioComentario } from '@/components/FormularioComentario';
 import { AdjuntoVista } from '@/components/AdjuntoVista';
+import { FormConfirmar } from '@/components/FormConfirmar';
+import { Tooltip } from '@/components/Tooltip';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 
 export const dynamic = 'force-dynamic';
@@ -40,9 +43,13 @@ function describir(e: Evento, nombre: (email: string) => string, th: T, idioma: 
 
 export default async function PaginaTarea({ params }: { params: Promise<{ equipoId: string; tareaId: string }> }) {
   const { equipoId, tareaId } = await params;
-  await miembroActual(equipoId);
+  const u = await miembroActual(equipoId);
   const x = tarea(tareaId);
   if (!x || x.equipoId !== equipoId) notFound();
+  const equipoActual = equipo(equipoId)!;
+  const vinculadas = vinculadasDe(tareaId);
+  // Mis otros equipos donde este pendiente todavía no tiene gemelo.
+  const otrosEquipos = equiposDe(u.email).filter((e) => e.id !== equipoId && !vinculadas.some((v) => v.equipo.id === e.id));
   const t = await getTranslations('tarea');
   const th = await getTranslations('historial');
   const tc = await getTranslations('comun');
@@ -109,6 +116,37 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
             </ul>
           </section>
         )}
+        <section className="tarjeta p-4 text-sm">
+          <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('equipos')}</h2>
+          <ul className="flex flex-col gap-1 text-xs">
+            <li className="flex items-center gap-1.5 font-semibold text-gray-800"><Users size={12} className="text-acento" /> {equipoActual.nombre} <span className="font-normal text-gray-400">{t('esteEquipo')}</span></li>
+            {vinculadas.map((v) => (
+              <li key={v.tarea.id} className="flex items-center gap-1.5 text-gray-700">
+                <Copy size={12} className="text-gray-400" />
+                {esMiembro(v.equipo.id, u.email) ? <Link href={`/e/${v.equipo.id}/t/${v.tarea.id}`} className="font-medium hover:text-acento hover:underline">{v.equipo.nombre}</Link> : v.equipo.nombre}
+                <span className="text-gray-400">· {etapasDe(v.equipo.id).find((e) => e.id === v.tarea.etapaId)?.nombre ?? ''}</span>
+              </li>
+            ))}
+          </ul>
+          {vinculadas.length > 0 && <p className="mt-2 text-[11px] leading-snug text-gray-400">{t('vinculadosAyuda')}</p>}
+          {otrosEquipos.length > 0 && (
+            <div className="mt-3 flex flex-col gap-1.5 border-t border-gray-100 pt-3">
+              {otrosEquipos.map((eq) => (
+                <div key={eq.id} className="flex flex-wrap items-center gap-1.5 text-xs">
+                  <span className="min-w-0 flex-1 truncate text-gray-600">{eq.nombre}</span>
+                  <form action={pasarTareaAccion}>
+                    <input type="hidden" name="tareaId" value={tareaId} /><input type="hidden" name="destino" value={eq.id} /><input type="hidden" name="modo" value="copiar" />
+                    <Tooltip texto={t('copiarAyuda')}><button className="rounded-md border border-gray-200 px-2 py-0.5 font-medium text-gray-600 transition-colors hover:border-acento hover:text-acento">{t('copiarA')}</button></Tooltip>
+                  </form>
+                  <FormConfirmar action={pasarTareaAccion} mensaje={t('confirmarMover', { equipo: eq.nombre })}>
+                    <input type="hidden" name="tareaId" value={tareaId} /><input type="hidden" name="destino" value={eq.id} /><input type="hidden" name="modo" value="mover" />
+                    <Tooltip texto={t('moverAyuda')}><button className="rounded-md border border-gray-200 px-2 py-0.5 font-medium text-gray-600 transition-colors hover:border-acento hover:text-acento">{t('moverA')}</button></Tooltip>
+                  </FormConfirmar>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
         <section className="tarjeta p-4 text-sm">
           <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('ficha')}</h2>
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600">

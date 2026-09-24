@@ -78,7 +78,8 @@
   },
   "tarjeta": {
     "prioridadAlta": "Prioridad alta",
-    "etapa": "Etapa"
+    "etapa": "Etapa",
+    "vinculada": "{n, plural, one {También está en # equipo más} other {También está en # equipos más}}"
   },
   "barra": {
     "placeholder": "Escribe un pendiente…",
@@ -153,7 +154,15 @@
     "quitarFecha": "Quitar fecha",
     "mesAnterior": "Mes anterior",
     "mesSiguiente": "Mes siguiente",
-    "cambiarMesAnio": "Cambiar mes o año"
+    "cambiarMesAnio": "Cambiar mes o año",
+    "equipos": "Equipos",
+    "esteEquipo": "(este)",
+    "vinculadosAyuda": "Están vinculados: cambiar la etapa, el título, la descripción, la fecha o la prioridad en uno lo cambia en los otros. Responsables, etiquetas y comentarios son de cada equipo.",
+    "copiarA": "Copiar",
+    "copiarAyuda": "Crea un gemelo vinculado en ese equipo: comparten etapa y contenido",
+    "moverA": "Mover",
+    "moverAyuda": "Se lleva el pendiente con todo su historial; desaparece de aquí",
+    "confirmarMover": "¿Mover este pendiente a «{equipo}»? Desaparecerá de este equipo."
   },
   "historial": {
     "creada": "creó el pendiente",
@@ -379,7 +388,7 @@
       "copiar": "Copiar (aquí se quedan)",
       "mover": "Mover (de aquí desaparecen)"
     },
-    "nota": "Al copiar se crean pendientes nuevos, sin comentarios ni adjuntos; al mover se llevan todo su historial. Las etapas se emparejan por nombre (si no existe, va a la primera) y se quitan los responsables que no están en el otro equipo.",
+    "nota": "Al copiar se crean gemelos vinculados (sin comentarios ni adjuntos): cambiar la etapa o el contenido en uno lo cambia en el otro. Al mover se llevan todo su historial. Las etapas se emparejan por nombre (si no existe, va a la primera) y se quitan los responsables que no están en el otro equipo.",
     "boton": {
       "copiar": "{n, plural, =0 {Nada que copiar} one {Copiar # pendiente a {equipo}} other {Copiar # pendientes a {equipo}}}",
       "mover": "{n, plural, =0 {Nada que mover} one {Mover # pendiente a {equipo}} other {Mover # pendientes a {equipo}}}"

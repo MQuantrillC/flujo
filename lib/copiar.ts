@@ -31,6 +31,16 @@ export function seleccionar<T extends TareaResumida>(tareas: T[], finales: Set<s
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 
+/**
+ * Para los pendientes vinculados: cuando uno cambia de etapa, a cuál va su
+ * gemelo en el otro equipo. Sólo si hay una etapa con el mismo nombre, o si la
+ * nueva es «hecho» (entonces a la «hecho» de allá). Si no, null: se queda donde está.
+ */
+export function etapaEspejo(nueva: Etapa, destino: Etapa[]): Etapa | null {
+  const n = normalizar(nueva.nombre);
+  return destino.find((e) => normalizar(e.nombre) === n) ?? (nueva.esFinal ? destino.find((e) => e.esFinal) ?? null : null);
+}
+
 /** La etapa del destino con el mismo nombre; si no la hay, la primera que no sea «hecho» (o «hecho» si venía de una «hecho»). */
 export function etapaEquivalente(origen: Etapa, destino: Etapa[]): Etapa {
   const n = normalizar(origen.nombre);
