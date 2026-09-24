@@ -93,7 +93,7 @@ export function EditorEtapas({ equipoId, etapas: delServidor, enUso }: { equipoI
                     {et.esFinal ? <CircleCheck size={17} className="fill-emerald-100" /> : <Circle size={17} />}
                   </button>
                 </Tooltip></form>
-              <FormConfirmar action={eliminarEtapaAccion} mensaje={t('confirmarEliminarEtapa', { nombre: et.nombre })}>
+              <FormConfirmar action={eliminarEtapaAccion} peligro mensaje={t('confirmarEliminarEtapa', { nombre: et.nombre })}>
                 <input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} />
                 <Tooltip texto={n > 0 ? t('tienePendientes') : t('eliminar')}><button disabled={n > 0 || etapas.length <= 1} className="rounded-md p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-30"><Trash2 size={14} /></button></Tooltip>
               </FormConfirmar>

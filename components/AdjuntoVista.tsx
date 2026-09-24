@@ -32,7 +32,7 @@ export async function AdjuntoVista({ adjunto }: { adjunto: Adjunto }) {
           <span className="block text-[11px] text-gray-400">{tamanoLegible(adjunto.tamano)}</span>
         </span>
       </a>
-      <FormConfirmar action={eliminarAdjuntoAccion} mensaje={t('confirmarQuitarArchivo', { nombre: adjunto.nombre })} className="absolute -right-1.5 -top-1.5 hidden group-hover:block">
+      <FormConfirmar action={eliminarAdjuntoAccion} peligro boton={t('quitar')} mensaje={t('confirmarQuitarArchivo', { nombre: adjunto.nombre })} className="absolute -right-1.5 -top-1.5 hidden group-hover:block">
         <input type="hidden" name="adjuntoId" value={adjunto.id} />
         <Tooltip texto={t('quitar')}><button className="rounded-full bg-black/70 p-0.5 text-white" aria-label={t('quitar')}><X size={12} /></button></Tooltip>
       </FormConfirmar>

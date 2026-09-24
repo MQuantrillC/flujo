@@ -8,7 +8,11 @@
     "temaOscuro": "Switch to dark theme",
     "idioma": "Language",
     "cuenta": "My account",
-    "volverInicio": "Back to home"
+    "volverInicio": "Back to home",
+    "cancelar": "Cancel",
+    "seguro": "Are you sure?",
+    "siContinuar": "Yes, continue",
+    "siEliminar": "Yes, delete"
   },
   "entrar": {
     "lema": "Team to-dos, in one line.",
@@ -230,7 +234,8 @@
     "eliminarEscribe": "To confirm, type the team name:",
     "eliminarBoton": "Delete {equipo} forever",
     "confirmarEliminarEquipo": "Delete the {equipo} team with all its to-dos? This cannot be undone.",
-    "soloCreador": "Only the person who created the team ({nombre}) can delete it."
+    "soloCreador": "Only the person who created the team ({nombre}) can delete it.",
+    "copiarManual": "Could not copy automatically. Select the text and copy it:"
   },
   "importar": {
     "titulo": "Import to-dos",

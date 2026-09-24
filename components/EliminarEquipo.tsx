@@ -1,12 +1,13 @@
 'use client';
 
 // Borrar un equipo entero. Como no se puede deshacer, el botón sólo se
-// activa cuando se escribe el nombre del equipo tal cual.
+// activa cuando se escribe el nombre del equipo tal cual, y luego se pregunta.
 
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { eliminarEquipoAccion } from '@/lib/acciones';
+import { FormConfirmar } from './FormConfirmar';
 
 const igual = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
@@ -15,15 +16,15 @@ export function EliminarEquipo({ equipoId, nombre }: { equipoId: string; nombre:
   const [escrito, setEscrito] = useState('');
   const listo = igual(escrito, nombre);
   return (
-    <form action={eliminarEquipoAccion} className="flex flex-col gap-2" onSubmit={(e) => { if (!listo || !confirm(t('confirmarEliminarEquipo', { equipo: nombre }))) e.preventDefault(); }}>
+    <FormConfirmar action={eliminarEquipoAccion} className="flex flex-col gap-2" peligro titulo={t('eliminarEquipo')} boton={t('eliminarBoton', { equipo: nombre })} mensaje={t('confirmarEliminarEquipo', { equipo: nombre })}>
       <input type="hidden" name="equipoId" value={equipoId} />
       <label className="text-xs text-gray-600">
         {t('eliminarEscribe')}
         <input name="confirmacion" value={escrito} onChange={(e) => setEscrito(e.target.value)} placeholder={nombre} autoComplete="off" className="campo mt-1" />
       </label>
-      <button disabled={!listo} className="boton w-fit border-red-600 bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40">
+      <button disabled={!listo} className="boton-peligro w-fit">
         <Trash2 size={14} /> {t('eliminarBoton', { equipo: nombre })}
       </button>
-    </form>
+    </FormConfirmar>
   );
 }

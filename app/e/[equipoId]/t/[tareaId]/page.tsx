@@ -141,7 +141,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
                     <input type="hidden" name="tareaId" value={tareaId} /><input type="hidden" name="destino" value={eq.id} /><input type="hidden" name="modo" value="copiar" />
                     <Tooltip texto={t('copiarAyuda')}><button className="rounded-md border border-gray-200 px-2 py-0.5 font-medium text-gray-600 transition-colors hover:border-acento hover:text-acento">{t('copiarA')}</button></Tooltip>
                   </form>
-                  <FormConfirmar action={pasarTareaAccion} mensaje={t('confirmarMover', { equipo: eq.nombre })}>
+                  <FormConfirmar action={pasarTareaAccion} boton={t('moverA')} mensaje={t('confirmarMover', { equipo: eq.nombre })}>
                     <input type="hidden" name="tareaId" value={tareaId} /><input type="hidden" name="destino" value={eq.id} /><input type="hidden" name="modo" value="mover" />
                     <Tooltip texto={t('moverAyuda')}><button className="rounded-md border border-gray-200 px-2 py-0.5 font-medium text-gray-600 transition-colors hover:border-acento hover:text-acento">{t('moverA')}</button></Tooltip>
                   </FormConfirmar>

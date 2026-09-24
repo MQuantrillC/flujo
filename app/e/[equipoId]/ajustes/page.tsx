@@ -58,7 +58,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
                 <span className="block truncate text-xs text-gray-500">{m.email}</span>
               </span>
               {m.email !== u.email && <CopiarInvitacion invitado={{ email: m.email, equipoId, equipoNombre: e.nombre, tieneCuenta: m.tieneCuenta }} />}
-              <FormConfirmar action={quitarMiembroAccion} mensaje={m.email === u.email ? t('confirmarSalir') : t('confirmarQuitar', { nombre: m.nombre })}>
+              <FormConfirmar action={quitarMiembroAccion} peligro boton={m.email === u.email ? t('salirEquipo') : t('quitar')} mensaje={m.email === u.email ? t('confirmarSalir') : t('confirmarQuitar', { nombre: m.nombre })}>
                 <input type="hidden" name="equipoId" value={equipoId} />
                 <input type="hidden" name="email" value={m.email} />
                 <Tooltip texto={m.email === u.email ? t('salirEquipo') : t('quitar')}>

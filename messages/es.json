@@ -8,7 +8,11 @@
     "temaOscuro": "Cambiar a tema oscuro",
     "idioma": "Idioma",
     "cuenta": "Mi cuenta",
-    "volverInicio": "Volver al inicio"
+    "volverInicio": "Volver al inicio",
+    "cancelar": "Cancelar",
+    "seguro": "¿Seguro?",
+    "siContinuar": "Sí, continuar",
+    "siEliminar": "Sí, eliminar"
   },
   "entrar": {
     "lema": "Pendientes del equipo, en una línea.",
@@ -230,7 +234,8 @@
     "eliminarEscribe": "Para confirmar, escribe el nombre del equipo:",
     "eliminarBoton": "Eliminar {equipo} para siempre",
     "confirmarEliminarEquipo": "¿Eliminar el equipo {equipo} con todos sus pendientes? No se puede deshacer.",
-    "soloCreador": "Solo quien creó el equipo ({nombre}) puede eliminarlo."
+    "soloCreador": "Solo quien creó el equipo ({nombre}) puede eliminarlo.",
+    "copiarManual": "No se pudo copiar solo. Selecciona el texto y cópialo:"
   },
   "importar": {
     "titulo": "Importar pendientes",

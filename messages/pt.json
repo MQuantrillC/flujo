@@ -8,7 +8,11 @@
     "temaOscuro": "Mudar para o tema escuro",
     "idioma": "Idioma",
     "cuenta": "Minha conta",
-    "volverInicio": "Voltar ao início"
+    "volverInicio": "Voltar ao início",
+    "cancelar": "Cancelar",
+    "seguro": "Tem certeza?",
+    "siContinuar": "Sim, continuar",
+    "siEliminar": "Sim, excluir"
   },
   "entrar": {
     "lema": "Pendências da equipe, em uma linha.",
@@ -230,7 +234,8 @@
     "eliminarEscribe": "Para confirmar, escreva o nome da equipe:",
     "eliminarBoton": "Excluir {equipo} para sempre",
     "confirmarEliminarEquipo": "Excluir a equipe {equipo} com todas as pendências? Não dá para desfazer.",
-    "soloCreador": "Só quem criou a equipe ({nombre}) pode excluí-la."
+    "soloCreador": "Só quem criou a equipe ({nombre}) pode excluí-la.",
+    "copiarManual": "Não deu para copiar sozinho. Selecione o texto e copie:"
   },
   "importar": {
     "titulo": "Importar pendências",

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { ArrowRightLeft, Copy } from 'lucide-react';
 import { pasarPendientesAccion, type ResultadoPase } from '@/lib/acciones';
 import { FILTROS, MODOS, seleccionar, type Filtro, type Modo, type TareaResumida } from '@/lib/copiar';
+import { FormConfirmar } from './FormConfirmar';
 
 /**
  * Copiar o mover pendientes a otro de mis equipos: eliges destino, cuáles y
@@ -36,7 +37,7 @@ export function PasarPendientes({ equipoId, destinos, tareas, finales, etiquetas
   );
 
   return (
-    <form action={enviar} onSubmit={(e) => { if (modo === 'mover' && !confirm(t('confirmarMover', { n, equipo: nombreDestino }))) e.preventDefault(); }} className="flex flex-col gap-4">
+    <FormConfirmar action={enviar} cuando={() => modo === 'mover'} mensaje={t('confirmarMover', { n, equipo: nombreDestino })} className="flex flex-col gap-4">
       <input type="hidden" name="equipoId" value={equipoId} />
       <input type="hidden" name="destino" value={destino} />
       <input type="hidden" name="filtro" value={filtro} />
@@ -60,6 +61,6 @@ export function PasarPendientes({ equipoId, destinos, tareas, finales, etiquetas
         )}
         {resultado && !resultado.ok && !pendiente && <span className="text-sm text-red-600">{t(`errores.${resultado.error}`)}</span>}
       </div>
-    </form>
+    </FormConfirmar>
   );
 }

@@ -89,7 +89,7 @@ export function EditorTarea({ tarea, etapas, miembros }: { tarea: Tarea; etapas:
         {!estado.ok && estado.error && <span className="text-sm text-red-600">{te(estado.error)}</span>}
       </div>
     </form>
-    <FormConfirmar action={eliminarTareaAccion} mensaje={t('confirmarBorrar')} className="self-end">
+    <FormConfirmar action={eliminarTareaAccion} peligro mensaje={t('confirmarBorrar')} className="self-end">
       <input type="hidden" name="tareaId" value={tarea.id} />
       <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-600"><Trash2 size={13} /> {t('borrar')}</button>
     </FormConfirmar>

@@ -17,7 +17,7 @@ export async function ImagenAdjunta({ adjunto }: { adjunto: Adjunto }) {
           <img src={url} alt={adjunto.nombre} className="h-28 w-28 rounded-lg border border-gray-200 object-cover transition-transform hover:scale-[1.02]" loading="lazy" />
         </a>
       </Tooltip>
-      <FormConfirmar action={eliminarAdjuntoAccion} mensaje={t('confirmarQuitarImagen')} className="absolute -right-1.5 -top-1.5 hidden group-hover:block">
+      <FormConfirmar action={eliminarAdjuntoAccion} peligro boton={t('quitar')} mensaje={t('confirmarQuitarImagen')} className="absolute -right-1.5 -top-1.5 hidden group-hover:block">
         <input type="hidden" name="adjuntoId" value={adjunto.id} />
         <button className="rounded-full bg-black/70 p-0.5 text-white" aria-label={t('quitar')}><X size={12} /></button>
       </FormConfirmar>
