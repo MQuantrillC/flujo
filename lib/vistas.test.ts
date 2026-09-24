@@ -5,7 +5,7 @@ import type { Tarea } from './modelo';
 const hoy = new Date(2026, 8, 23, 12); // miércoles
 const t = (id: string, fechaLimite: string | null, extra: Partial<Tarea> = {}): Tarea => ({
   id, equipoId: 'e', titulo: id, descripcion: '', etapaId: 's', fechaLimite, prioridad: 'normal', creadoPor: 'x',
-  creadoEn: 1, actualizadoEn: 1, terminadoEn: null, asignados: [], etiquetas: [], comentarios: 0, adjuntos: 0, ...extra,
+  creadoEn: 1, actualizadoEn: 1, terminadoEn: null, asignados: [], etiquetas: [], enlaces: [], comentarios: 0, adjuntos: 0, ...extra,
 });
 
 describe('agrupar por plazo', () => {

@@ -1,29 +1,39 @@
 // ──────────────────────────────────────────────────────────────────────────────
-// BASE DE DATOS — SQLite en data/flujo.db, con las tablas creadas al abrir.
+// BASE DE DATOS — SQLite en data/flujo.db (o en FLUJO_DATA_DIR), con las tablas
+// creadas al abrir y las columnas nuevas añadidas a bases que ya existían.
 //
-// Por ahora todo vive en la máquina donde corre la app. Toda la lectura y
-// escritura pasa por lib/repositorio.ts: si un día esto se muda a Firestore u
-// otra base, se cambia ese archivo y nada más.
+// Toda la lectura y escritura pasa por lib/repositorio.ts: si un día esto se
+// muda a Postgres u otra base, se cambia ese archivo y nada más.
 // ──────────────────────────────────────────────────────────────────────────────
 
 import Database from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 
-export const DATA_DIR = path.join(process.cwd(), 'data');
+export const DATA_DIR = process.env.FLUJO_DATA_DIR ? path.resolve(process.env.FLUJO_DATA_DIR) : path.join(process.cwd(), 'data');
 export const ADJUNTOS_DIR = path.join(DATA_DIR, 'adjuntos');
 
 const ESQUEMA = `
 CREATE TABLE IF NOT EXISTS usuarios (
   email TEXT PRIMARY KEY,
   nombre TEXT NOT NULL,
+  apellido TEXT NOT NULL DEFAULT '',
+  cumpleanos TEXT,
+  hash TEXT,
   creado_en INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sesiones (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL,
+  creado_en INTEGER NOT NULL,
+  expira_en INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS equipos (
   id TEXT PRIMARY KEY,
   nombre TEXT NOT NULL,
   creado_por TEXT NOT NULL,
-  creado_en INTEGER NOT NULL
+  creado_en INTEGER NOT NULL,
+  personal INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS miembros (
   equipo_id TEXT NOT NULL REFERENCES equipos(id) ON DELETE CASCADE,
@@ -57,10 +67,17 @@ CREATE TABLE IF NOT EXISTS asignados (
   email TEXT NOT NULL,
   PRIMARY KEY (tarea_id, email)
 );
+CREATE INDEX IF NOT EXISTS asignados_email ON asignados(email);
 CREATE TABLE IF NOT EXISTS etiquetas (
   tarea_id TEXT NOT NULL REFERENCES tareas(id) ON DELETE CASCADE,
   etiqueta TEXT NOT NULL,
   PRIMARY KEY (tarea_id, etiqueta)
+);
+CREATE TABLE IF NOT EXISTS enlaces (
+  tarea_id TEXT NOT NULL REFERENCES tareas(id) ON DELETE CASCADE,
+  url TEXT NOT NULL,
+  posicion INTEGER NOT NULL,
+  PRIMARY KEY (tarea_id, url)
 );
 CREATE TABLE IF NOT EXISTS comentarios (
   id TEXT PRIMARY KEY,
@@ -90,12 +107,28 @@ CREATE TABLE IF NOT EXISTS eventos (
 );
 `;
 
+/** Columnas que se sumaron después de la primera versión; en una base nueva ya vienen en el esquema. */
+const COLUMNAS_NUEVAS: [tabla: string, columna: string, definicion: string][] = [
+  ['usuarios', 'apellido', "TEXT NOT NULL DEFAULT ''"],
+  ['usuarios', 'cumpleanos', 'TEXT'],
+  ['usuarios', 'hash', 'TEXT'],
+  ['equipos', 'personal', 'INTEGER NOT NULL DEFAULT 0'],
+];
+
+function migrar(db: Database.Database): void {
+  for (const [tabla, columna, definicion] of COLUMNAS_NUEVAS) {
+    const existentes = (db.prepare(`PRAGMA table_info(${tabla})`).all() as { name: string }[]).map((c) => c.name);
+    if (!existentes.includes(columna)) db.exec(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${definicion}`);
+  }
+}
+
 function abrir(): Database.Database {
   fs.mkdirSync(ADJUNTOS_DIR, { recursive: true });
   const db = new Database(path.join(DATA_DIR, 'flujo.db'));
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   db.exec(ESQUEMA);
+  migrar(db);
   return db;
 }
 

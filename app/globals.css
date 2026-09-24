@@ -100,3 +100,21 @@ body {
 .desvanecer {
   animation: desvanecer 3s forwards;
 }
+
+/* El cursor de la máquina de escribir de los ejemplos. */
+@keyframes parpadeo {
+  50% { opacity: 0; }
+}
+.cursor-escritura::after {
+  content: '';
+  display: inline-block;
+  width: 1.5px;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: parpadeo 1s steps(2, start) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor-escritura::after { display: none; }
+}

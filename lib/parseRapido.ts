@@ -5,6 +5,7 @@
 //   @nombre      → responsable (se busca entre los miembros del equipo)
 //   #etiqueta    → etiqueta
 //   !            → prioridad alta (también «!alta» o «!urgente»)
+//   https://…    → enlace (documento, hoja, ticket); no forma parte del título
 //   fechas       → en español, inglés o portugués, mezclados como se quiera:
 //                  hoy · today · hoje · mañana · tomorrow · amanhã · pasado mañana ·
 //                  esta semana / this week (viernes) · próxima semana / next week /
@@ -16,6 +17,7 @@
 // ──────────────────────────────────────────────────────────────────────────────
 
 import { aIso, dia, finDeMes, proximoDiaSemana, sumarDias, viernesDeLaSemana, viernesProximaSemana } from './fechas';
+import { normalizarEnlace } from './enlaces';
 
 export interface MiembroParaParse { email: string; nombre: string }
 
@@ -26,6 +28,8 @@ export interface Interpretacion {
   /** Los @ que no coinciden con nadie, para avisar. */
   noResueltos: string[];
   etiquetas: string[];
+  /** Direcciones web que iban en la línea, ya fuera del título. */
+  enlaces: string[];
   fechaLimite: string | null;
   /** Las palabras que se leyeron como fecha, tal como se escribieron. */
   fechaTexto: string | null;
@@ -143,7 +147,15 @@ export function interpretar(texto: string, miembros: MiembroParaParse[], hoy: Da
   const asignados: string[] = [];
   const noResueltos: string[] = [];
   const etiquetas: string[] = [];
+  const enlaces: string[] = [];
   let prioridad: 'alta' | 'normal' = 'normal';
+
+  // enlaces: salen primero, para que su «#» o su «!» no se lean como otra cosa
+  resto = resto.replace(/(^|\s)((?:https?:\/\/|www\.)[^\s<>"']+)/gi, (_, esp: string, url: string) => {
+    const u = normalizarEnlace(url);
+    if (u && !enlaces.includes(u)) enlaces.push(u);
+    return esp;
+  });
 
   // @responsables
   resto = resto.replace(/(^|\s)@([\w.\-]+)/g, (_, esp: string, alias: string) => {
@@ -174,5 +186,5 @@ export function interpretar(texto: string, miembros: MiembroParaParse[], hoy: Da
   let titulo = resto.replace(/\s+/g, ' ').trim().replace(/^[\s,;:\-–]+|[\s,;:\-–]+$/g, '');
   if (titulo) titulo = titulo[0].toUpperCase() + titulo.slice(1);
 
-  return { titulo, asignados, noResueltos, etiquetas, fechaLimite, fechaTexto, prioridad };
+  return { titulo, asignados, noResueltos, etiquetas, enlaces, fechaLimite, fechaTexto, prioridad };
 }

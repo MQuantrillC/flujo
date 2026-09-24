@@ -135,3 +135,16 @@ describe('fechas cortas en tres idiomas', () => {
     expect(haceCuanto(ahora - 30_000, ahora, 'pt')).toBe('agora');
   });
 });
+
+describe('enlaces en la línea', () => {
+  it('saca la dirección del título y la guarda aparte', () => {
+    const r = interpretar('@harold revisar https://docs.google.com/d/abc#seccion esta semana #insights', equipo, hoy);
+    expect(r.titulo).toBe('Revisar');
+    expect(r.enlaces).toEqual(['https://docs.google.com/d/abc#seccion']);
+    expect(r.etiquetas).toEqual(['insights']);
+    expect(r.asignados).toEqual(['harold.suarez@xertica.com']);
+  });
+  it('sin dirección, la lista queda vacía', () => {
+    expect(interpretar('llamar al proveedor', [], hoy).enlaces).toEqual([]);
+  });
+});

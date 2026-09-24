@@ -6,6 +6,8 @@ import { Check, Flag, Trash2 } from 'lucide-react';
 import { actualizarTareaAccion, eliminarTareaAccion, type ResultadoGuardar } from '@/lib/acciones';
 import type { Etapa, Tarea, Usuario } from '@/lib/modelo';
 import { FormConfirmar } from './FormConfirmar';
+import { SelectorEtapa } from './SelectorEtapa';
+import { Tooltip } from './Tooltip';
 
 type Estado = ResultadoGuardar & { en?: number };
 
@@ -29,22 +31,27 @@ export function EditorTarea({ tarea, etapas, miembros }: { tarea: Tarea; etapas:
       <input type="hidden" name="prioridad" value={prioridad} />
 
       <div className="flex items-start gap-2">
-        <button type="button" onClick={() => setPrioridad((p) => (p === 'alta' ? 'normal' : 'alta'))} title={prioridad === 'alta' ? t('quitarAlta') : t('marcarAlta')}
-          className={`mt-2 rounded-md p-1 ${prioridad === 'alta' ? 'text-red-500' : 'text-gray-300 hover:text-gray-500'}`}>
-          <Flag size={18} className={prioridad === 'alta' ? 'fill-red-500' : ''} />
-        </button>
+        <Tooltip texto={prioridad === 'alta' ? t('quitarAlta') : t('marcarAlta')} className="mt-2">
+          <button type="button" onClick={() => setPrioridad((p) => (p === 'alta' ? 'normal' : 'alta'))} aria-pressed={prioridad === 'alta'}
+            className={`rounded-md p-1 transition-colors ${prioridad === 'alta' ? 'text-red-500' : 'text-gray-300 hover:text-gray-500'}`}>
+            <Flag size={18} className={prioridad === 'alta' ? 'fill-red-500' : ''} />
+          </button>
+        </Tooltip>
         <input name="titulo" defaultValue={tarea.titulo} required className="campo text-lg font-semibold" />
       </div>
 
       <textarea name="descripcion" defaultValue={tarea.descripcion} rows={4} className="campo" placeholder={t('descripcion')} />
 
+      <label className="text-sm">
+        <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">{t('enlaces')} <span className="font-normal normal-case tracking-normal">· {t('enlacesAyuda')}</span></span>
+        <textarea name="enlaces" defaultValue={tarea.enlaces.join('\n')} rows={Math.min(4, Math.max(2, tarea.enlaces.length + 1))} className="campo font-mono text-xs" placeholder={t('enlacesPlaceholder')} />
+      </label>
+
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="text-sm">
+        <div className="text-sm">
           <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">{t('etapa')}</span>
-          <select name="etapaId" defaultValue={tarea.etapaId} className="campo">
-            {etapas.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
-          </select>
-        </label>
+          <SelectorEtapa name="etapaId" etapaId={tarea.etapaId} etapas={etapas} tam="md" />
+        </div>
         <label className="text-sm">
           <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">{t('fechaLimite')}</span>
           <input type="date" name="fechaLimite" defaultValue={tarea.fechaLimite ?? ''} className="campo" />

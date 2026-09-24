@@ -1,16 +1,18 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Link2 } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { adjuntosSueltos, comentariosDe, etapasDe, eventosDe, miembrosDe, tarea } from '@/lib/repositorio';
 import { aIso, fechaCorta, haceCuanto } from '@/lib/fechas';
+import { etiquetaEnlace, extraerEnlaces } from '@/lib/enlaces';
 import { idiomaValido, type Idioma } from '@/lib/idioma';
 import type { Evento } from '@/lib/modelo';
 import { Avatar } from '@/components/Avatar';
 import { EditorTarea } from '@/components/EditorTarea';
 import { FormularioComentario } from '@/components/FormularioComentario';
 import { ImagenAdjunta } from '@/components/ImagenAdjunta';
+import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +30,7 @@ function describir(e: Evento, nombre: (email: string) => string, th: T, idioma: 
     case 'prioridad': return d.a === 'alta' ? th('prioridadAlta') : th('prioridadNormal');
     case 'asignados': return th('asignados', { a: lista(d.a) });
     case 'etiquetas': return Array.isArray(d.a) && d.a.length ? th('etiquetas', { a: d.a.map((x) => '#' + x).join(' ') }) : th('sinEtiquetas');
+    case 'enlaces': return th('enlaces', { n: Array.isArray(d.a) ? d.a.length : 0 });
     case 'comentario': return th('comentario');
     case 'adjunto': return th('adjunto', { nombre: String(d.nombre ?? '') });
     default: return e.tipo;
@@ -50,6 +53,8 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
   const sueltos = adjuntosSueltos(tareaId);
   const eventos = eventosDe(tareaId);
   const hace = (ms: number) => haceCuanto(ms, undefined, idioma);
+  // Los enlaces propios más los que aparezcan en la descripción, sin repetir.
+  const enlaces = [...new Set([...x.enlaces, ...extraerEnlaces(x.descripcion)])];
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
@@ -74,7 +79,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
               <Avatar nombre={nombre(c.autor)} />
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-gray-500"><span className="font-semibold text-gray-700">{nombre(c.autor)}</span> · {hace(c.creadoEn)}</p>
-                {c.texto && <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800">{c.texto}</p>}
+                {c.texto && <TextoConEnlaces texto={c.texto} className="mt-1 whitespace-pre-wrap text-sm text-gray-800" />}
                 {c.adjuntos.length > 0 && <div className="mt-2 flex flex-wrap gap-3">{c.adjuntos.map((a) => <ImagenAdjunta key={a.id} adjunto={a} />)}</div>}
               </div>
             </article>
@@ -84,6 +89,24 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
       </div>
 
       <aside className="flex flex-col gap-4">
+        {enlaces.length > 0 && (
+          <section className="tarjeta p-4">
+            <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('enlaces')}</h2>
+            <ul className="flex flex-col gap-1.5">
+              {enlaces.map((u) => (
+                <li key={u}>
+                  <a href={u} target="_blank" rel="noopener noreferrer" className="group flex items-start gap-2 rounded-lg px-1.5 py-1 text-sm transition-colors hover:bg-acento/10">
+                    <Link2 size={14} className="mt-0.5 shrink-0 text-gray-400 group-hover:text-acento" />
+                    <span className="min-w-0">
+                      <span className="block font-medium text-gray-800 group-hover:text-acento">{etiquetaEnlace(u)}</span>
+                      <span className="block truncate text-[11px] text-gray-400">{u.replace(/^https?:\/\//, '')}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <section className="tarjeta p-4 text-sm">
           <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('ficha')}</h2>
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600">

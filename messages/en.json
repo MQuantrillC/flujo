@@ -6,15 +6,21 @@
     "volverTablero": "Back to board",
     "temaClaro": "Switch to light theme",
     "temaOscuro": "Switch to dark theme",
-    "idioma": "Language"
+    "idioma": "Language",
+    "cuenta": "My account",
+    "volverInicio": "Back to home"
   },
   "entrar": {
     "lema": "Team to-dos, in one line.",
-    "sinIdentidad": "We couldn't tell who you are. Access is with your Xertica Google account.",
-    "tuCorreo": "Your email",
-    "correoInvalido": "Enter a valid email.",
     "entrar": "Sign in",
-    "nota": "While Flujo runs on a single machine, your email is enough. In the cloud it will sign in with Google."
+    "correo": "Email",
+    "contrasena": "Password",
+    "entrando": "Signing in…",
+    "sinCuenta": "Don't have an account yet?",
+    "registrate": "Create one",
+    "errores": {
+      "credenciales": "Wrong email or password."
+    }
   },
   "inicio": {
     "tusEquipos": "Your teams",
@@ -26,7 +32,15 @@
     "ponleNombre": "Give it a name.",
     "correos": "Members' emails",
     "correosAyuda": "(separated by comma, space or line; you can add more later)",
-    "crearEquipo": "Create team"
+    "crearEquipo": "Create team",
+    "loMio": "My to-dos",
+    "loMioAyuda": "Everything open that is yours, across all your teams and your personal space.",
+    "sinPendientes": "Nothing pending. Write one above or open a team.",
+    "nombreEspacioPersonal": "Personal",
+    "tuEspacio": "Your space: only you can see it",
+    "personalAyuda": "Your own to-dos, with no team: only you can see them. Once you have a personal space, the quick line on this screen saves there.",
+    "crearPersonal": "Create my personal space",
+    "rapidaPersonal": "goes to your personal space"
   },
   "nav": {
     "tablero": "Board",
@@ -59,7 +73,7 @@
     "etapa": "Stage"
   },
   "barra": {
-    "placeholder": "@harold review /master/insights this week #insights",
+    "placeholder": "Write a to-do…",
     "crear": "Create",
     "creando": "Creating…",
     "seCreara": "Will create:",
@@ -67,14 +81,20 @@
     "vence": "due {fecha}",
     "alta": "high",
     "noEsDelEquipo": "@{alias} is not on this team",
-    "ayudaResponsable": "assignee",
-    "ayudaEtiqueta": "tag",
-    "ayudaPrioridad": "high priority",
-    "ayudaFechas": "today · tomorrow · this week · monday · oct 15 · in 3 days",
-    "ayudaFecha": "date",
     "creados": "{n, plural, one {To-do created ✓} other {# to-dos created ✓}}",
     "nuevaEtiqueta": "new tag",
-    "atajos": "↑ ↓ to move · Enter or Tab to pick · Esc to close"
+    "atajos": "↑ ↓ to move · Enter or Tab to pick · Esc to close",
+    "ejemplosTitulo": "For example:",
+    "ejemploGenerico": "@assignee what needs doing #tag ! when",
+    "ejemplos": [
+      "@{a} finish the sales report this week #sales",
+      "@{a} prepare the client demo on monday !",
+      "@{b} review the proposal tomorrow #proposals",
+      "@{a} @{b} tidy up the team drive in 3 days",
+      "call the supplier today !",
+      "@{b} send the signed contract oct 15",
+      "@{a} review https://docs.google.com/… before friday"
+    ]
   },
   "errores": {
     "faltaTitulo": "Missing title: write what needs to be done.",
@@ -112,7 +132,10 @@
     "creado": "Created",
     "actualizado": "Updated",
     "terminado": "Done",
-    "historial": "History"
+    "historial": "History",
+    "enlaces": "Links",
+    "enlacesAyuda": "documents, sheets, tickets… one per line",
+    "enlacesPlaceholder": "https://docs.google.com/…"
   },
   "historial": {
     "creada": "created the to-do",
@@ -128,7 +151,8 @@
     "etiquetas": "tagged with {a}",
     "sinEtiquetas": "removed the tags",
     "comentario": "commented",
-    "adjunto": "attached {nombre}"
+    "adjunto": "attached {nombre}",
+    "enlaces": "{n, plural, =0 {removed the links} one {left # link} other {left # links}}"
   },
   "comentarios": {
     "placeholder": "Comment on progress… Paste or drop an image here.",
@@ -148,8 +172,6 @@
     "confirmarSalir": "Leave this team?",
     "confirmarQuitar": "Remove {nombre} from the team? Their to-dos stay.",
     "correoPlaceholder": "email@xertica.com (one or several)",
-    "tuNombre": "Your name",
-    "tuNombreAyuda": "How others see you and how they find you with @ in the quick line.",
     "etapas": "Stages",
     "etapasAyuda": "The board columns, in order. The one marked as <b>done</b> closes the to-do.",
     "guardarNombre": "Save name",
@@ -162,7 +184,11 @@
     "confirmarEliminarEtapa": "Delete the stage “{nombre}”?",
     "tienePendientes": "It has to-dos: move them first",
     "eliminar": "Delete",
-    "nuevaEtapa": "New stage, e.g. Blocked"
+    "nuevaEtapa": "New stage, e.g. Blocked",
+    "sinCuenta": "no account yet",
+    "sinCuentaAyuda": "They will see the team once they create their account with this email.",
+    "invitar": "Invite",
+    "invitarAyuda": "The email they signed up with (or will sign up with). Several are fine."
   },
   "importar": {
     "titulo": "Import to-dos",
@@ -204,6 +230,53 @@
       "noEsDelEquipo": "“{valor}” is not on this team",
       "fechaNoEntendida": "Couldn't understand the date “{valor}”",
       "etapaNoExiste": "The stage “{valor}” doesn't exist; goes to the first one"
+    }
+  },
+  "registro": {
+    "titulo": "Create account",
+    "nombre": "First name",
+    "apellido": "Last name",
+    "correo": "Email",
+    "cumpleanos": "Birthday",
+    "opcional": "(optional)",
+    "contrasena": "Password",
+    "contrasenaAyuda": "(at least {n} characters)",
+    "repetir": "Repeat password",
+    "crear": "Create account",
+    "creando": "Creating…",
+    "nota": "If someone already invited you to a team with this email, you will see it once you sign in.",
+    "yaTienes": "Already have an account?",
+    "entra": "Sign in",
+    "errores": {
+      "faltanDatos": "Something is missing or mistyped.",
+      "correoInvalido": "Enter a valid email.",
+      "contrasenaCorta": "The password is too short.",
+      "noCoinciden": "The passwords do not match.",
+      "yaExiste": "There is already an account with that email."
+    }
+  },
+  "cuenta": {
+    "titulo": "My account",
+    "datos": "Your details",
+    "nombre": "First name",
+    "apellido": "Last name",
+    "correo": "Email",
+    "correoFijo": "(can't be changed: it's how teams invite you)",
+    "cumpleanos": "Birthday",
+    "guardar": "Save",
+    "guardado": "Saved ✓",
+    "contrasenaTitulo": "Password",
+    "actual": "Current password",
+    "nueva": "New password",
+    "contrasenaAyuda": "(at least {n} characters)",
+    "repetir": "Repeat new password",
+    "cambiar": "Change password",
+    "cambiada": "Password changed ✓",
+    "errores": {
+      "faltanDatos": "Something is missing or mistyped.",
+      "actualIncorrecta": "The current password is not correct.",
+      "contrasenaCorta": "The password is too short.",
+      "noCoinciden": "The passwords do not match."
     }
   }
 }

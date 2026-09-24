@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flujo
 
-## Getting Started
+Pendientes del equipo, en una línea. Escribes `@harold revisar /master/insights esta semana #insights` y queda creado el pendiente con responsable, título, fecha límite (el viernes) y etiqueta. Después: tablero con columnas por etapa (arrastrar y soltar), vistas «Lo mío», «Esta semana» y «Por persona», seguimiento con comentarios e imágenes, enlaces a documentos, importación en masa con ayuda de una IA, tema claro/oscuro y tres idiomas (ES · EN · PT).
 
-First, run the development server:
+## Correr en tu máquina
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre http://localhost:3100, crea tu cuenta y tu primer equipo. Los datos quedan en `data/` (base SQLite e imágenes), fuera del repositorio.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `npm test` corre las pruebas (línea rápida, importación, vistas, enlaces).
+- `npm run lint` y `npx tsc --noEmit` antes de subir cambios.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cuentas e invitaciones
 
-## Learn More
+Cada persona crea su cuenta con nombre, apellido, correo, cumpleaños y contraseña (la contraseña se guarda como hash scrypt; las sesiones viven en la base y en una cookie `httpOnly`). Para invitar a alguien a un equipo basta con su correo: si todavía no tiene cuenta, verá el equipo en cuanto la cree con ese mismo correo.
 
-To learn more about Next.js, take a look at the following resources:
+## Desplegar
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+La app guarda todo en disco (SQLite + imágenes), así que necesita un servidor con un volumen persistente. Con el `Dockerfile` incluido:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Railway** o **Fly.io**: crea el servicio desde este repositorio, monta un volumen en `/data` y expón el puerto 3100. `FLUJO_DATA_DIR` ya apunta a `/data` en la imagen.
+- **Una VM** (Compute Engine, etc.): `docker build -t flujo . && docker run -p 3100:3100 -v flujo-data:/data flujo`.
 
-## Deploy on Vercel
+Vercel y otras plataformas sin disco persistente no sirven tal cual: harían falta una base externa (Turso o Postgres) y un almacén de imágenes. Todo el acceso a datos pasa por `lib/repositorio.ts`, que es lo único que habría que cambiar.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Cómo está hecho
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 (App Router, acciones de servidor), React 19, Tailwind 4, better-sqlite3, next-intl (idioma por cookie), motion y React Bits para las animaciones.
+
+| Carpeta | Qué hay |
+| --- | --- |
+| `app/` | páginas: inicio (tus pendientes de todos los equipos), `/e/[equipo]` (tablero y vistas), `/e/[equipo]/t/[tarea]`, `/entrar`, `/registro`, `/cuenta` |
+| `lib/parseRapido.ts` | la línea rápida: @responsables, #etiquetas, `!` prioridad, fechas en tres idiomas, enlaces |
+| `lib/repositorio.ts` | toda la base de datos |
+| `lib/importar.ts` | importación en masa (CSV, Excel o lista de líneas) |
+| `messages/` | textos en español, inglés y portugués |
+| `public/brand/` | logotipo y símbolo |

@@ -5,7 +5,7 @@
 // acciones no saben que debajo hay SQLite.
 // ──────────────────────────────────────────────────────────────────────────────
 
-import { randomUUID } from 'crypto';
+import { randomBytes, randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ADJUNTOS_DIR, db } from './db';
@@ -18,37 +18,100 @@ import {
 
 const ahora = () => Date.now();
 const id = () => randomUUID();
+const DIAS_SESION = 90;
 
 // ── Usuarios ────────────────────────────────────────────────────────────────
 
+const usuarioDeFila = (r: any): Usuario => ({
+  email: r.email,
+  nombre: [r.nombre, r.apellido].filter(Boolean).join(' ').trim() || nombreDesdeCorreo(r.email),
+  nombrePila: r.nombre,
+  apellido: r.apellido ?? '',
+  cumpleanos: r.cumpleanos ?? null,
+  tieneCuenta: !!r.hash,
+});
+
+const invitado = (email: string): Usuario => ({ email, nombre: nombreDesdeCorreo(email), nombrePila: nombreDesdeCorreo(email), apellido: '', cumpleanos: null, tieneCuenta: false });
+
+/** Crea la fila si no existe (alguien lo invitó a un equipo antes de que tuviera cuenta). */
 export function asegurarUsuario(email: string): Usuario {
   const e = email.trim().toLowerCase();
   db.prepare('INSERT OR IGNORE INTO usuarios (email, nombre, creado_en) VALUES (?, ?, ?)').run(e, nombreDesdeCorreo(e), ahora());
-  return db.prepare('SELECT email, nombre FROM usuarios WHERE email = ?').get(e) as Usuario;
+  return usuarioDeFila(db.prepare('SELECT * FROM usuarios WHERE email = ?').get(e));
 }
 
-export function renombrarUsuario(email: string, nombre: string): void {
-  const n = nombre.trim();
-  if (!n) return;
-  db.prepare('UPDATE usuarios SET nombre = ? WHERE email = ?').run(n, email);
+export function usuario(email: string): Usuario | null {
+  const r = db.prepare('SELECT * FROM usuarios WHERE email = ?').get(email.trim().toLowerCase());
+  return r ? usuarioDeFila(r) : null;
+}
+
+/** El hash de la contraseña, o null si todavía no creó su cuenta. */
+export function hashDe(email: string): string | null {
+  return (db.prepare('SELECT hash FROM usuarios WHERE email = ?').get(email.trim().toLowerCase()) as any)?.hash ?? null;
+}
+
+export interface NuevaCuenta { email: string; nombre: string; apellido: string; cumpleanos: string | null; hash: string }
+
+/**
+ * Crea la cuenta. Si el correo ya estaba (invitado a un equipo), se completa esa
+ * fila y conserva sus equipos. Si ya tenía contraseña, no se toca: devuelve false.
+ */
+export function registrarUsuario(c: NuevaCuenta): boolean {
+  const e = c.email.trim().toLowerCase();
+  const existente = db.prepare('SELECT hash FROM usuarios WHERE email = ?').get(e) as any;
+  if (existente?.hash) return false;
+  if (existente) db.prepare('UPDATE usuarios SET nombre = ?, apellido = ?, cumpleanos = ?, hash = ? WHERE email = ?').run(c.nombre.trim(), c.apellido.trim(), c.cumpleanos, c.hash, e);
+  else db.prepare('INSERT INTO usuarios (email, nombre, apellido, cumpleanos, hash, creado_en) VALUES (?, ?, ?, ?, ?, ?)').run(e, c.nombre.trim(), c.apellido.trim(), c.cumpleanos, c.hash, ahora());
+  return true;
+}
+
+export function actualizarPerfil(email: string, p: { nombre: string; apellido: string; cumpleanos: string | null }): void {
+  if (!p.nombre.trim()) return;
+  db.prepare('UPDATE usuarios SET nombre = ?, apellido = ?, cumpleanos = ? WHERE email = ?').run(p.nombre.trim(), p.apellido.trim(), p.cumpleanos, email);
+}
+
+export function cambiarHash(email: string, hash: string): void {
+  db.prepare('UPDATE usuarios SET hash = ? WHERE email = ?').run(hash, email);
 }
 
 export function usuarios(emails: string[]): Usuario[] {
   if (emails.length === 0) return [];
-  const filas = db.prepare(`SELECT email, nombre FROM usuarios WHERE email IN (${emails.map(() => '?').join(',')})`).all(...emails) as Usuario[];
-  return emails.map((e) => filas.find((f) => f.email === e) ?? { email: e, nombre: nombreDesdeCorreo(e) });
+  const filas = (db.prepare(`SELECT * FROM usuarios WHERE email IN (${emails.map(() => '?').join(',')})`).all(...emails) as any[]).map(usuarioDeFila);
+  return emails.map((e) => filas.find((f) => f.email === e) ?? invitado(e));
+}
+
+// ── Sesiones ────────────────────────────────────────────────────────────────
+
+/** Abre una sesión y devuelve su token (lo que va en la cookie). */
+export function crearSesion(email: string): string {
+  const token = randomBytes(32).toString('hex');
+  const t = ahora();
+  db.prepare('INSERT INTO sesiones (id, email, creado_en, expira_en) VALUES (?, ?, ?, ?)').run(token, email, t, t + DIAS_SESION * 86_400_000);
+  db.prepare('DELETE FROM sesiones WHERE expira_en < ?').run(t);
+  return token;
+}
+
+export function emailDeSesion(token: string): string | null {
+  const r = db.prepare('SELECT email, expira_en FROM sesiones WHERE id = ?').get(token) as any;
+  if (!r) return null;
+  if (r.expira_en < ahora()) { db.prepare('DELETE FROM sesiones WHERE id = ?').run(token); return null; }
+  return r.email;
+}
+
+export function cerrarSesion(token: string): void {
+  db.prepare('DELETE FROM sesiones WHERE id = ?').run(token);
 }
 
 // ── Equipos y miembros ──────────────────────────────────────────────────────
 
-const equipoDeFila = (r: any): Equipo => ({ id: r.id, nombre: r.nombre, creadoPor: r.creado_por, creadoEn: r.creado_en });
+const equipoDeFila = (r: any): Equipo => ({ id: r.id, nombre: r.nombre, creadoPor: r.creado_por, creadoEn: r.creado_en, personal: !!r.personal });
 
 /** `etapas`: los nombres iniciales, en orden; la última es la de «hecho». */
-export function crearEquipo(nombre: string, creador: string, correos: string[], etapas: string[]): Equipo {
+export function crearEquipo(nombre: string, creador: string, correos: string[], etapas: string[], personal = false): Equipo {
   const eid = id();
   const t = ahora();
   const tx = db.transaction(() => {
-    db.prepare('INSERT INTO equipos (id, nombre, creado_por, creado_en) VALUES (?, ?, ?, ?)').run(eid, nombre.trim(), creador, t);
+    db.prepare('INSERT INTO equipos (id, nombre, creado_por, creado_en, personal) VALUES (?, ?, ?, ?, ?)').run(eid, nombre.trim(), creador, t, personal ? 1 : 0);
     for (const c of new Set([creador, ...correos.map((x) => x.trim().toLowerCase()).filter((x) => x.includes('@'))])) {
       asegurarUsuario(c);
       db.prepare('INSERT OR IGNORE INTO miembros (equipo_id, email, agregado_en) VALUES (?, ?, ?)').run(eid, c, t);
@@ -66,8 +129,15 @@ export function equipo(eid: string): Equipo | null {
   return r ? equipoDeFila(r) : null;
 }
 
+/** Los equipos de una persona, el personal primero. */
 export function equiposDe(email: string): Equipo[] {
-  return (db.prepare('SELECT e.* FROM equipos e JOIN miembros m ON m.equipo_id = e.id WHERE m.email = ? ORDER BY e.nombre').all(email) as any[]).map(equipoDeFila);
+  return (db.prepare('SELECT e.* FROM equipos e JOIN miembros m ON m.equipo_id = e.id WHERE m.email = ? ORDER BY e.personal DESC, e.nombre').all(email) as any[]).map(equipoDeFila);
+}
+
+/** El espacio personal de alguien: un equipo suyo marcado como personal. */
+export function espacioPersonalDe(email: string): Equipo | null {
+  const r = db.prepare('SELECT e.* FROM equipos e JOIN miembros m ON m.equipo_id = e.id WHERE m.email = ? AND e.personal = 1 AND e.creado_por = ? ORDER BY e.creado_en LIMIT 1').get(email, email);
+  return r ? equipoDeFila(r) : null;
 }
 
 export function esMiembro(eid: string, email: string): boolean {
@@ -75,7 +145,7 @@ export function esMiembro(eid: string, email: string): boolean {
 }
 
 export function miembrosDe(eid: string): Usuario[] {
-  return db.prepare('SELECT u.email, u.nombre FROM miembros m JOIN usuarios u ON u.email = m.email WHERE m.equipo_id = ? ORDER BY u.nombre').all(eid) as Usuario[];
+  return (db.prepare('SELECT u.* FROM miembros m JOIN usuarios u ON u.email = m.email WHERE m.equipo_id = ? ORDER BY u.nombre, u.apellido').all(eid) as any[]).map(usuarioDeFila);
 }
 
 export function agregarMiembro(eid: string, email: string): void {
@@ -99,6 +169,13 @@ const etapaDeFila = (r: any): Etapa => ({ id: r.id, equipoId: r.equipo_id, nombr
 
 export function etapasDe(eid: string): Etapa[] {
   return (db.prepare('SELECT * FROM etapas WHERE equipo_id = ? ORDER BY posicion').all(eid) as any[]).map(etapaDeFila);
+}
+
+/** Las etapas de varios equipos a la vez, por id de equipo. */
+export function etapasDeEquipos(ids: string[]): Record<string, Etapa[]> {
+  const r: Record<string, Etapa[]> = {};
+  for (const eid of new Set(ids)) r[eid] = etapasDe(eid);
+  return r;
 }
 
 export function etapa(etapaId: string): Etapa | null {
@@ -153,6 +230,7 @@ function tareasDeFilas(filas: any[]): Tarea[] {
   const marcas = ids.map(() => '?').join(',');
   const asig = db.prepare(`SELECT tarea_id, email FROM asignados WHERE tarea_id IN (${marcas})`).all(...ids) as any[];
   const etq = db.prepare(`SELECT tarea_id, etiqueta FROM etiquetas WHERE tarea_id IN (${marcas}) ORDER BY etiqueta`).all(...ids) as any[];
+  const enl = db.prepare(`SELECT tarea_id, url FROM enlaces WHERE tarea_id IN (${marcas}) ORDER BY posicion`).all(...ids) as any[];
   const com = db.prepare(`SELECT tarea_id, COUNT(*) n FROM comentarios WHERE tarea_id IN (${marcas}) GROUP BY tarea_id`).all(...ids) as any[];
   const adj = db.prepare(`SELECT tarea_id, COUNT(*) n FROM adjuntos WHERE tarea_id IN (${marcas}) GROUP BY tarea_id`).all(...ids) as any[];
   return filas.map((r) => ({
@@ -161,13 +239,32 @@ function tareasDeFilas(filas: any[]): Tarea[] {
     creadoEn: r.creado_en, actualizadoEn: r.actualizado_en, terminadoEn: r.terminado_en,
     asignados: asig.filter((a) => a.tarea_id === r.id).map((a) => a.email),
     etiquetas: etq.filter((a) => a.tarea_id === r.id).map((a) => a.etiqueta),
+    enlaces: enl.filter((a) => a.tarea_id === r.id).map((a) => a.url),
     comentarios: com.find((c) => c.tarea_id === r.id)?.n ?? 0,
     adjuntos: adj.find((c) => c.tarea_id === r.id)?.n ?? 0,
   }));
 }
 
+const ORDEN = 'ORDER BY (fecha_limite IS NULL), fecha_limite, creado_en DESC';
+
 export function tareasDe(eid: string): Tarea[] {
-  return tareasDeFilas(db.prepare('SELECT * FROM tareas WHERE equipo_id = ? ORDER BY (fecha_limite IS NULL), fecha_limite, creado_en DESC').all(eid) as any[]);
+  return tareasDeFilas(db.prepare(`SELECT * FROM tareas WHERE equipo_id = ? ${ORDEN}`).all(eid) as any[]);
+}
+
+/**
+ * Lo abierto de una persona en todos sus equipos: lo que tiene asignado y, en su
+ * espacio personal, todo (ahí no hace falta asignarse nada).
+ */
+export function tareasAbiertasDe(email: string): Tarea[] {
+  return tareasDeFilas(db.prepare(`
+    SELECT t.* FROM tareas t
+    JOIN etapas e ON e.id = t.etapa_id
+    JOIN equipos q ON q.id = t.equipo_id
+    JOIN miembros m ON m.equipo_id = t.equipo_id AND m.email = ?
+    WHERE e.es_final = 0 AND (
+      (q.personal = 1 AND q.creado_por = ?) OR EXISTS (SELECT 1 FROM asignados a WHERE a.tarea_id = t.id AND a.email = ?)
+    )
+    ${ORDEN}`).all(email, email, email) as any[]);
 }
 
 export function tarea(tid: string): Tarea | null {
@@ -179,8 +276,13 @@ function registrarEvento(tareaId: string, autor: string, tipo: TipoEvento, detal
   db.prepare('INSERT INTO eventos (id, tarea_id, autor, tipo, detalle, creado_en) VALUES (?, ?, ?, ?, ?, ?)').run(id(), tareaId, autor, tipo, JSON.stringify(detalle), ahora());
 }
 
+function guardarEnlaces(tid: string, enlaces: string[]): void {
+  db.prepare('DELETE FROM enlaces WHERE tarea_id = ?').run(tid);
+  [...new Set(enlaces.map((u) => u.trim()).filter(Boolean))].forEach((u, i) => db.prepare('INSERT INTO enlaces (tarea_id, url, posicion) VALUES (?, ?, ?)').run(tid, u, i));
+}
+
 export interface NuevaTarea {
-  equipoId: string; titulo: string; descripcion?: string; asignados: string[]; etiquetas: string[];
+  equipoId: string; titulo: string; descripcion?: string; asignados: string[]; etiquetas: string[]; enlaces?: string[];
   fechaLimite: string | null; prioridad: Prioridad; creadoPor: string;
   /** Etapa inicial; sin ella, la primera que no sea «hecho». */
   etapaId?: string;
@@ -197,6 +299,7 @@ export function crearTarea(n: NuevaTarea): Tarea {
       .run(tid, n.equipoId, n.titulo.trim(), (n.descripcion ?? '').trim(), etapaInicial.id, n.fechaLimite, n.prioridad, n.creadoPor, t, t, etapaInicial.esFinal ? t : null);
     for (const a of new Set(n.asignados)) db.prepare('INSERT INTO asignados (tarea_id, email) VALUES (?, ?)').run(tid, a);
     for (const e of new Set(n.etiquetas)) db.prepare('INSERT INTO etiquetas (tarea_id, etiqueta) VALUES (?, ?)').run(tid, e);
+    if (n.enlaces?.length) guardarEnlaces(tid, n.enlaces);
     registrarEvento(tid, n.creadoPor, 'creada', { asignados: n.asignados, fechaLimite: n.fechaLimite });
   })();
   return tarea(tid)!;
@@ -204,7 +307,7 @@ export function crearTarea(n: NuevaTarea): Tarea {
 
 export interface CambiosTarea {
   titulo?: string; descripcion?: string; fechaLimite?: string | null; prioridad?: Prioridad;
-  etapaId?: string; asignados?: string[]; etiquetas?: string[];
+  etapaId?: string; asignados?: string[]; etiquetas?: string[]; enlaces?: string[];
 }
 
 /** Aplica sólo lo que cambió y deja un evento por cada cambio. */
@@ -246,6 +349,10 @@ export function actualizarTarea(tid: string, autor: string, c: CambiosTarea): Ta
       db.prepare('DELETE FROM etiquetas WHERE tarea_id = ?').run(tid);
       for (const e of new Set(c.etiquetas)) db.prepare('INSERT INTO etiquetas (tarea_id, etiqueta) VALUES (?, ?)').run(tid, e);
       registrarEvento(tid, autor, 'etiquetas', { de: antes.etiquetas, a: c.etiquetas });
+    }
+    if (c.enlaces !== undefined && !mismos(c.enlaces, antes.enlaces)) {
+      guardarEnlaces(tid, c.enlaces);
+      registrarEvento(tid, autor, 'enlaces', { de: antes.enlaces, a: c.enlaces });
     }
     db.prepare('UPDATE tareas SET actualizado_en = ? WHERE id = ?').run(t, tid);
   })();

@@ -1,8 +1,18 @@
 // Los objetos que ven las páginas. Sin nada de SQL.
 
-export interface Usuario { email: string; nombre: string }
+export interface Usuario {
+  email: string;
+  /** Nombre y apellido juntos: así se muestra en toda la app. */
+  nombre: string;
+  nombrePila: string;
+  apellido: string;
+  /** AAAA-MM-DD, si lo dio. */
+  cumpleanos: string | null;
+  /** Falso mientras sólo fue invitado a un equipo y aún no creó su cuenta. */
+  tieneCuenta: boolean;
+}
 
-export interface Equipo { id: string; nombre: string; creadoPor: string; creadoEn: number }
+export interface Equipo { id: string; nombre: string; creadoPor: string; creadoEn: number; personal: boolean }
 
 export interface Etapa { id: string; equipoId: string; nombre: string; posicion: number; esFinal: boolean }
 
@@ -22,6 +32,7 @@ export interface Tarea {
   terminadoEn: number | null;
   asignados: string[];
   etiquetas: string[];
+  enlaces: string[];
   comentarios: number;
   adjuntos: number;
 }
@@ -46,7 +57,7 @@ export interface Comentario {
   adjuntos: Adjunto[];
 }
 
-export type TipoEvento = 'creada' | 'titulo' | 'descripcion' | 'etapa' | 'fecha' | 'prioridad' | 'asignados' | 'etiquetas' | 'comentario' | 'adjunto';
+export type TipoEvento = 'creada' | 'titulo' | 'descripcion' | 'etapa' | 'fecha' | 'prioridad' | 'asignados' | 'etiquetas' | 'enlaces' | 'comentario' | 'adjunto';
 
 export interface Evento {
   id: string;
@@ -75,3 +86,5 @@ export function iniciales(nombre: string): string {
   const partes = nombre.trim().split(/\s+/);
   return ((partes[0]?.[0] ?? '') + (partes[1]?.[0] ?? '')).toUpperCase() || '?';
 }
+
+export const CORREO_VALIDO = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;

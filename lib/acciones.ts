@@ -8,29 +8,80 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { getLocale } from 'next-intl/server';
-import { COOKIE_USUARIO, esProduccion, miembroActual, usuarioActual } from './auth';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { COOKIE_SESION, DURACION_SESION, esProduccion, miembroActual, tokenActual, usuarioActual } from './auth';
+import { cifrar, coincide, LARGO_MINIMO } from './contrasenas';
+import { extraerEnlaces } from './enlaces';
 import { interpretar } from './parseRapido';
 import { leerImportacion, type Borrador } from './importar';
 import { idiomaValido } from './idioma';
 import * as repo from './repositorio';
-import { etapasIniciales, type Prioridad } from './modelo';
+import { CORREO_VALIDO, etapasIniciales, type Prioridad } from './modelo';
 
 const texto = (fd: FormData, k: string) => String(fd.get(k) ?? '').trim();
+const FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
-// ── Sesión (sólo fuera de producción) ───────────────────────────────────────
+/** `error` es una clave de messages/*.json que la pantalla traduce. */
+export interface Resultado { ok: boolean; error?: string }
 
-export async function entrar(fd: FormData): Promise<void> {
-  if (esProduccion()) redirect('/');
+// ── Cuentas y sesión ────────────────────────────────────────────────────────
+
+async function abrirSesion(email: string): Promise<void> {
+  const token = repo.crearSesion(email);
+  (await cookies()).set(COOKIE_SESION, token, { httpOnly: true, sameSite: 'lax', secure: esProduccion(), path: '/', maxAge: DURACION_SESION });
+}
+
+export async function entrar(_prev: Resultado, fd: FormData): Promise<Resultado> {
   const email = texto(fd, 'email').toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) redirect('/entrar?error=correo');
-  (await cookies()).set(COOKIE_USUARIO, email, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 90 });
+  const contrasena = String(fd.get('contrasena') ?? '');
+  if (!CORREO_VALIDO.test(email) || !coincide(contrasena, repo.hashDe(email))) return { ok: false, error: 'credenciales' };
+  await abrirSesion(email);
+  redirect('/');
+}
+
+export async function registrar(_prev: Resultado, fd: FormData): Promise<Resultado> {
+  const email = texto(fd, 'email').toLowerCase();
+  const nombre = texto(fd, 'nombre');
+  const apellido = texto(fd, 'apellido');
+  const cumpleanos = texto(fd, 'cumpleanos');
+  const contrasena = String(fd.get('contrasena') ?? '');
+  const repetir = String(fd.get('repetir') ?? '');
+  if (!nombre || !apellido) return { ok: false, error: 'faltanDatos' };
+  if (!CORREO_VALIDO.test(email)) return { ok: false, error: 'correoInvalido' };
+  if (cumpleanos && !FECHA.test(cumpleanos)) return { ok: false, error: 'faltanDatos' };
+  if (contrasena.length < LARGO_MINIMO) return { ok: false, error: 'contrasenaCorta' };
+  if (contrasena !== repetir) return { ok: false, error: 'noCoinciden' };
+  if (!repo.registrarUsuario({ email, nombre, apellido, cumpleanos: cumpleanos || null, hash: cifrar(contrasena) })) return { ok: false, error: 'yaExiste' };
+  await abrirSesion(email);
   redirect('/');
 }
 
 export async function salir(): Promise<void> {
-  (await cookies()).delete(COOKIE_USUARIO);
+  const token = await tokenActual();
+  if (token) repo.cerrarSesion(token);
+  (await cookies()).delete(COOKIE_SESION);
   redirect('/entrar');
+}
+
+export async function actualizarPerfilAccion(_prev: Resultado, fd: FormData): Promise<Resultado> {
+  const u = await usuarioActual();
+  const nombre = texto(fd, 'nombre');
+  const cumpleanos = texto(fd, 'cumpleanos');
+  if (!nombre || (cumpleanos && !FECHA.test(cumpleanos))) return { ok: false, error: 'faltanDatos' };
+  repo.actualizarPerfil(u.email, { nombre, apellido: texto(fd, 'apellido'), cumpleanos: cumpleanos || null });
+  revalidatePath('/', 'layout');
+  return { ok: true };
+}
+
+export async function cambiarContrasenaAccion(_prev: Resultado, fd: FormData): Promise<Resultado> {
+  const u = await usuarioActual();
+  const actual = String(fd.get('actual') ?? '');
+  const nueva = String(fd.get('nueva') ?? '');
+  if (!coincide(actual, repo.hashDe(u.email))) return { ok: false, error: 'actualIncorrecta' };
+  if (nueva.length < LARGO_MINIMO) return { ok: false, error: 'contrasenaCorta' };
+  if (nueva !== String(fd.get('repetir') ?? '')) return { ok: false, error: 'noCoinciden' };
+  repo.cambiarHash(u.email, cifrar(nueva));
+  return { ok: true };
 }
 
 // ── Equipos ─────────────────────────────────────────────────────────────────
@@ -41,6 +92,16 @@ export async function crearEquipoAccion(fd: FormData): Promise<void> {
   if (!nombre) redirect('/?error=nombre');
   const correos = texto(fd, 'correos').split(/[\s,;]+/).filter(Boolean);
   const e = repo.crearEquipo(nombre, u.email, correos, etapasIniciales(idiomaValido(await getLocale())));
+  redirect(`/e/${e.id}`);
+}
+
+/** El espacio personal: un equipo de una sola persona, para los pendientes propios. */
+export async function crearEspacioPersonalAccion(): Promise<void> {
+  const u = await usuarioActual();
+  const existente = repo.espacioPersonalDe(u.email);
+  if (existente) redirect(`/e/${existente.id}`);
+  const t = await getTranslations('inicio');
+  const e = repo.crearEquipo(t('nombreEspacioPersonal'), u.email, [], etapasIniciales(idiomaValido(await getLocale())), true);
   redirect(`/e/${e.id}`);
 }
 
@@ -65,12 +126,6 @@ export async function quitarMiembroAccion(fd: FormData): Promise<void> {
   if (email !== u.email || repo.miembrosDe(eid).length > 1) repo.quitarMiembro(eid, email);
   revalidatePath(`/e/${eid}`, 'layout');
   if (email === u.email) redirect('/');
-}
-
-export async function renombrarmeAccion(fd: FormData): Promise<void> {
-  const u = await usuarioActual();
-  repo.renombrarUsuario(u.email, texto(fd, 'nombre'));
-  revalidatePath('/', 'layout');
 }
 
 // ── Etapas ──────────────────────────────────────────────────────────────────
@@ -112,8 +167,7 @@ export async function marcarEtapaFinalAccion(fd: FormData): Promise<void> {
 
 // ── Tareas ──────────────────────────────────────────────────────────────────
 
-/** `error` es una clave de messages/*.json (errores.*): la pantalla la traduce. */
-export interface ResultadoRapido { ok: boolean; error?: string; tareaId?: string }
+export interface ResultadoRapido extends Resultado { tareaId?: string }
 
 /** La línea rápida: «@harold revisar /master/insights esta semana». */
 export async function crearTareaRapida(equipoId: string, linea: string): Promise<ResultadoRapido> {
@@ -122,10 +176,11 @@ export async function crearTareaRapida(equipoId: string, linea: string): Promise
   const r = interpretar(linea, miembros);
   if (!r.titulo) return { ok: false, error: 'faltaTitulo' };
   const t = repo.crearTarea({
-    equipoId, titulo: r.titulo, asignados: r.asignados, etiquetas: r.etiquetas,
+    equipoId, titulo: r.titulo, asignados: r.asignados, etiquetas: r.etiquetas, enlaces: r.enlaces,
     fechaLimite: r.fechaLimite, prioridad: r.prioridad, creadoPor: u.email,
   });
   revalidatePath(`/e/${equipoId}`, 'layout');
+  revalidatePath('/');
   return { ok: true, tareaId: t.id };
 }
 
@@ -150,6 +205,7 @@ export async function importarPendientes(equipoId: string, texto: string): Promi
     if (!b.valido) continue;
     repo.crearTarea({
       equipoId, titulo: b.titulo, descripcion: b.descripcion, asignados: b.asignados, etiquetas: b.etiquetas,
+      enlaces: extraerEnlaces(b.descripcion),
       fechaLimite: b.fechaLimite, prioridad: b.prioridad, creadoPor: u.email,
       etapaId: b.etapa ? etapas.find((e) => e.nombre === b.etapa)?.id : undefined,
     });
@@ -159,7 +215,7 @@ export async function importarPendientes(equipoId: string, texto: string): Promi
   return { creados, omitidos: r.borradores.length - creados };
 }
 
-export interface ResultadoGuardar { ok: boolean; error?: string }
+export type ResultadoGuardar = Resultado;
 
 export async function actualizarTareaAccion(fd: FormData): Promise<ResultadoGuardar> {
   const tid = texto(fd, 'tareaId');
@@ -177,8 +233,11 @@ export async function actualizarTareaAccion(fd: FormData): Promise<ResultadoGuar
     etapaId: texto(fd, 'etapaId') || undefined,
     asignados: fd.getAll('asignados').map(String),
     etiquetas: [...new Set(texto(fd, 'etiquetas').split(/[\s,;#]+/).map((x) => x.toLowerCase()).filter(Boolean))],
+    // Vale pegar las direcciones como sea: una por línea, separadas por espacios o dentro de una frase.
+    enlaces: extraerEnlaces(texto(fd, 'enlaces')),
   });
   revalidatePath(`/e/${t.equipoId}`, 'layout');
+  revalidatePath('/');
   return { ok: true };
 }
 
@@ -188,6 +247,7 @@ export async function moverTareaAccion(tareaId: string, etapaId: string): Promis
   const u = await miembroActual(t.equipoId);
   repo.actualizarTarea(tareaId, u.email, { etapaId });
   revalidatePath(`/e/${t.equipoId}`, 'layout');
+  revalidatePath('/');
 }
 
 export async function eliminarTareaAccion(fd: FormData): Promise<void> {

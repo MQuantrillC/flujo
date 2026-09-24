@@ -6,15 +6,21 @@
     "volverTablero": "Volver al tablero",
     "temaClaro": "Cambiar a tema claro",
     "temaOscuro": "Cambiar a tema oscuro",
-    "idioma": "Idioma"
+    "idioma": "Idioma",
+    "cuenta": "Mi cuenta",
+    "volverInicio": "Volver al inicio"
   },
   "entrar": {
     "lema": "Pendientes del equipo, en una línea.",
-    "sinIdentidad": "No se pudo saber quién eres. El acceso se hace con tu cuenta de Google de Xertica.",
-    "tuCorreo": "Tu correo",
-    "correoInvalido": "Escribe un correo válido.",
     "entrar": "Entrar",
-    "nota": "Mientras Flujo corre en una máquina, basta con el correo. En la nube entrará con Google."
+    "correo": "Correo",
+    "contrasena": "Contraseña",
+    "entrando": "Entrando…",
+    "sinCuenta": "¿Todavía no tienes cuenta?",
+    "registrate": "Crear una",
+    "errores": {
+      "credenciales": "Correo o contraseña incorrectos."
+    }
   },
   "inicio": {
     "tusEquipos": "Tus equipos",
@@ -26,7 +32,15 @@
     "ponleNombre": "Ponle un nombre.",
     "correos": "Correos de los miembros",
     "correosAyuda": "(separados por coma, espacio o línea; puedes agregar más después)",
-    "crearEquipo": "Crear equipo"
+    "crearEquipo": "Crear equipo",
+    "loMio": "Mis pendientes",
+    "loMioAyuda": "Todo lo que tienes abierto, de todos tus equipos y de tu espacio personal.",
+    "sinPendientes": "Nada pendiente. Escribe uno arriba o entra a un equipo.",
+    "nombreEspacioPersonal": "Personal",
+    "tuEspacio": "Tu espacio: sólo tú lo ves",
+    "personalAyuda": "Tus pendientes propios, sin equipo: sólo tú los ves. Con el espacio personal, la línea rápida de esta pantalla guarda ahí.",
+    "crearPersonal": "Crear mi espacio personal",
+    "rapidaPersonal": "va a tu espacio personal"
   },
   "nav": {
     "tablero": "Tablero",
@@ -59,7 +73,7 @@
     "etapa": "Etapa"
   },
   "barra": {
-    "placeholder": "@harold revisar /master/insights esta semana #insights",
+    "placeholder": "Escribe un pendiente…",
     "crear": "Crear",
     "creando": "Creando…",
     "seCreara": "Se creará:",
@@ -67,14 +81,20 @@
     "vence": "vence {fecha}",
     "alta": "alta",
     "noEsDelEquipo": "@{alias} no es de este equipo",
-    "ayudaResponsable": "responsable",
-    "ayudaEtiqueta": "etiqueta",
-    "ayudaPrioridad": "prioridad alta",
-    "ayudaFechas": "hoy · mañana · esta semana · el lunes · 15 oct · en 3 días",
-    "ayudaFecha": "fecha",
     "creados": "{n, plural, one {Pendiente creado ✓} other {# pendientes creados ✓}}",
     "nuevaEtiqueta": "nueva etiqueta",
-    "atajos": "↑ ↓ para moverte · Enter o Tab para elegir · Esc para cerrar"
+    "atajos": "↑ ↓ para moverte · Enter o Tab para elegir · Esc para cerrar",
+    "ejemplosTitulo": "Por ejemplo:",
+    "ejemploGenerico": "@responsable qué hay que hacer #etiqueta ! cuándo",
+    "ejemplos": [
+      "@{a} terminar el reporte de ventas esta semana #ventas",
+      "@{a} preparar la demo para el cliente el lunes !",
+      "@{b} revisar la propuesta mañana #propuestas",
+      "@{a} @{b} ordenar el drive del equipo en 3 días",
+      "llamar al proveedor hoy !",
+      "@{b} enviar el contrato firmado el 15 oct",
+      "@{a} revisar https://docs.google.com/… antes del viernes"
+    ]
   },
   "errores": {
     "faltaTitulo": "Falta el título: escribe qué hay que hacer.",
@@ -112,7 +132,10 @@
     "creado": "Creado",
     "actualizado": "Actualizado",
     "terminado": "Terminado",
-    "historial": "Historial"
+    "historial": "Historial",
+    "enlaces": "Enlaces",
+    "enlacesAyuda": "documentos, hojas, tickets… uno por línea",
+    "enlacesPlaceholder": "https://docs.google.com/…"
   },
   "historial": {
     "creada": "creó el pendiente",
@@ -128,7 +151,8 @@
     "etiquetas": "etiquetó con {a}",
     "sinEtiquetas": "quitó las etiquetas",
     "comentario": "comentó",
-    "adjunto": "adjuntó {nombre}"
+    "adjunto": "adjuntó {nombre}",
+    "enlaces": "{n, plural, =0 {quitó los enlaces} one {dejó # enlace} other {dejó # enlaces}}"
   },
   "comentarios": {
     "placeholder": "Comenta el avance… Pega o arrastra una imagen aquí.",
@@ -148,8 +172,6 @@
     "confirmarSalir": "¿Salir de este equipo?",
     "confirmarQuitar": "¿Quitar a {nombre} del equipo? Sus pendientes se quedan.",
     "correoPlaceholder": "correo@xertica.com (uno o varios)",
-    "tuNombre": "Tu nombre",
-    "tuNombreAyuda": "Así te ven los demás y así te encuentran con @ en la línea rápida.",
     "etapas": "Etapas",
     "etapasAyuda": "Las columnas del tablero, en orden. La marcada como <b>hecho</b> cierra el pendiente.",
     "guardarNombre": "Guardar nombre",
@@ -162,7 +184,11 @@
     "confirmarEliminarEtapa": "¿Eliminar la etapa «{nombre}»?",
     "tienePendientes": "Tiene pendientes: muévelos antes",
     "eliminar": "Eliminar",
-    "nuevaEtapa": "Nueva etapa, ej. Bloqueado"
+    "nuevaEtapa": "Nueva etapa, ej. Bloqueado",
+    "sinCuenta": "sin cuenta aún",
+    "sinCuentaAyuda": "Verá el equipo cuando cree su cuenta con este correo.",
+    "invitar": "Invitar",
+    "invitarAyuda": "El correo con el que se registró (o se registrará). Puedes poner varios."
   },
   "importar": {
     "titulo": "Importar pendientes",
@@ -204,6 +230,53 @@
       "noEsDelEquipo": "«{valor}» no es de este equipo",
       "fechaNoEntendida": "No entendí la fecha «{valor}»",
       "etapaNoExiste": "La etapa «{valor}» no existe; va a la primera"
+    }
+  },
+  "registro": {
+    "titulo": "Crear cuenta",
+    "nombre": "Nombre",
+    "apellido": "Apellido",
+    "correo": "Correo",
+    "cumpleanos": "Cumpleaños",
+    "opcional": "(opcional)",
+    "contrasena": "Contraseña",
+    "contrasenaAyuda": "(mínimo {n} caracteres)",
+    "repetir": "Repetir contraseña",
+    "crear": "Crear cuenta",
+    "creando": "Creando…",
+    "nota": "Si alguien ya te invitó a un equipo con este correo, lo verás al entrar.",
+    "yaTienes": "¿Ya tienes cuenta?",
+    "entra": "Entra",
+    "errores": {
+      "faltanDatos": "Faltan datos o hay alguno mal escrito.",
+      "correoInvalido": "Escribe un correo válido.",
+      "contrasenaCorta": "La contraseña es muy corta.",
+      "noCoinciden": "Las contraseñas no coinciden.",
+      "yaExiste": "Ya hay una cuenta con ese correo."
+    }
+  },
+  "cuenta": {
+    "titulo": "Mi cuenta",
+    "datos": "Tus datos",
+    "nombre": "Nombre",
+    "apellido": "Apellido",
+    "correo": "Correo",
+    "correoFijo": "(no se cambia: es como te invitan a los equipos)",
+    "cumpleanos": "Cumpleaños",
+    "guardar": "Guardar",
+    "guardado": "Guardado ✓",
+    "contrasenaTitulo": "Contraseña",
+    "actual": "Contraseña actual",
+    "nueva": "Nueva contraseña",
+    "contrasenaAyuda": "(mínimo {n} caracteres)",
+    "repetir": "Repetir la nueva",
+    "cambiar": "Cambiar contraseña",
+    "cambiada": "Contraseña cambiada ✓",
+    "errores": {
+      "faltanDatos": "Faltan datos o hay alguno mal escrito.",
+      "actualIncorrecta": "La contraseña actual no es correcta.",
+      "contrasenaCorta": "La contraseña es muy corta.",
+      "noCoinciden": "Las contraseñas no coinciden."
     }
   }
 }

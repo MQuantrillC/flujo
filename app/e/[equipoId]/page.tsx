@@ -71,7 +71,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
       )}
 
       {vista === 'tablero' && (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:snap-none sm:px-0">
           {etapas.map((et) => {
             const tareas = ordenarPorPlazo(conEtiqueta.filter((x) => x.etapaId === et.id && (!et.esFinal || (x.terminadoEn ?? 0) >= corteHechas)));
             return (

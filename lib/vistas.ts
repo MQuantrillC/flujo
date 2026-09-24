@@ -60,7 +60,7 @@ export function agruparSemana(tareas: Tarea[], hoy: Date): Grupo[] {
 export interface GrupoPersona { email: string | null; nombre: string; tareas: Tarea[] }
 
 /** Una lista por persona del equipo (en su orden) y, al final, las sin responsable (email null). */
-export function agruparPorPersona(tareas: Tarea[], miembros: Usuario[]): GrupoPersona[] {
+export function agruparPorPersona(tareas: Tarea[], miembros: Pick<Usuario, 'email' | 'nombre'>[]): GrupoPersona[] {
   const ordenadas = ordenarPorPlazo(tareas);
   const grupos: GrupoPersona[] = miembros.map((m) => ({ email: m.email, nombre: m.nombre, tareas: ordenadas.filter((t) => t.asignados.includes(m.email)) }));
   const sinNadie = ordenadas.filter((t) => t.asignados.length === 0);

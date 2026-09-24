@@ -3,13 +3,15 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Flag, Sparkles } from 'lucide-react';
+import { Flag, Link2, Sparkles } from 'lucide-react';
 import { interpretar, type MiembroParaParse } from '@/lib/parseRapido';
 import { fechaCorta } from '@/lib/fechas';
+import { etiquetaEnlace } from '@/lib/enlaces';
 import { idiomaValido } from '@/lib/idioma';
 import { crearTareaRapida } from '@/lib/acciones';
 import { Avatar } from './Avatar';
 import { Aparece } from './Animado';
+import { Ejemplos } from './Ejemplos';
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
@@ -20,15 +22,19 @@ function aliasDe(m: MiembroParaParse, todos: MiembroParaParse[]): string {
   return !pila || repetido ? m.email.split('@')[0] : pila;
 }
 
+/** Nombres inventados para los ejemplos cuando el equipo es muy chico. */
+const ALIAS_GENERICOS = ['nicolas', 'andrea', 'harold'];
+
 interface Sugerencia { clave: string; texto: string; detalle?: string; avatar?: string }
 
 /**
  * La línea rápida. Mientras escribes, abajo se ve cómo se va a leer: título,
- * responsable, fecha, etiquetas. Al escribir «@» aparece el equipo y al escribir
- * «#» las etiquetas en uso; flechas para moverse, Enter o Tab para elegir. Enter
- * sin lista abierta crea el pendiente.
+ * responsable, fecha, etiquetas, enlaces. Al escribir «@» aparece el equipo y al
+ * escribir «#» las etiquetas en uso; flechas para moverse, Enter o Tab para
+ * elegir. Enter sin lista abierta crea el pendiente. Con el campo vacío, debajo
+ * se van escribiendo ejemplos con los nombres del equipo.
  */
-export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: string; miembros: MiembroParaParse[]; etiquetas?: string[] }) {
+export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equipoId: string; miembros: MiembroParaParse[]; etiquetas?: string[]; nota?: string }) {
   const t = useTranslations('barra');
   const te = useTranslations('errores');
   const idioma = idiomaValido(useLocale());
@@ -45,6 +51,14 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
 
   const lectura = useMemo(() => (texto.trim() ? interpretar(texto, miembros) : null), [texto, miembros]);
   const nombreDe = (email: string) => miembros.find((m) => m.email === email)?.nombre ?? email;
+
+  // Los ejemplos: uno genérico y luego frases con la gente del equipo (o nombres inventados si son pocos).
+  const ejemplos = useMemo(() => {
+    const alias = miembros.map((m) => aliasDe(m, miembros));
+    for (const g of ALIAS_GENERICOS) if (alias.length < 2 && !alias.includes(g)) alias.push(g);
+    const plantillas = t.raw('ejemplos') as string[];
+    return [t('ejemploGenerico'), ...plantillas.map((p, k) => p.replaceAll('{a}', alias[k % alias.length]).replaceAll('{b}', alias[(k + 1) % alias.length]))];
+  }, [miembros, t]);
 
   // El token que se está escribiendo justo antes del cursor: «@har» o «#ven».
   const token = useMemo(() => {
@@ -100,12 +114,13 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
     });
   };
 
-  const insertar = (s: string) => {
-    const nuevo = (texto.endsWith(' ') || texto === '' ? texto : texto + ' ') + s + ' ';
-    setTexto(nuevo);
-    setCaretPendiente(nuevo.length);
+  const poner = (s: string) => {
+    setTexto(s);
+    setCaretPendiente(s.length);
     campo.current?.focus();
   };
+
+  const insertar = (s: string) => poner((texto.endsWith(' ') || texto === '' ? texto : texto + ' ') + s + ' ');
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (listaAbierta) {
@@ -144,7 +159,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
         <button type="submit" disabled={!texto.trim() || pendiente} className="boton">{pendiente ? t('creando') : t('crear')}</button>
       </form>
 
-      <Aparece visible={listaAbierta} className="absolute left-9 top-12 z-30 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+      <Aparece visible={listaAbierta} className="absolute left-9 top-12 z-30 w-80 max-w-[calc(100%-2.5rem)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
         <ul role="listbox" id="sugerencias-linea-rapida">
           {sugerencias.map((s, i) => (
             <li
@@ -155,7 +170,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
               onMouseEnter={() => setIndice(i)}
               className={`flex cursor-pointer items-center gap-2.5 px-3 py-2 text-sm ${i === indice ? 'bg-acento/10 text-acento' : 'text-gray-700'}`}
             >
-              {s.avatar ? <Avatar nombre={s.avatar} tam="sm" /> : <span className="grid h-6 w-6 place-items-center rounded-full bg-acento/10 text-[11px] font-bold text-acento">#</span>}
+              {s.avatar ? <Avatar nombre={s.avatar} tam="sm" sinTooltip /> : <span className="grid h-6 w-6 place-items-center rounded-full bg-acento/10 text-[11px] font-bold text-acento">#</span>}
               <span className="min-w-0 flex-1 truncate font-medium">{s.texto}</span>
               {s.detalle && <span className="truncate text-[11px] text-gray-400">{s.detalle}</span>}
             </li>
@@ -164,7 +179,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
         <p className="border-t border-gray-100 px-3 py-1.5 text-[10px] text-gray-400">{t('atajos')}</p>
       </Aparece>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+      <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
         {lectura ? (
           <>
             <span className="font-medium text-gray-700">{t('seCreara')}</span>
@@ -172,27 +187,26 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [] }: { equipoId: 
             {lectura.asignados.map((a) => <span key={a} className="rounded-md bg-gray-100 px-1.5 py-0.5">@{nombreDe(a)}</span>)}
             {lectura.fechaLimite && <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-amber-800">{t('vence', { fecha: fechaCorta(lectura.fechaLimite, undefined, idioma) })}</span>}
             {lectura.etiquetas.map((e) => <span key={e} className="rounded-md bg-acento/10 px-1.5 py-0.5 text-acento">#{e}</span>)}
+            {lectura.enlaces.map((u) => <span key={u} className="inline-flex items-center gap-1 rounded-md bg-sky-100 px-1.5 py-0.5 text-sky-800"><Link2 size={11} /> {etiquetaEnlace(u)}</span>)}
             {lectura.prioridad === 'alta' && <span className="flex items-center gap-1 text-red-600"><Flag size={11} className="fill-red-500" /> {t('alta')}</span>}
             {lectura.noResueltos.map((n) => <span key={n} className="text-red-600">{t('noEsDelEquipo', { alias: n })}</span>)}
           </>
         ) : (
           <>
-            <span><b className="text-gray-600">@nombre</b> {t('ayudaResponsable')}</span>
-            <span><b className="text-gray-600">#{t('ayudaEtiqueta')}</b></span>
-            <span><b className="text-gray-600">!</b> {t('ayudaPrioridad')}</span>
-            <span><b className="text-gray-600">{t('ayudaFechas')}</b> {t('ayudaFecha')}</span>
+            <Ejemplos ejemplos={ejemplos} etiqueta={t('ejemplosTitulo')} onElegir={poner} />
             {creadas > 0 && <span className="ml-auto text-emerald-700">{t('creados', { n: creadas })}</span>}
           </>
         )}
       </div>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
 
-      <div className="mt-2 flex flex-wrap gap-1">
+      <div className="mt-2 flex flex-wrap items-center gap-1">
         {miembros.map((m) => (
           <button key={m.email} type="button" onClick={() => insertar('@' + aliasDe(m, miembros))} className="rounded-md border border-gray-200 px-1.5 py-0.5 text-[11px] text-gray-500 hover:border-acento hover:text-acento">
             @{m.nombre.split(' ')[0]}
           </button>
         ))}
+        {nota && <span className="ml-auto text-[11px] text-gray-400">{nota}</span>}
       </div>
     </section>
   );

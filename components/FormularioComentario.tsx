@@ -79,7 +79,7 @@ export function FormularioComentario({ tareaId }: { tareaId: string }) {
             <span key={i} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={vistas[i]} alt={a.name} className="h-20 w-20 rounded-lg border border-gray-200 object-cover" />
-              <button type="button" onClick={() => setArchivos((l) => l.filter((_, k) => k !== i))} className="absolute -right-1.5 -top-1.5 rounded-full bg-black/70 p-0.5 text-white" title={t('quitar')}><X size={12} /></button>
+              <button type="button" onClick={() => setArchivos((l) => l.filter((_, k) => k !== i))} className="absolute -right-1.5 -top-1.5 rounded-full bg-black/70 p-0.5 text-white" aria-label={t('quitar')}><X size={12} /></button>
             </span>
           ))}
         </div>

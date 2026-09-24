@@ -7,7 +7,10 @@ import { moverTareaAccion } from '@/lib/acciones';
 
 export const TIPO_ARRASTRE = 'application/x-flujo-tarea';
 
-/** Una columna del tablero que recibe tarjetas arrastradas y las mueve a su etapa. */
+/**
+ * Una columna del tablero que recibe tarjetas arrastradas y las mueve a su etapa.
+ * En el móvil ocupa casi todo el ancho y el tablero se pasa columna a columna.
+ */
 export function ColumnaTablero({ etapaId, nombre, cantidad, vacio, children }: {
   etapaId: string; nombre: string; cantidad: number; vacio: string; children: React.ReactNode;
 }) {
@@ -18,7 +21,7 @@ export function ColumnaTablero({ etapaId, nombre, cantidad, vacio, children }: {
 
   return (
     <section
-      className={`flex w-72 shrink-0 flex-col gap-2 rounded-xl p-2 transition-colors ${encima ? 'bg-acento/10 ring-2 ring-acento/40' : 'bg-gray-200/50'}`}
+      className={`flex w-[84vw] shrink-0 snap-center flex-col gap-2 rounded-xl p-2 transition-colors sm:w-72 sm:snap-align-none ${encima ? 'bg-acento/10 ring-2 ring-acento/40' : 'bg-gray-200/50'}`}
       onDragOver={(e) => { if (e.dataTransfer.types.includes(TIPO_ARRASTRE)) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (!encima) setEncima(true); } }}
       onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setEncima(false); }}
       onDrop={(e) => {
