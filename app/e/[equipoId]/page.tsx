@@ -4,7 +4,8 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
 import { agruparPorPersona, agruparPorPlazo, agruparSemana, etiquetasEnUso, ordenarPorPlazo } from '@/lib/vistas';
-import { dia, fechaCorta } from '@/lib/fechas';
+import { fechaCorta } from '@/lib/fechas';
+import { hoyActual } from '@/lib/hoy';
 import { idiomaValido } from '@/lib/idioma';
 import type { Tarea } from '@/lib/modelo';
 import { BarraRapida } from '@/components/BarraRapida';
@@ -29,7 +30,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
   const etapas = etapasDe(equipoId);
   const miembros = miembrosDe(equipoId);
   const nombres = Object.fromEntries(miembros.map((m) => [m.email, m.nombre]));
-  const hoy = dia();
+  const hoy = await hoyActual();
   // En la columna «hecho» sólo se ven las terminadas hace poco; las demás quedan en el historial.
   const corteHechas = hoy.getTime() - DIAS_HECHAS_VISIBLES * 86_400_000;
 

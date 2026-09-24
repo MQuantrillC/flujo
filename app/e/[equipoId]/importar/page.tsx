@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { equipo, etapasDe, miembrosDe } from '@/lib/repositorio';
 import { promptParaIA } from '@/lib/importar';
+import { hoyActual } from '@/lib/hoy';
 import { idiomaValido } from '@/lib/idioma';
 import { Importador } from '@/components/Importador';
 
@@ -13,7 +14,7 @@ export default async function Importar({ params }: { params: Promise<{ equipoId:
   const t = await getTranslations('importar');
   const e = equipo(equipoId)!;
   const miembros = miembrosDe(equipoId);
-  const prompt = promptParaIA(e.nombre, miembros, etapasDe(equipoId).map((x) => x.nombre), undefined, idiomaValido(await getLocale()));
+  const prompt = promptParaIA(e.nombre, miembros, etapasDe(equipoId).map((x) => x.nombre), await hoyActual(), idiomaValido(await getLocale()));
 
   return (
     <div className="mx-auto max-w-4xl">

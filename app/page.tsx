@@ -5,7 +5,7 @@ import { usuarioActual } from '@/lib/auth';
 import { equiposDe, etapasDeEquipos, miembrosDe, tareasAbiertasDe, tareasDe } from '@/lib/repositorio';
 import { crearEquipoAccion, crearEspacioPersonalAccion } from '@/lib/acciones';
 import { agruparPorPlazo, etiquetasEnUso } from '@/lib/vistas';
-import { dia } from '@/lib/fechas';
+import { hoyActual } from '@/lib/hoy';
 import { Avatar } from '@/components/Avatar';
 import { Ajustes } from '@/components/Ajustes';
 import { BarraRapida } from '@/components/BarraRapida';
@@ -30,7 +30,7 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
   const tc = await getTranslations('comun');
   const equipos = equiposDe(u.email);
   const personal = equipos.find((e) => e.personal && e.creadoPor === u.email) ?? null;
-  const hoy = dia();
+  const hoy = await hoyActual();
 
   const abiertas = tareasAbiertasDe(u.email);
   const etapasPor = etapasDeEquipos(abiertas.map((x) => x.equipoId));

@@ -12,6 +12,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { COOKIE_SESION, DURACION_SESION, esProduccion, miembroActual, tokenActual, usuarioActual } from './auth';
 import { cifrar, coincide, LARGO_MINIMO } from './contrasenas';
 import { completarEnlace, extraerEnlaces } from './enlaces';
+import { hoyActual } from './hoy';
 import { interpretar } from './parseRapido';
 import { leerImportacion, type Borrador } from './importar';
 import { idiomaValido } from './idioma';
@@ -178,7 +179,8 @@ export interface ResultadoRapido extends Resultado { tareaId?: string }
 export async function crearTareaRapida(equipoId: string, linea: string): Promise<ResultadoRapido> {
   const u = await miembroActual(equipoId);
   const miembros = repo.miembrosDe(equipoId);
-  const r = interpretar(linea, miembros);
+  // «mañana» o «el viernes» se cuentan desde el hoy de quien escribe, no desde el del servidor.
+  const r = interpretar(linea, miembros, await hoyActual());
   if (!r.titulo) return { ok: false, error: 'faltaTitulo' };
   const t = repo.crearTarea({
     equipoId, titulo: r.titulo, asignados: r.asignados, etiquetas: r.etiquetas, enlaces: sinNombre(r.enlaces),
@@ -196,7 +198,7 @@ export interface VistaPreviaImportacion { formato: 'csv' | 'lineas'; borradores:
 /** Lee el texto pegado o subido y devuelve cómo se entendió, sin guardar nada. */
 export async function previsualizarImportacion(equipoId: string, texto: string): Promise<VistaPreviaImportacion> {
   await miembroActual(equipoId);
-  const r = leerImportacion(texto, repo.miembrosDe(equipoId), repo.etapasDe(equipoId).map((e) => e.nombre));
+  const r = leerImportacion(texto, repo.miembrosDe(equipoId), repo.etapasDe(equipoId).map((e) => e.nombre), await hoyActual());
   return { formato: r.formato, borradores: r.borradores };
 }
 
@@ -204,7 +206,7 @@ export async function previsualizarImportacion(equipoId: string, texto: string):
 export async function importarPendientes(equipoId: string, texto: string): Promise<{ creados: number; omitidos: number }> {
   const u = await miembroActual(equipoId);
   const etapas = repo.etapasDe(equipoId);
-  const r = leerImportacion(texto, repo.miembrosDe(equipoId), etapas.map((e) => e.nombre));
+  const r = leerImportacion(texto, repo.miembrosDe(equipoId), etapas.map((e) => e.nombre), await hoyActual());
   let creados = 0;
   for (const b of r.borradores) {
     if (!b.valido) continue;

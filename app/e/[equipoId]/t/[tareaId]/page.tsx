@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { adjuntosSueltos, comentariosDe, etapasDe, eventosDe, miembrosDe, tarea } from '@/lib/repositorio';
 import { aIso, fechaCorta, haceCuanto } from '@/lib/fechas';
+import { hoyActual } from '@/lib/hoy';
 import { etiquetaEnlace, extraerEnlaces } from '@/lib/enlaces';
 import { idiomaValido, type Idioma } from '@/lib/idioma';
 import type { Evento } from '@/lib/modelo';
@@ -18,7 +19,7 @@ export const dynamic = 'force-dynamic';
 
 type T = (clave: string, valores?: Record<string, string | number>) => string;
 
-function describir(e: Evento, nombre: (email: string) => string, th: T, idioma: Idioma): string {
+function describir(e: Evento, nombre: (email: string) => string, th: T, idioma: Idioma, hoy: Date): string {
   const d = e.detalle as Record<string, unknown>;
   const lista = (v: unknown) => (Array.isArray(v) && v.length ? v.map((x) => nombre(String(x))).join(', ') : th('nadie'));
   switch (e.tipo) {
@@ -26,7 +27,7 @@ function describir(e: Evento, nombre: (email: string) => string, th: T, idioma: 
     case 'titulo': return th('titulo', { a: String(d.a ?? '') });
     case 'descripcion': return th('descripcion');
     case 'etapa': return th('etapa', { de: String(d.de ?? ''), a: String(d.a ?? '') });
-    case 'fecha': return d.a ? th('fecha', { a: fechaCorta(String(d.a), undefined, idioma) }) : th('sinFecha');
+    case 'fecha': return d.a ? th('fecha', { a: fechaCorta(String(d.a), hoy, idioma) }) : th('sinFecha');
     case 'prioridad': return d.a === 'alta' ? th('prioridadAlta') : th('prioridadNormal');
     case 'asignados': return th('asignados', { a: lista(d.a) });
     case 'etiquetas': return Array.isArray(d.a) && d.a.length ? th('etiquetas', { a: d.a.map((x) => '#' + x).join(' ') }) : th('sinEtiquetas');
@@ -46,6 +47,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
   const th = await getTranslations('historial');
   const tc = await getTranslations('comun');
   const idioma = idiomaValido(await getLocale());
+  const hoy = await hoyActual();
   const etapas = etapasDe(equipoId);
   const miembros = miembrosDe(equipoId);
   const nombre = (email: string) => miembros.find((m) => m.email === email)?.nombre ?? email;
@@ -111,7 +113,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
           <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('ficha')}</h2>
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs text-gray-600">
             <dt className="text-gray-400">{t('creadoPor')}</dt><dd>{nombre(x.creadoPor)}</dd>
-            <dt className="text-gray-400">{t('creado')}</dt><dd>{fechaCorta(aIso(new Date(x.creadoEn)), undefined, idioma)}</dd>
+            <dt className="text-gray-400">{t('creado')}</dt><dd>{fechaCorta(aIso(new Date(x.creadoEn)), hoy, idioma)}</dd>
             <dt className="text-gray-400">{t('actualizado')}</dt><dd>{hace(x.actualizadoEn)}</dd>
             {x.terminadoEn && <><dt className="text-gray-400">{t('terminado')}</dt><dd>{hace(x.terminadoEn)}</dd></>}
           </dl>
@@ -122,7 +124,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
             {eventos.map((e) => (
               <li key={e.id} className="flex gap-2">
                 <Avatar nombre={nombre(e.autor)} tam="sm" />
-                <span><span className="font-semibold text-gray-700">{nombre(e.autor).split(' ')[0]}</span> {describir(e, nombre, th, idioma)} <span className="text-gray-400">· {hace(e.creadoEn)}</span></span>
+                <span><span className="font-semibold text-gray-700">{nombre(e.autor).split(' ')[0]}</span> {describir(e, nombre, th, idioma, hoy)} <span className="text-gray-400">· {hace(e.creadoEn)}</span></span>
               </li>
             ))}
           </ol>
