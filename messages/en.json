@@ -339,7 +339,7 @@
     "titulo": "Export to-dos",
     "ayuda": "Every to-do of the team, with assignees, dates, tags, links and comments, in whatever format suits you.",
     "md": "Markdown",
-    "mdAyuda": "to paste into Claude, ChatGPT or Gemini",
+    "mdAyuda": "with AI instructions on top; paste it into the chat",
     "json": "JSON",
     "jsonAyuda": "full detail, for scripts",
     "csv": "CSV",
@@ -384,6 +384,24 @@
       "estado": "Status",
       "abierto": "open",
       "id": "Id"
+    },
+    "copiarIA": "Copy for the AI",
+    "copiandoIA": "Copying…",
+    "copiadoIA": "Copied: paste it into the chat",
+    "copiarIAAyuda": "Copies every to-do with instructions for the AI to analyze them: what is urgent, a summary by topic, what is stuck and a plan for the week. Paste it as text into Claude, ChatGPT or Gemini; do not attach it as a file.",
+    "errorIA": "Could not copy. Download the Markdown and paste its content into the chat.",
+    "ia": {
+      "titulo": "Instructions for the AI",
+      "contexto": "I am {yo}. Today is {hoy}. Below are all the to-dos of the {equipo} team in Flujo, our to-do app: each with its stage, assignees, due date, priority and tags (#topic).",
+      "contextoPersonal": "I am {yo}. Today is {hoy}. Below are all my to-dos from Flujo, my to-do app: each with its stage, due date, priority and tags (#topic).",
+      "pide": "Help me get organized. Do not give the list back as is or turn it into a table: I want your analysis. Give me:",
+      "punto1": "What is urgent: overdue items, what is due this week and high-priority ones (⚑), in the order you would tackle them and why.",
+      "punto2": "A summary by topic (the tags: {temas}): what is open in each, what is moving and what is stuck.",
+      "punto3": "What has sat too long in the same stage, has no date or no assignee, and what you would do with each.",
+      "punto4": "A plan for this week: what to do each day, at most three things per day.",
+      "punto5": "Anything that looks duplicated, badly written, or worth merging or closing.",
+      "etapas": "Stages go in this order: {etapas}. The {final} stage means done: do not count it as pending, except for the summary. Dates are YYYY-MM-DD.",
+      "cierre": "Answer in the language of this message, with short headings and lists. If anything is missing, ask me."
     }
   },
   "pasar": {

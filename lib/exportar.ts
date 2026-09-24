@@ -51,6 +51,42 @@ export interface Rotulos {
   id: string;
 }
 
+/**
+ * Los textos de las instrucciones para la IA, con sus huecos: {yo}, {hoy},
+ * {equipo}, {etapas}, {final}, {temas}. Se rellenan en `instruccionesIA`.
+ */
+export interface RotulosIA {
+  titulo: string;
+  contexto: string;
+  contextoPersonal: string;
+  pide: string;
+  puntos: string[];
+  etapas: string;
+  cierre: string;
+}
+
+/** Lo que rellena los huecos de las instrucciones (también se le pasa a next-intl, que los exige al traducir). */
+export function valoresIA(d: DatosExportacion, yo: { nombre: string; email: string }): Record<string, string> {
+  const temas = [...new Set(d.tareas.flatMap((t) => t.etiquetas))].sort().map((x) => '#' + x).join(' ');
+  return {
+    yo: `${yo.nombre} <${yo.email}>`, hoy: fechaHora(d.ahora.getTime(), d.zona).slice(0, 10), equipo: d.equipo.nombre,
+    etapas: d.etapas.map((e) => e.nombre).join(' → '), final: d.etapas.find((e) => e.esFinal)?.nombre ?? '', temas: temas || '—',
+  };
+}
+
+/**
+ * El bloque que va arriba del Markdown para que, al pegarlo en un chat, la IA
+ * sepa qué hacer con los pendientes en vez de devolverlos como tabla.
+ */
+export function instruccionesIA(d: DatosExportacion, r: RotulosIA, yo: { nombre: string; email: string }): string[] {
+  const v = valoresIA(d, yo);
+  const f = (s: string) => s.replace(/\{(\w+)\}/g, (m, k) => v[k] ?? m);
+  const L = [`> **${r.titulo}**`, '>', `> ${f(d.equipo.personal ? r.contextoPersonal : r.contexto)}`, `> ${f(r.pide)}`, '>'];
+  r.puntos.forEach((p, i) => L.push(`> ${i + 1}. ${f(p)}`));
+  L.push('>', `> ${f(r.etapas)}`, `> ${f(r.cierre)}`);
+  return L;
+}
+
 export const COLUMNAS_CSV = ['titulo', 'etapa', 'responsables', 'fecha_limite', 'prioridad', 'etiquetas', 'descripcion', 'enlaces', 'creado_por', 'creado_en', 'terminado_en', 'comentarios', 'id'] as const;
 
 /** «2026-09-24 10:15» en la zona dada; vacío si no hay fecha. */
@@ -120,10 +156,11 @@ export function aJson(d: DatosExportacion): string {
   }, null, 2) + '\n';
 }
 
-export function aMarkdown(d: DatosExportacion, r: Rotulos): string {
+export function aMarkdown(d: DatosExportacion, r: Rotulos, instrucciones: string[] = []): string {
   const nombre = new Map(d.miembros.map((m) => [m.email, m.nombre]));
   const quien = (email: string) => nombre.get(email) ?? email;
   const L: string[] = [];
+  if (instrucciones.length) L.push(...instrucciones, '');
   L.push(`# ${r.titulo.replace('{equipo}', d.equipo.nombre)}`);
   L.push('');
   L.push(`${r.exportado} ${fechaHora(d.ahora.getTime(), d.zona)} (${d.zona}).`);

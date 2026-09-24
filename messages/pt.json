@@ -339,7 +339,7 @@
     "titulo": "Exportar pendências",
     "ayuda": "Todas as pendências da equipe, com responsáveis, datas, etiquetas, links e comentários, no formato que servir.",
     "md": "Markdown",
-    "mdAyuda": "para colar no Claude, ChatGPT ou Gemini",
+    "mdAyuda": "com instruções para a IA em cima; cole no chat",
     "json": "JSON",
     "jsonAyuda": "todo o detalhe, para scripts",
     "csv": "CSV",
@@ -384,6 +384,24 @@
       "estado": "Estado",
       "abierto": "aberto",
       "id": "Id"
+    },
+    "copiarIA": "Copiar para a IA",
+    "copiandoIA": "Copiando…",
+    "copiadoIA": "Copiado: cole no chat",
+    "copiarIAAyuda": "Copia todas as pendências com instruções para a IA analisá-las: o que é urgente, resumo por tema, o que está travado e um plano para a semana. Cole como texto no Claude, ChatGPT ou Gemini; não anexe como arquivo.",
+    "errorIA": "Não deu para copiar. Baixe o Markdown e cole o conteúdo no chat.",
+    "ia": {
+      "titulo": "Instruções para a IA",
+      "contexto": "Sou {yo}. Hoje é {hoy}. Abaixo estão todas as pendências da equipe {equipo} no Flujo, nosso app de pendências: cada uma com etapa, responsáveis, prazo, prioridade e etiquetas (#tema).",
+      "contextoPersonal": "Sou {yo}. Hoje é {hoy}. Abaixo estão todas as minhas pendências do Flujo, meu app de pendências: cada uma com etapa, prazo, prioridade e etiquetas (#tema).",
+      "pide": "Me ajude a me organizar. Não devolva a lista como está nem a transforme em tabela: quero sua análise. Me dê:",
+      "punto1": "O que é urgente: o vencido, o que vence esta semana e o de prioridade alta (⚑), na ordem em que você atacaria e por quê.",
+      "punto2": "Um resumo por tema (as etiquetas: {temas}): o que está aberto em cada um, o que avança e o que está travado.",
+      "punto3": "O que está há muito tempo na mesma etapa, sem data ou sem responsável, e o que você faria com cada item.",
+      "punto4": "Um plano para esta semana: o que fazer em cada dia, no máximo três coisas por dia.",
+      "punto5": "O que parecer repetido, mal escrito ou que valha a pena juntar ou fechar.",
+      "etapas": "As etapas seguem esta ordem: {etapas}. A etapa {final} significa concluído: não conte como pendente, a não ser no resumo. As datas estão em AAAA-MM-DD.",
+      "cierre": "Responda no idioma desta mensagem, com títulos curtos e listas. Se faltar algo, me pergunte."
     }
   },
   "pasar": {

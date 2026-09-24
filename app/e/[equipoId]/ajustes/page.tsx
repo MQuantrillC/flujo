@@ -6,6 +6,7 @@ import { equipo, equiposDe, etapasDe, miembrosDe, puedeEliminarEquipo, tareasDe,
 import { agregarMiembroAccion, quitarMiembroAccion, renombrarEquipoAccion } from '@/lib/acciones';
 import { Avatar } from '@/components/Avatar';
 import { CopiarInvitacion } from '@/components/CopiarInvitacion';
+import { CopiarParaIA } from '@/components/CopiarParaIA';
 import { EditorEtapas } from '@/components/EditorEtapas';
 import { EliminarEquipo } from '@/components/EliminarEquipo';
 import { FormConfirmar } from '@/components/FormConfirmar';
@@ -88,6 +89,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
         <section className="tarjeta p-5">
           <h2 className="mb-1 font-semibold text-gray-800">{tx('titulo')}</h2>
           <p className="mb-3 text-xs text-gray-500">{tx('ayuda')}</p>
+          <div className="mb-3"><CopiarParaIA equipoId={equipoId} /></div>
           <ul className="grid gap-2 sm:grid-cols-2">
             {(['md', 'json', 'csv', 'xlsx'] as const).map((f) => (
               <li key={f}>

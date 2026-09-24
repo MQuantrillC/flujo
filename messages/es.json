@@ -339,7 +339,7 @@
     "titulo": "Exportar pendientes",
     "ayuda": "Todos los pendientes del equipo, con responsables, fechas, etiquetas, enlaces y comentarios, en el formato que te sirva.",
     "md": "Markdown",
-    "mdAyuda": "para pegar en Claude, ChatGPT o Gemini",
+    "mdAyuda": "con instrucciones para la IA arriba; pégalo en el chat",
     "json": "JSON",
     "jsonAyuda": "todo el detalle, para scripts",
     "csv": "CSV",
@@ -384,6 +384,24 @@
       "estado": "Estado",
       "abierto": "abierto",
       "id": "Id"
+    },
+    "copiarIA": "Copiar para la IA",
+    "copiandoIA": "Copiando…",
+    "copiadoIA": "Copiado: pégalo en el chat",
+    "copiarIAAyuda": "Copia todos los pendientes con instrucciones para que la IA los analice: qué es urgente, resumen por tema, qué está atascado y un plan para la semana. Pégalo como texto en Claude, ChatGPT o Gemini, no lo adjuntes como archivo.",
+    "errorIA": "No se pudo copiar. Descarga el Markdown y pega su contenido en el chat.",
+    "ia": {
+      "titulo": "Instrucciones para la IA",
+      "contexto": "Soy {yo}. Hoy es {hoy}. Abajo están todos los pendientes del equipo {equipo} en Flujo, nuestra app de pendientes: cada uno con su etapa, responsables, fecha límite, prioridad y etiquetas (#tema).",
+      "contextoPersonal": "Soy {yo}. Hoy es {hoy}. Abajo están todos mis pendientes de Flujo, mi app de pendientes: cada uno con su etapa, fecha límite, prioridad y etiquetas (#tema).",
+      "pide": "Ayúdame a organizarme. No me devuelvas la lista tal cual ni la conviertas en tabla: quiero tu análisis. Dame:",
+      "punto1": "Qué es urgente: lo vencido, lo que vence esta semana y lo de prioridad alta (⚑), en el orden en que lo atacarías y por qué.",
+      "punto2": "Un resumen por tema (las etiquetas: {temas}): qué hay abierto en cada uno, qué avanza y qué está atascado.",
+      "punto3": "Lo que lleva mucho tiempo sin moverse de etapa, sin fecha o sin responsable, y qué harías con cada cosa.",
+      "punto4": "Un plan para esta semana: qué hacer cada día, máximo tres cosas por día.",
+      "punto5": "Lo que veas repetido, mal escrito o que convenga juntar o cerrar.",
+      "etapas": "Las etapas van en este orden: {etapas}. La etapa {final} significa terminado: no lo cuentes como pendiente, salvo para el resumen. Las fechas están en AAAA-MM-DD.",
+      "cierre": "Responde en el idioma de este mensaje, con títulos cortos y listas. Si te falta algo, pregúntame."
     }
   },
   "pasar": {

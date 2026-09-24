@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { aCsv, aJson, aMarkdown, fechaHora, nombreArchivo, type DatosExportacion, type Rotulos } from './exportar';
+import { aCsv, aJson, aMarkdown, fechaHora, instruccionesIA, nombreArchivo, type DatosExportacion, type Rotulos, type RotulosIA } from './exportar';
 import { leerImportacion } from './importar';
 
 const R: Rotulos = {
@@ -59,6 +59,17 @@ describe('exportar', () => {
     expect(md).toContain('## Hecho (1)');
     expect(md).toContain('- Responsables: sin responsable');
     expect(md).not.toContain('- Vence: \n');
+  });
+
+  it('las instrucciones para la IA van arriba, con la fecha, las etapas y los temas rellenados', () => {
+    const IA: RotulosIA = {
+      titulo: 'Instrucciones', contexto: 'Soy {yo}. Hoy es {hoy}. Pendientes de {equipo}.', contextoPersonal: 'Soy {yo}. Mis pendientes.', pide: 'Analiza.',
+      puntos: ['Urgente', 'Por tema: {temas}'], etapas: 'Etapas: {etapas}; {final} es terminado.', cierre: 'Pregunta si falta algo.',
+    };
+    const md = aMarkdown(D, R, instruccionesIA(D, IA, { nombre: 'Marco Quantrill', email: 'marco@x.com' }));
+    expect(md.startsWith('> **Instrucciones**\n>\n> Soy Marco Quantrill <marco@x.com>. Hoy es 2026-09-24. Pendientes de Equipo Comercial.\n> Analiza.\n>\n> 1. Urgente\n> 2. Por tema: #gcp #ventas\n>\n> Etapas: Pendiente → Hecho; Hecho es terminado.\n> Pregunta si falta algo.\n\n# Pendientes de Equipo Comercial')).toBe(true);
+    expect(instruccionesIA({ ...D, equipo: { ...D.equipo, personal: true } }, IA, { nombre: 'M', email: 'm@x' })[2]).toBe('> Soy M <m@x>. Mis pendientes.');
+    expect(aMarkdown(D, R).startsWith('# Pendientes')).toBe(true);
   });
 
   it('el nombre del archivo lleva el equipo y la fecha', () => {

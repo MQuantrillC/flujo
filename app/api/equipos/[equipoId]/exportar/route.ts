@@ -5,9 +5,9 @@ import { NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
 import { getTranslations } from 'next-intl/server';
 import { correoActual } from '@/lib/auth';
-import { comentariosDe, equipo, esMiembro, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
+import { comentariosDe, equipo, esMiembro, etapasDe, miembrosDe, tareasDe, usuario } from '@/lib/repositorio';
 import { zonaActual } from '@/lib/hoy';
-import { aCsv, aJson, aMarkdown, COLUMNAS_CSV, filasPlanas, nombreArchivo, type DatosExportacion, type Rotulos } from '@/lib/exportar';
+import { aCsv, aJson, aMarkdown, COLUMNAS_CSV, filasPlanas, instruccionesIA, nombreArchivo, valoresIA, type DatosExportacion, type Rotulos, type RotulosIA } from '@/lib/exportar';
 
 export const runtime = 'nodejs';
 
@@ -54,8 +54,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ equipoId
     comentarios: t('rotulos.comentarios'), estado: t('rotulos.estado'), abierto: t('rotulos.abierto'), id: t('rotulos.id'),
   };
 
+  const yo = usuario(email) ?? { nombre: email, email };
+  // next-intl exige los valores de los huecos al traducir; son los mismos que usa instruccionesIA.
+  const v = valoresIA(d, yo);
+  const ia: RotulosIA = {
+    titulo: t('ia.titulo'), contexto: t('ia.contexto', v), contextoPersonal: t('ia.contextoPersonal', v), pide: t('ia.pide'),
+    puntos: [1, 2, 3, 4, 5].map((i) => t(`ia.punto${i}`, v)), etapas: t('ia.etapas', v), cierre: t('ia.cierre'),
+  };
   const cuerpo: string | Buffer =
-    formato === 'md' ? aMarkdown(d, r)
+    formato === 'md' ? aMarkdown(d, r, instruccionesIA(d, ia, yo))
     : formato === 'json' ? aJson(d)
     : formato === 'csv' ? aCsv(d, r)
     : await excel(d, r, (c) => t(`columnas.${c}`));
