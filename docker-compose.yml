@@ -1,6 +1,6 @@
 # Flujo en una máquina (por ejemplo una e2-micro de Google Cloud):
 #
-#   docker compose up -d --build
+#   docker compose pull && docker compose up -d
 #
 # - `flujo`: la app, con la base y los adjuntos en ./data (fuera del contenedor,
 #   sobreviven a cada actualización).
@@ -10,6 +10,10 @@
 
 services:
   flujo:
+    # La imagen la construye GitHub (.github/workflows/imagen.yml). En la máquina:
+    #   docker compose pull && docker compose up -d
+    # Si se quiere construir en el sitio: docker compose up -d --build
+    image: ghcr.io/mquantrillc/flujo:latest
     build: .
     restart: unless-stopped
     environment:

@@ -28,7 +28,7 @@ cp .env.example .env        # FLUJO_DOMINIO=flujo.tudominio.com, o FLUJO_SIN_HTT
 docker compose up -d --build
 ```
 
-Los datos quedan en `./data` de la máquina. Para actualizar: `git pull && docker compose up -d --build`. Sirve en una e2-micro gratuita de Google Compute Engine (agrega 2 GB de swap antes de construir), en Railway o Fly.io con un volumen en `/data`, o en cualquier VM.
+Los datos quedan en `./data` de la máquina. Para actualizar: `git pull && docker compose pull && docker compose up -d` (la imagen la construye GitHub Actions; en la máquina no se compila nada). Sirve en una e2-micro gratuita de Google Compute Engine (agrega 2 GB de swap antes de construir), en Railway o Fly.io con un volumen en `/data`, o en cualquier VM.
 
 Vercel y otras plataformas sin disco persistente no sirven tal cual: harían falta una base externa (Turso o Postgres) y un almacén de archivos. Todo el acceso a datos pasa por `lib/repositorio.ts`, que es lo único que habría que cambiar.
 
