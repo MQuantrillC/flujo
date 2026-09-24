@@ -35,7 +35,8 @@ export function SelectorFecha({ name, valor: inicial }: { name: string; valor: s
   // La cuadrícula: 6 semanas desde el lunes anterior (o igual) al día 1.
   const primero = sumarDias(mes, -((mes.getDay() + 6) % 7));
   const celdas = Array.from({ length: 42 }, (_, i) => sumarDias(primero, i));
-  const tituloMes = new Intl.DateTimeFormat(etiqueta, { month: 'long', year: 'numeric' }).format(mes);
+  const crudo = new Intl.DateTimeFormat(etiqueta, { month: 'long', year: 'numeric' }).format(mes);
+  const tituloMes = crudo[0].toUpperCase() + crudo.slice(1); // «Septiembre de 2026»
   const hoyIso = aIso(hoy);
 
   return (
@@ -63,7 +64,7 @@ export function SelectorFecha({ name, valor: inicial }: { name: string; valor: s
         <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-lg" onMouseDown={(e) => e.preventDefault()}>
           <div className="mb-2 flex items-center justify-between">
             <button type="button" onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1, 12))} aria-label={t('mesAnterior')} className="rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"><ChevronLeft size={16} /></button>
-            <span className="text-sm font-semibold capitalize text-gray-800">{tituloMes}</span>
+            <span className="text-sm font-semibold text-gray-800">{tituloMes}</span>
             <button type="button" onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() + 1, 1, 12))} aria-label={t('mesSiguiente')} className="rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"><ChevronRight size={16} /></button>
           </div>
           <div className="grid grid-cols-7 gap-0.5 text-center">
