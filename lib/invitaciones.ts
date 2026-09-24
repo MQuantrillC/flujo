@@ -21,7 +21,7 @@ export function enlaceInvitacion(base: string, i: Invitado): string {
 }
 
 export interface RotulosInvitacion {
-  asunto: string; hola: string; cuerpo: string; crearCuenta: string; entrar: string; boton: string; pie: string;
+  asunto: string; titulo: string; cuerpo: string; crearCuenta: string; entrar: string; boton: string; oEnlace: string; pie: string; firma: string;
 }
 
 export interface Correo { asunto: string; html: string; texto: string }
@@ -29,18 +29,48 @@ export interface Correo { asunto: string; html: string; texto: string }
 const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ESCAPES[c]);
 
-/** El correo de invitación, en texto plano y en HTML sencillo (sin imágenes ni estilos raros, para que no caiga en spam). */
-export function correoInvitacion(r: RotulosInvitacion, i: Invitado, enlace: string): Correo {
+// Los colores de la app (globals.css, tema claro). En correo van fijos: los clientes no leen variables.
+const ACENTO = '#137a8b';
+const FUENTE = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+
+/**
+ * El correo de invitación: texto plano y una versión HTML con la marca, hecha
+ * con tablas y estilos en línea, que es lo único que Gmail y Outlook respetan.
+ * `icono` es la dirección pública del símbolo de Flujo (PNG: los correos no
+ * muestran SVG).
+ */
+export function correoInvitacion(r: RotulosInvitacion, i: Invitado, enlace: string, icono: string): Correo {
   const paso = i.tieneCuenta ? r.entrar : r.crearCuenta;
-  const texto = [r.hola, '', r.cuerpo, '', paso, enlace, '', r.pie].join('\n');
-  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6f7f9;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1f2937">
-<div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:28px">
-<p style="margin:0 0 12px;font-size:15px">${esc(r.hola)}</p>
-<p style="margin:0 0 12px;font-size:15px;line-height:1.5">${esc(r.cuerpo)}</p>
-<p style="margin:0 0 20px;font-size:15px;line-height:1.5">${esc(paso)}</p>
-<p style="margin:0 0 20px"><a href="${esc(enlace)}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:10px 18px;border-radius:8px">${esc(r.boton)}</a></p>
-<p style="margin:0 0 20px;font-size:12px;color:#6b7280;word-break:break-all">${esc(enlace)}</p>
-<p style="margin:0;font-size:12px;color:#9ca3af">${esc(r.pie)}</p>
-</div></body></html>`;
+  const texto = [r.titulo, '', r.cuerpo, '', paso, enlace, '', r.pie, '', r.firma].join('\n');
+  const html = `<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${esc(r.asunto)}</title></head>
+<body style="margin:0;padding:0;background:#eef3f4;font-family:${FUENTE};-webkit-font-smoothing:antialiased">
+<div style="display:none;max-height:0;overflow:hidden;color:#eef3f4">${esc(r.cuerpo)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef3f4"><tr><td align="center" style="padding:32px 16px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;background:#ffffff;border:1px solid #dbe4e7;border-radius:16px;overflow:hidden">
+  <tr><td style="padding:22px 32px;border-bottom:1px solid #e7eef0">
+    <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+      <td style="vertical-align:middle;padding-right:10px"><img src="${esc(icono)}" width="36" height="36" alt="" style="display:block;border-radius:9px"></td>
+      <td style="vertical-align:middle;font-size:22px;font-weight:700;letter-spacing:-0.3px;color:${ACENTO}">flujo</td>
+    </tr></table>
+  </td></tr>
+  <tr><td style="padding:32px 32px 8px">
+    <h1 style="margin:0 0 14px;font-size:22px;line-height:1.3;font-weight:700;color:#132229">${esc(r.titulo)}</h1>
+    <p style="margin:0 0 20px;font-size:16px;line-height:1.55;color:#3b4f59">${esc(r.cuerpo)}</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="background:#f2f7f8;border-left:4px solid ${ACENTO};border-radius:0 10px 10px 0;padding:14px 16px;font-size:15px;line-height:1.5;color:#1f2f37">${esc(paso)}</td>
+    </tr></table>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:26px 0 22px"><tr>
+      <td style="background:${ACENTO};border-radius:10px"><a href="${esc(enlace)}" style="display:inline-block;padding:13px 26px;font-size:16px;font-weight:600;color:#ffffff;text-decoration:none">${esc(r.boton)} &rarr;</a></td>
+    </tr></table>
+    <p style="margin:0 0 6px;font-size:12px;line-height:1.5;color:#8798a1">${esc(r.oEnlace)}</p>
+    <p style="margin:0 0 24px;font-size:12px;line-height:1.5;word-break:break-all"><a href="${esc(enlace)}" style="color:${ACENTO};text-decoration:underline">${esc(enlace)}</a></p>
+  </td></tr>
+  <tr><td style="padding:16px 32px;background:#f7fafb;border-top:1px solid #e7eef0;font-size:12px;line-height:1.5;color:#8798a1">
+    ${esc(r.pie)}<br><span style="color:#a9b7bd">${esc(r.firma)}</span>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
   return { asunto: r.asunto, html, texto };
 }

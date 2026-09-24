@@ -128,8 +128,8 @@ async function avisarInvitados(eid: string, correos: string[], quien: string): P
   await Promise.allSettled(correos.map(async (email) => {
     const invitado = { email, equipoId: eid, equipoNombre: e.nombre, tieneCuenta: !!repo.usuario(email)?.tieneCuenta };
     const v = { quien, equipo: e.nombre, email };
-    const rotulos = { asunto: t('asunto', v), hola: t('hola'), cuerpo: t('cuerpo', v), crearCuenta: t('crearCuenta', v), entrar: t('entrar'), boton: t('boton'), pie: t('pie') };
-    await enviarCorreo(email, correoInvitacion(rotulos, invitado, enlaceInvitacion(base, invitado)));
+    const rotulos = { asunto: t('asunto', v), titulo: t('titulo', v), cuerpo: t('cuerpo', v), crearCuenta: t('crearCuenta', v), entrar: t('entrar'), boton: t('boton'), oEnlace: t('oEnlace'), pie: t('pie'), firma: t('firma') };
+    await enviarCorreo(email, correoInvitacion(rotulos, invitado, enlaceInvitacion(base, invitado), `${base}/apple-icon.png`));
   }));
 }
 

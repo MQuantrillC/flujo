@@ -414,12 +414,14 @@
   "correo": {
     "invitacion": {
       "asunto": "{quien} te invitó al equipo «{equipo}» en Flujo",
-      "hola": "Hola,",
       "cuerpo": "{quien} te agregó al equipo «{equipo}» en Flujo, la app de pendientes del equipo.",
       "crearCuenta": "Crea tu cuenta con este correo ({email}) y verás el equipo al entrar:",
       "entrar": "Ya tienes cuenta: entra y ahí está el equipo:",
       "boton": "Abrir Flujo",
-      "pie": "Si no esperabas este correo, puedes ignorarlo."
+      "pie": "Si no esperabas este correo, puedes ignorarlo.",
+      "titulo": "Te invitaron al equipo «{equipo}»",
+      "oEnlace": "Si el botón no funciona, copia este enlace en el navegador:",
+      "firma": "Flujo · los pendientes del equipo, en un solo lugar."
     }
   }
 }
