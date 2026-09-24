@@ -51,7 +51,7 @@
     "semana": "Esta semana",
     "persona": "Por persona",
     "importar": "Importar",
-    "miembros": "Miembros"
+    "ajustes": "Ajustes"
   },
   "tablero": {
     "nadaAqui": "Nada aquí",
@@ -69,7 +69,11 @@
       "proximaSemana": "Próxima semana",
       "despues": "Después",
       "sinFecha": "Sin fecha"
-    }
+    },
+    "hechasN": "{n, plural, one {# pendiente hecho} other {# pendientes hechos}}",
+    "yMas": "y {n} más",
+    "desplegar": "Ver una por una",
+    "apilar": "Apilar las hechas"
   },
   "tarjeta": {
     "prioridadAlta": "Prioridad alta",
@@ -203,7 +207,9 @@
     "sinCuenta": "sin cuenta aún",
     "sinCuentaAyuda": "Verá el equipo cuando cree su cuenta con este correo.",
     "invitar": "Invitar",
-    "invitarAyuda": "El correo con el que se registró (o se registrará). Puedes poner varios."
+    "invitarAyuda": "El correo con el que se registró (o se registrará). Puedes poner varios.",
+    "etapasOrden": "Para ordenarlas, arrástralas por el asa o usa las flechas.",
+    "arrastrar": "Arrastrar para ordenar"
   },
   "importar": {
     "titulo": "Importar pendientes",

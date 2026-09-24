@@ -164,6 +164,12 @@ export async function moverEtapaAccion(fd: FormData): Promise<void> {
   revalidatePath(`/e/${eid}`, 'layout');
 }
 
+export async function reordenarEtapasAccion(equipoId: string, ids: string[]): Promise<void> {
+  await miembroActual(equipoId);
+  repo.reordenarEtapas(equipoId, ids.map(String));
+  revalidatePath(`/e/${equipoId}`, 'layout');
+}
+
 export async function marcarEtapaFinalAccion(fd: FormData): Promise<void> {
   const eid = texto(fd, 'equipoId');
   await miembroActual(eid);

@@ -24,7 +24,7 @@ export function NavEquipo({ equipoId }: { equipoId: string }) {
         </Link>
       ))}
       <Link href={`${base}/importar`} className={clase(ruta.startsWith(`${base}/importar`))}>{t('importar')}</Link>
-      <Link href={`${base}/miembros`} className={clase(ruta.startsWith(`${base}/miembros`))}>{t('miembros')}</Link>
+      <Link href={`${base}/ajustes`} className={clase(ruta.startsWith(`${base}/ajustes`))}>{t('ajustes')}</Link>
     </nav>
   );
 }

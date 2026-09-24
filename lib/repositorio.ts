@@ -215,6 +215,15 @@ export function moverEtapa(etapaId: string, direccion: -1 | 1): void {
   lista.forEach((x, k) => db.prepare('UPDATE etapas SET posicion = ? WHERE id = ?').run(k, x.id));
 }
 
+/** Nuevo orden completo (arrastrar y soltar). Se ignora si no trae exactamente las etapas del equipo. */
+export function reordenarEtapas(eid: string, ids: string[]): boolean {
+  const actuales = etapasDe(eid).map((x) => x.id);
+  if (ids.length !== actuales.length || new Set(ids).size !== ids.length || !ids.every((x) => actuales.includes(x))) return false;
+  const tx = db.transaction(() => ids.forEach((x, k) => db.prepare('UPDATE etapas SET posicion = ? WHERE id = ?').run(k, x)));
+  tx();
+  return true;
+}
+
 /** La etapa «hecho» del equipo: sólo una. */
 export function marcarEtapaFinal(etapaId: string): void {
   const e = etapa(etapaId);

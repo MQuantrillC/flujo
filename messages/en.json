@@ -51,7 +51,7 @@
     "semana": "This week",
     "persona": "By person",
     "importar": "Import",
-    "miembros": "Members"
+    "ajustes": "Settings"
   },
   "tablero": {
     "nadaAqui": "Nothing here",
@@ -69,7 +69,11 @@
       "proximaSemana": "Next week",
       "despues": "Later",
       "sinFecha": "No date"
-    }
+    },
+    "hechasN": "{n, plural, one {# to-do done} other {# to-dos done}}",
+    "yMas": "and {n} more",
+    "desplegar": "Show one by one",
+    "apilar": "Stack the done ones"
   },
   "tarjeta": {
     "prioridadAlta": "High priority",
@@ -203,7 +207,9 @@
     "sinCuenta": "no account yet",
     "sinCuentaAyuda": "They will see the team once they create their account with this email.",
     "invitar": "Invite",
-    "invitarAyuda": "The email they signed up with (or will sign up with). Several are fine."
+    "invitarAyuda": "The email they signed up with (or will sign up with). Several are fine.",
+    "etapasOrden": "To reorder, drag them by the handle or use the arrows.",
+    "arrastrar": "Drag to reorder"
   },
   "importar": {
     "titulo": "Import to-dos",

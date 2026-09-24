@@ -51,7 +51,7 @@
     "semana": "Esta semana",
     "persona": "Por pessoa",
     "importar": "Importar",
-    "miembros": "Membros"
+    "ajustes": "Configurações"
   },
   "tablero": {
     "nadaAqui": "Nada aqui",
@@ -69,7 +69,11 @@
       "proximaSemana": "Próxima semana",
       "despues": "Depois",
       "sinFecha": "Sem data"
-    }
+    },
+    "hechasN": "{n, plural, one {# pendência feita} other {# pendências feitas}}",
+    "yMas": "e mais {n}",
+    "desplegar": "Ver uma por uma",
+    "apilar": "Empilhar as feitas"
   },
   "tarjeta": {
     "prioridadAlta": "Prioridade alta",
@@ -203,7 +207,9 @@
     "sinCuenta": "ainda sem conta",
     "sinCuentaAyuda": "Verá a equipe quando criar a conta com este e-mail.",
     "invitar": "Convidar",
-    "invitarAyuda": "O e-mail com que se cadastrou (ou vai se cadastrar). Pode colocar vários."
+    "invitarAyuda": "O e-mail com que se cadastrou (ou vai se cadastrar). Pode colocar vários.",
+    "etapasOrden": "Para ordenar, arraste pela alça ou use as setas.",
+    "arrastrar": "Arrastar para ordenar"
   },
   "importar": {
     "titulo": "Importar pendências",
