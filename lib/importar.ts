@@ -103,6 +103,19 @@ function separar(v: string): string[] {
   return v.split(/[;,|]| y | and | e /).map((x) => x.replace(/^[@#]/, '').trim()).filter(Boolean);
 }
 
+/** «Book to Bill» → «book-to-bill»; sin # ni espacios, en minúsculas. */
+export const limpiarEtiqueta = (s: string) => s.replace(/^#/, '').trim().toLowerCase().replace(/\s+/g, '-');
+
+/** Ajustes hechos en la pantalla de revisión antes de importar, por número de línea. */
+export interface AjustesImportacion { etiquetas?: Record<number, string[]> }
+
+/** Aplica lo que se retocó en la revisión (por ahora, las etiquetas) sobre lo leído del texto. */
+export function ajustarBorradores(borradores: Borrador[], ajustes?: AjustesImportacion): Borrador[] {
+  const et = ajustes?.etiquetas;
+  if (!et) return borradores;
+  return borradores.map((b) => (b.linea in et ? { ...b, etiquetas: [...new Set(et[b.linea].map(limpiarEtiqueta).filter(Boolean))] } : b));
+}
+
 function resolverEtapa(v: string, etapas: string[]): { etapa: string | null; aviso?: Aviso } {
   const n = normalizar(v);
   if (!n) return { etapa: null };
@@ -141,7 +154,7 @@ export function leerTablaCsv(texto: string, miembros: MiembroParaParse[], etapas
     if (!titulo) avisos.push({ clave: 'sinTitulo' });
     return {
       linea: i + 2, titulo, descripcion: celda('descripcion').trim(), asignados, noResueltos,
-      etiquetas: [...new Set(separar(celda('etiquetas')).map((x) => x.toLowerCase().replace(/\s+/g, '-')))],
+      etiquetas: [...new Set(separar(celda('etiquetas')).map(limpiarEtiqueta).filter(Boolean))],
       fechaLimite: fecha.iso, prioridad: /alta|high|urgente|urgent|critica|critical|^1$|^!+$/.test(pri) ? 'alta' : 'normal',
       etapa: et.etapa, avisos, valido: !!titulo,
     };
@@ -167,7 +180,7 @@ const PROMPTS: Record<Idioma, (equipo: string, personas: string, etapas: string[
     '- Un pendiente por fila. titulo: corto, en infinitivo («Enviar propuesta a Liverpool»).',
     `- responsables: nombre de pila de quien lo hace, de esta lista del equipo: ${personas}. Varios separados por «;». Vacío si no se sabe.`,
     `- fecha_limite: en formato AAAA-MM-DD. Hoy es ${hoyIso}; si el original dice «esta semana», «el viernes» o «fin de mes», calcula la fecha. Vacío si no hay.`,
-    '- etiquetas: palabras cortas en minúsculas separadas por «;», sin #. Vacío si no aplica.',
+    '- etiquetas: UNA sola etiqueta con el tema principal, en minúsculas y sin # («ifrs», «compensaciones»). Usa la misma etiqueta para todos los pendientes de un mismo tema. Vacío si no aplica.',
     '- prioridad: «alta» si es urgente o importante; si no, vacío.',
     `- etapa: una de: ${etapas.join(', ')}. Vacío si no se sabe (queda en ${etapas[0] ?? 'la primera'}).`,
     '- descripcion: contexto útil en una línea (enlaces, con quién, qué falta). Vacío si no hay.',
@@ -184,7 +197,7 @@ const PROMPTS: Record<Idioma, (equipo: string, personas: string, etapas: string[
     '- One to-do per row. title: short, imperative ("Send proposal to Liverpool").',
     `- assignees: first name of the person doing it, from this team list: ${personas}. Several separated by ";". Empty if unknown.`,
     `- due_date: format YYYY-MM-DD. Today is ${hoyIso}; if the original says "this week", "Friday" or "end of month", compute the date. Empty if none.`,
-    '- tags: short lowercase words separated by ";", no #. Empty if none.',
+    '- tags: ONE tag only, the main topic, lowercase and without # ("ifrs", "compensation"). Use the same tag for every to-do on the same topic. Empty if none.',
     '- priority: "high" if urgent or important; otherwise empty.',
     `- stage: one of: ${etapas.join(', ')}. Empty if unknown (defaults to ${etapas[0] ?? 'the first'}).`,
     '- description: useful context in one line (links, with whom, what is missing). Empty if none.',
@@ -201,7 +214,7 @@ const PROMPTS: Record<Idioma, (equipo: string, personas: string, etapas: string[
     '- Uma pendência por linha. titulo: curto, no infinitivo («Enviar proposta para Liverpool»).',
     `- responsaveis: primeiro nome de quem faz, desta lista da equipe: ${personas}. Vários separados por «;». Vazio se não souber.`,
     `- data_limite: no formato AAAA-MM-DD. Hoje é ${hoyIso}; se o original diz «esta semana», «sexta» ou «fim do mês», calcule a data. Vazio se não houver.`,
-    '- etiquetas: palavras curtas em minúsculas separadas por «;», sem #. Vazio se não se aplica.',
+    '- etiquetas: UMA só etiqueta com o tema principal, em minúsculas e sem # («ifrs», «compensacoes»). Use a mesma etiqueta para todas as pendências do mesmo tema. Vazio se não se aplica.',
     '- prioridade: «alta» se for urgente ou importante; senão, vazio.',
     `- etapa: uma de: ${etapas.join(', ')}. Vazio se não souber (fica em ${etapas[0] ?? 'a primeira'}).`,
     '- descricao: contexto útil em uma linha (links, com quem, o que falta). Vazio se não houver.',

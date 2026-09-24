@@ -245,7 +245,13 @@
       "noEsDelEquipo": "«{valor}» não é desta equipe",
       "fechaNoEntendida": "Não entendi a data «{valor}»",
       "etapaNoExiste": "A etapa «{valor}» não existe; vai para a primeira"
-    }
+    },
+    "etiquetasTitulo": "Etiquetas lidas",
+    "etiquetasAyuda": "Se a IA colocou demais, tire-as aqui (de todas as pendências) ou uma por uma na tabela.",
+    "soloPrimera": "Deixar só a primeira de cada pendência",
+    "quitarDeTodos": "Tirar «{e}» de todas as pendências",
+    "quitarDeEste": "Tirar «{e}» desta pendência",
+    "deshacerEtiquetas": "Desfazer mudanças"
   },
   "registro": {
     "titulo": "Criar conta",

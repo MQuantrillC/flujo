@@ -245,7 +245,13 @@
       "noEsDelEquipo": "«{valor}» no es de este equipo",
       "fechaNoEntendida": "No entendí la fecha «{valor}»",
       "etapaNoExiste": "La etapa «{valor}» no existe; va a la primera"
-    }
+    },
+    "etiquetasTitulo": "Etiquetas leídas",
+    "etiquetasAyuda": "Si la IA puso de más, quítalas aquí (de todos los pendientes) o una por una en la tabla.",
+    "soloPrimera": "Dejar solo la primera de cada pendiente",
+    "quitarDeTodos": "Quitar «{e}» de todos los pendientes",
+    "quitarDeEste": "Quitar «{e}» de este pendiente",
+    "deshacerEtiquetas": "Deshacer cambios"
   },
   "registro": {
     "titulo": "Crear cuenta",

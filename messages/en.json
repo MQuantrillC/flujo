@@ -245,7 +245,13 @@
       "noEsDelEquipo": "“{valor}” is not on this team",
       "fechaNoEntendida": "Couldn't understand the date “{valor}”",
       "etapaNoExiste": "The stage “{valor}” doesn't exist; goes to the first one"
-    }
+    },
+    "etiquetasTitulo": "Tags found",
+    "etiquetasAyuda": "If the AI added too many, remove them here (from every to-do) or one by one in the table.",
+    "soloPrimera": "Keep only the first tag of each to-do",
+    "quitarDeTodos": "Remove \"{e}\" from every to-do",
+    "quitarDeEste": "Remove \"{e}\" from this to-do",
+    "deshacerEtiquetas": "Undo changes"
   },
   "registro": {
     "titulo": "Create account",

@@ -3,14 +3,15 @@
 import { useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, ClipboardCopy, FileUp, Flag, Sparkles, TriangleAlert } from 'lucide-react';
+import { Check, ClipboardCopy, FileUp, Flag, Sparkles, TriangleAlert, X } from 'lucide-react';
 import { importarPendientes, previsualizarImportacion, type VistaPreviaImportacion } from '@/lib/acciones';
 import { fechaCorta } from '@/lib/fechas';
 import { idiomaValido } from '@/lib/idioma';
-import type { Aviso } from '@/lib/importar';
+import type { Aviso, Borrador } from '@/lib/importar';
 import type { Usuario } from '@/lib/modelo';
 import { Avatar } from './Avatar';
 import { Aparece } from './Animado';
+import { Tooltip } from './Tooltip';
 
 /**
  * Importar en masa, en tres pasos: copiar el encargo para la IA, pegar (o subir)
@@ -22,6 +23,8 @@ export function Importador({ equipoId, prompt, miembros }: { equipoId: string; p
   const idioma = idiomaValido(useLocale());
   const [texto, setTexto] = useState('');
   const [vista, setVista] = useState<VistaPreviaImportacion | null>(null);
+  // Copia editable de lo leído: aquí se retocan las etiquetas antes de importar.
+  const [filas, setFilas] = useState<Borrador[]>([]);
   const [resultado, setResultado] = useState<{ creados: number; omitidos: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
@@ -53,20 +56,31 @@ export function Importador({ equipoId, prompt, miembros }: { equipoId: string; p
     if (!texto.trim()) return;
     setError(null); setResultado(null);
     iniciar(async () => {
-      try { setVista(await previsualizarImportacion(equipoId, texto)); }
+      try { const v = await previsualizarImportacion(equipoId, texto); setVista(v); setFilas(v.borradores); }
       catch { setError(t('errorLeer')); }
     });
   };
 
+  // Sólo viajan al servidor las filas cuyas etiquetas se tocaron (las demás siguen siendo el mismo arreglo).
+  const ajustes = () => ({ etiquetas: Object.fromEntries(filas.filter((f, i) => f.etiquetas !== vista?.borradores[i].etiquetas).map((f) => [f.linea, f.etiquetas])) });
   const importar = () => {
     if (!vista) return;
     iniciar(async () => {
-      try { setResultado(await importarPendientes(equipoId, texto)); setVista(null); setTexto(''); }
+      try { setResultado(await importarPendientes(equipoId, texto, ajustes())); setVista(null); setTexto(''); }
       catch { setError(t('errorImportar')); }
     });
   };
 
-  const validos = vista?.borradores.filter((b) => b.valido).length ?? 0;
+  const validos = filas.filter((b) => b.valido).length;
+  const conteo = new Map<string, number>();
+  for (const f of filas) if (f.valido) for (const e of f.etiquetas) conteo.set(e, (conteo.get(e) ?? 0) + 1);
+  const resumen = [...conteo].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const hayVarias = filas.some((f) => f.valido && f.etiquetas.length > 1);
+  const editado = !!vista && filas.some((f, i) => f.etiquetas !== vista.borradores[i].etiquetas);
+  const quitarDeTodos = (e: string) => setFilas((fs) => fs.map((f) => (f.etiquetas.includes(e) ? { ...f, etiquetas: f.etiquetas.filter((x) => x !== e) } : f)));
+  const quitarDeUno = (linea: number, e: string) => setFilas((fs) => fs.map((f) => (f.linea === linea ? { ...f, etiquetas: f.etiquetas.filter((x) => x !== e) } : f)));
+  const soloPrimera = () => setFilas((fs) => fs.map((f) => (f.etiquetas.length > 1 ? { ...f, etiquetas: [f.etiquetas[0]] } : f)));
+  const deshacer = () => { if (vista) setFilas(vista.borradores); };
   const paso = (n: number) => <span className="grid h-6 w-6 place-items-center rounded-full bg-acento text-xs text-white dark:text-gray-900">{n}</span>;
 
   return (
@@ -96,16 +110,36 @@ export function Importador({ equipoId, prompt, miembros }: { equipoId: string; p
             <h2 className="flex items-center gap-2 font-semibold text-gray-800">{paso(3)} {t('paso3')}</h2>
             <p className="mt-1 text-sm text-gray-500">
               {t('leidoComo', { formato: t(vista.formato) })} <b className="text-gray-700">{t('listos', { n: validos })}</b>
-              {vista.borradores.length - validos > 0 && <>, <b className="text-red-600">{t('omitidos', { n: vista.borradores.length - validos })}</b></>}.
+              {filas.length - validos > 0 && <>, <b className="text-red-600">{t('omitidos', { n: filas.length - validos })}</b></>}.
               {' '}{t('avisosNota')}
             </p>
+            {(resumen.length > 0 || editado) && (
+              <div className="mt-3 rounded-lg border border-gray-100 bg-gray-50 p-3">
+                <p className="text-xs"><span className="font-semibold text-gray-700">{t('etiquetasTitulo')}</span> <span className="text-gray-400">{t('etiquetasAyuda')}</span></p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {resumen.map(([e, n]) => (
+                    <Tooltip key={e} texto={t('quitarDeTodos', { e })}>
+                      <button type="button" onClick={() => quitarDeTodos(e)} className="inline-flex items-center gap-1 rounded-md bg-acento/10 px-1.5 py-0.5 text-xs text-acento transition-colors hover:bg-red-50 hover:text-red-600">
+                        #{e} <span className="text-[10px] opacity-60">{n}</span> <X size={11} />
+                      </button>
+                    </Tooltip>
+                  ))}
+                </div>
+                {(hayVarias || editado) && (
+                  <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                    {hayVarias && <button type="button" onClick={soloPrimera} className="font-semibold text-acento hover:underline">{t('soloPrimera')}</button>}
+                    {editado && <button type="button" onClick={deshacer} className="text-gray-500 hover:underline">{t('deshacerEtiquetas')}</button>}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="mt-3 overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                   <tr><th className="px-2 py-1">#</th><th className="px-2 py-1">{t('colPendiente')}</th><th className="px-2 py-1">{t('colResponsables')}</th><th className="px-2 py-1">{t('colVence')}</th><th className="px-2 py-1">{t('colEtiquetas')}</th><th className="px-2 py-1">{t('colEtapa')}</th><th className="px-2 py-1">{t('colAvisos')}</th></tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {vista.borradores.map((b) => (
+                  {filas.map((b) => (
                     <tr key={b.linea} className={b.valido ? '' : 'bg-red-50/60 text-gray-400'}>
                       <td className="px-2 py-1.5 text-gray-400">{b.linea}</td>
                       <td className="px-2 py-1.5">
@@ -114,7 +148,16 @@ export function Importador({ equipoId, prompt, miembros }: { equipoId: string; p
                       </td>
                       <td className="px-2 py-1.5"><span className="flex -space-x-1">{b.asignados.map((a) => <Avatar key={a} nombre={nombreDe(a)} tam="sm" />)}</span></td>
                       <td className="px-2 py-1.5 whitespace-nowrap">{b.fechaLimite ? fechaCorta(b.fechaLimite, undefined, idioma) : ''}</td>
-                      <td className="px-2 py-1.5">{b.etiquetas.map((e) => <span key={e} className="mr-1 rounded bg-acento/10 px-1 text-acento">#{e}</span>)}</td>
+                      <td className="px-2 py-1.5">
+                        <span className="flex flex-wrap gap-1">
+                          {b.etiquetas.map((e) => (
+                            <span key={e} className="inline-flex items-center gap-0.5 rounded bg-acento/10 px-1 text-acento">
+                              #{e}
+                              <button type="button" onClick={() => quitarDeUno(b.linea, e)} aria-label={t('quitarDeEste', { e })} className="rounded text-acento/50 transition-colors hover:text-red-600"><X size={10} /></button>
+                            </span>
+                          ))}
+                        </span>
+                      </td>
                       <td className="px-2 py-1.5 text-gray-500">{b.etapa ?? ''}</td>
                       <td className="px-2 py-1.5 text-amber-700">{b.avisos.map((a, i) => <span key={i} className="flex items-center gap-1"><TriangleAlert size={11} /> {aviso(a)}</span>)}</td>
                     </tr>

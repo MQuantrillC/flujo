@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { leerImportacion, leerCsv, fechaDeCelda, promptParaIA } from './importar';
+import { ajustarBorradores, leerImportacion, leerCsv, fechaDeCelda, promptParaIA } from './importar';
 
 const equipo = [
   { email: 'marco.quantrill@xertica.com', nombre: 'Marco Quantrill' },
@@ -42,6 +42,15 @@ Ordenar el drive,Pedro,15/10/2026,,,Bloqueado,`;
     expect(en.borradores[0]).toMatchObject({ titulo: 'Llamar al cliente', asignados: ['andrea.velarde@xertica.com'], fechaLimite: '2026-10-01' });
     const pt = leerImportacion('titulo,responsaveis,data_limite,prioridade\nLigar para o cliente,Harold e Marco,15/10/2026,alta', equipo, etapas, hoy);
     expect(pt.borradores[0]).toMatchObject({ asignados: ['harold.suarez@xertica.com', 'marco.quantrill@xertica.com'], fechaLimite: '2026-10-15', prioridad: 'alta' });
+  });
+});
+
+describe('ajustes de la revisión', () => {
+  it('reemplaza las etiquetas de las líneas retocadas, limpias y sin repetir, y deja el resto igual', () => {
+    const r = leerImportacion('titulo,etiquetas\nUno,ifrs;actuals;book-to-bill\nDos,compensaciones;correo\nTres,l10', equipo, etapas, hoy);
+    const a = ajustarBorradores(r.borradores, { etiquetas: { 2: ['ifrs'], 3: ['#Compensaciones', 'compensaciones', ' ', 'Net Revenue'] } });
+    expect(a.map((b) => b.etiquetas)).toEqual([['ifrs'], ['compensaciones', 'net-revenue'], ['l10']]);
+    expect(ajustarBorradores(r.borradores)).toBe(r.borradores);
   });
 });
 

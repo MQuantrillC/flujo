@@ -14,7 +14,7 @@ import { cifrar, coincide, LARGO_MINIMO } from './contrasenas';
 import { completarEnlace, extraerEnlaces } from './enlaces';
 import { hoyActual } from './hoy';
 import { interpretar } from './parseRapido';
-import { leerImportacion, type Borrador } from './importar';
+import { ajustarBorradores, leerImportacion, type AjustesImportacion, type Borrador } from './importar';
 import { idiomaValido } from './idioma';
 import * as repo from './repositorio';
 import { CORREO_VALIDO, etapasIniciales, type Prioridad } from './modelo';
@@ -202,13 +202,13 @@ export async function previsualizarImportacion(equipoId: string, texto: string):
   return { formato: r.formato, borradores: r.borradores };
 }
 
-/** Vuelve a leer el mismo texto en el servidor y crea los pendientes válidos. */
-export async function importarPendientes(equipoId: string, texto: string): Promise<{ creados: number; omitidos: number }> {
+/** Vuelve a leer el mismo texto en el servidor, aplica lo retocado en la revisión y crea los pendientes válidos. */
+export async function importarPendientes(equipoId: string, texto: string, ajustes?: AjustesImportacion): Promise<{ creados: number; omitidos: number }> {
   const u = await miembroActual(equipoId);
   const etapas = repo.etapasDe(equipoId);
   const r = leerImportacion(texto, repo.miembrosDe(equipoId), etapas.map((e) => e.nombre), await hoyActual());
   let creados = 0;
-  for (const b of r.borradores) {
+  for (const b of ajustarBorradores(r.borradores, ajustes)) {
     if (!b.valido) continue;
     repo.crearTarea({
       equipoId, titulo: b.titulo, descripcion: b.descripcion, asignados: b.asignados, etiquetas: b.etiquetas,
