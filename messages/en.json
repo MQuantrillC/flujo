@@ -73,7 +73,8 @@
     "hechasN": "{n, plural, one {# to-do done} other {# to-dos done}}",
     "yMas": "and {n} more",
     "desplegar": "Show one by one",
-    "apilar": "Stack the done ones"
+    "apilar": "Stack",
+    "pendientesN": "{n, plural, one {# to-do} other {# to-dos}}"
   },
   "tarjeta": {
     "prioridadAlta": "High priority",

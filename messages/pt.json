@@ -73,7 +73,8 @@
     "hechasN": "{n, plural, one {# pendência feita} other {# pendências feitas}}",
     "yMas": "e mais {n}",
     "desplegar": "Ver uma por uma",
-    "apilar": "Empilhar as feitas"
+    "apilar": "Empilhar",
+    "pendientesN": "{n, plural, one {# pendência} other {# pendências}}"
   },
   "tarjeta": {
     "prioridadAlta": "Prioridade alta",

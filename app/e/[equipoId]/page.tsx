@@ -79,8 +79,8 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
               <ColumnaTablero
                 key={et.id} etapaId={et.id} nombre={et.nombre} cantidad={tareas.length}
                 vacio={et.esFinal ? t('nadaHechas', { dias: DIAS_HECHAS_VISIBLES }) : t('nadaAqui')}
-                apilable={et.esFinal}
-                resumen={et.esFinal ? [...tareas].sort((a, b) => (b.terminadoEn ?? 0) - (a.terminadoEn ?? 0)).map((x) => ({ id: x.id, titulo: x.titulo })) : undefined}
+                esFinal={et.esFinal}
+                resumen={(et.esFinal ? [...tareas].sort((a, b) => (b.terminadoEn ?? 0) - (a.terminadoEn ?? 0)) : tareas).map((x) => ({ id: x.id, titulo: x.titulo }))}
               >
                 {tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapas} hoy={hoy} arrastrable />)}
               </ColumnaTablero>
