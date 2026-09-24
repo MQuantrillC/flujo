@@ -21,7 +21,7 @@ export function SelectorTema() {
     guardarCookie(COOKIE_TEMA, aOscuro ? 'dark' : 'light');
   };
   return (
-    <button type="button" onClick={cambiar} className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700" aria-label={t('temaOscuro')}>
+    <button type="button" onClick={cambiar} className="rounded-md p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700" aria-label={t('temaOscuro')}>
       <Moon size={16} className="dark:hidden" />
       <Sun size={16} className="hidden dark:block" />
     </button>
@@ -40,7 +40,7 @@ export function SelectorIdioma() {
           key={i}
           type="button"
           onClick={() => { guardarCookie(COOKIE_IDIOMA, i); router.refresh(); }}
-          className={`w-7 rounded py-0.5 text-center uppercase transition-colors ${i === actual ? 'bg-acento text-white dark:text-gray-900' : 'text-gray-400 hover:text-gray-700'}`}
+          className={`w-8 rounded py-1 text-center uppercase transition-colors ${i === actual ? 'bg-acento text-white dark:text-gray-900' : 'text-gray-400 hover:text-gray-700'}`}
           aria-pressed={i === actual}
         >
           {i}

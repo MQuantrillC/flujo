@@ -121,3 +121,12 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .cursor-escritura::after { display: none; }
 }
+
+/* Barras de desplazamiento invisibles (la barra de pestañas del equipo en el móvil). */
+.sin-barra { scrollbar-width: none; }
+.sin-barra::-webkit-scrollbar { display: none; }
+
+/* En el móvil, los campos a 16px: con menos, iOS hace zoom al tocarlos. */
+@media (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select { font-size: 16px; }
+}

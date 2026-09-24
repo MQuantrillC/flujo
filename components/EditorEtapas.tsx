@@ -44,7 +44,7 @@ export function EditorEtapas({ equipoId, etapas: delServidor, enUso }: { equipoI
     iniciar(async () => { await reordenarEtapasAccion(equipoId, lista.map((x) => x.id)); router.refresh(); });
   };
 
-  const botonIcono = 'rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-200 disabled:opacity-30';
+  const botonIcono = 'rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-200 disabled:opacity-30';
 
   return (
     <>
@@ -60,7 +60,7 @@ export function EditorEtapas({ equipoId, etapas: delServidor, enUso }: { equipoI
               onDragOver={(e) => { if (e.dataTransfer.types.includes(TIPO)) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (sobre !== et.id) setSobre(et.id); } }}
               onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null) && sobre === et.id) setSobre(null); }}
               onDrop={(e) => { e.preventDefault(); soltar(et.id); }}
-              className={`flex items-center gap-1.5 rounded-lg border p-2 transition-all ${
+              className={`flex flex-wrap items-center gap-1.5 rounded-lg border p-2 transition-all ${
                 arrastrando === et.id ? 'border-gray-200 bg-gray-50/60 opacity-40'
                 : sobre === et.id ? 'border-acento bg-acento/10 ring-2 ring-acento/30'
                 : 'border-gray-100 bg-gray-50/60'
@@ -76,7 +76,7 @@ export function EditorEtapas({ equipoId, etapas: delServidor, enUso }: { equipoI
                   <GripVertical size={14} />
                 </span>
               </Tooltip>
-              <form action={renombrarEtapaAccion} className="flex min-w-0 flex-1 gap-1.5">
+              <form action={renombrarEtapaAccion} className="flex min-w-44 flex-1 gap-1.5">
                 <input type="hidden" name="equipoId" value={equipoId} />
                 <input type="hidden" name="etapaId" value={et.id} />
                 <input name="nombre" defaultValue={et.nombre} className="campo py-1" />
@@ -89,13 +89,13 @@ export function EditorEtapas({ equipoId, etapas: delServidor, enUso }: { equipoI
                 <Tooltip texto={t('bajar')}><button disabled={i === etapas.length - 1} className={botonIcono}><ArrowDown size={14} /></button></Tooltip></form>
               <form action={marcarEtapaFinalAccion}><input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} />
                 <Tooltip texto={et.esFinal ? t('hechoEtapa') : t('esHecho')}>
-                  <button aria-pressed={et.esFinal} aria-label={t('hecho')} className={`rounded-md p-1 transition-colors ${et.esFinal ? 'text-emerald-600' : 'text-gray-300 hover:bg-gray-200 hover:text-emerald-500'}`}>
+                  <button aria-pressed={et.esFinal} aria-label={t('hecho')} className={`rounded-md p-1.5 transition-colors ${et.esFinal ? 'text-emerald-600' : 'text-gray-300 hover:bg-gray-200 hover:text-emerald-500'}`}>
                     {et.esFinal ? <CircleCheck size={17} className="fill-emerald-100" /> : <Circle size={17} />}
                   </button>
                 </Tooltip></form>
               <FormConfirmar action={eliminarEtapaAccion} peligro mensaje={t('confirmarEliminarEtapa', { nombre: et.nombre })}>
                 <input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} />
-                <Tooltip texto={n > 0 ? t('tienePendientes') : t('eliminar')}><button disabled={n > 0 || etapas.length <= 1} className="rounded-md p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-30"><Trash2 size={14} /></button></Tooltip>
+                <Tooltip texto={n > 0 ? t('tienePendientes') : t('eliminar')}><button disabled={n > 0 || etapas.length <= 1} className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-30"><Trash2 size={14} /></button></Tooltip>
               </FormConfirmar>
             </li>
           );

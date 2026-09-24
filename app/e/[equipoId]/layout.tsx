@@ -34,7 +34,7 @@ export default async function LayoutEquipo({ children, params }: { children: Rea
             </Link>
             <BotonSalir />
           </div>
-          <div className="basis-full">
+          <div className="min-w-0 basis-full">
             <NavEquipo equipoId={equipoId} />
           </div>
         </div>

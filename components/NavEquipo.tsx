@@ -14,10 +14,10 @@ export function NavEquipo({ equipoId }: { equipoId: string }) {
   const enTablero = ruta === base;
   const vistaActual = params.get('vista') ?? 'tablero';
   const clase = (activo: boolean) =>
-    `rounded-md px-2.5 py-1 text-sm font-medium transition-colors ${activo ? 'bg-acento/10 text-acento' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'}`;
+    `shrink-0 whitespace-nowrap rounded-md px-2.5 py-1 text-sm font-medium transition-colors ${activo ? 'bg-acento/10 text-acento' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'}`;
 
   return (
-    <nav className="flex items-center gap-1 overflow-x-auto">
+    <nav className="sin-barra -mx-1 flex items-center gap-1 overflow-x-auto px-1">
       {VISTAS.map((v) => (
         <Link key={v} href={v === 'tablero' ? base : `${base}?vista=${v}`} className={clase(enTablero && vistaActual === v)}>
           {t(v)}
