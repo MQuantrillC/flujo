@@ -1,0 +1,39 @@
+# Flujo en una máquina (por ejemplo una e2-micro de Google Cloud):
+#
+#   docker compose up -d --build
+#
+# - `flujo`: la app, con la base y los adjuntos en ./data (fuera del contenedor,
+#   sobreviven a cada actualización).
+# - `caddy`: la puerta de entrada. Con FLUJO_DOMINIO en .env sirve HTTPS con
+#   certificado automático; sin dominio, sirve por HTTP en el puerto 80 (y hay
+#   que poner FLUJO_SIN_HTTPS=1 para que la sesión funcione por IP).
+
+services:
+  flujo:
+    build: .
+    restart: unless-stopped
+    environment:
+      FLUJO_SIN_HTTPS: ${FLUJO_SIN_HTTPS:-0}
+    volumes:
+      - ./data:/data
+    expose:
+      - "3100"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      FLUJO_DOMINIO: ${FLUJO_DOMINIO:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - flujo
+
+volumes:
+  caddy_data:
+  caddy_config:

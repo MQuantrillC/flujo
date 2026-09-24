@@ -42,3 +42,6 @@ next-env.d.ts
 
 # datos locales: base SQLite e imágenes adjuntas
 /data
+
+# el ejemplo sí va al repo
+!.env.example

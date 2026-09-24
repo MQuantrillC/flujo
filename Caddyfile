@@ -1,0 +1,9 @@
+# Con FLUJO_DOMINIO (ej. flujo.xertica.com) Caddy pide el certificado solo y
+# redirige HTTP a HTTPS. Sin dominio, escucha en :80.
+{$FLUJO_DOMINIO::80} {
+	reverse_proxy flujo:3100
+	encode gzip
+	request_body {
+		max_size 30MB
+	}
+}

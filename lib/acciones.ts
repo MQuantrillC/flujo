@@ -30,7 +30,9 @@ export interface Resultado { ok: boolean; error?: string }
 
 async function abrirSesion(email: string): Promise<void> {
   const token = repo.crearSesion(email);
-  (await cookies()).set(COOKIE_SESION, token, { httpOnly: true, sameSite: 'lax', secure: esProduccion(), path: '/', maxAge: DURACION_SESION });
+  // En producción la cookie sólo viaja por HTTPS, salvo que FLUJO_SIN_HTTPS=1 (una máquina a la que se entra por IP).
+  const segura = esProduccion() && process.env.FLUJO_SIN_HTTPS !== '1';
+  (await cookies()).set(COOKIE_SESION, token, { httpOnly: true, sameSite: 'lax', secure: segura, path: '/', maxAge: DURACION_SESION });
 }
 
 export async function entrar(_prev: Resultado, fd: FormData): Promise<Resultado> {

@@ -20,12 +20,17 @@ Cada persona crea su cuenta con nombre, apellido, correo, cumpleaños y contrase
 
 ## Desplegar
 
-La app guarda todo en disco (SQLite + imágenes), así que necesita un servidor con un volumen persistente. Con el `Dockerfile` incluido:
+La app guarda todo en disco (SQLite + adjuntos), así que necesita una máquina con disco, no una plataforma sin estado. Con Docker y el `docker-compose.yml` incluido (Caddy delante, con HTTPS automático si hay dominio):
 
-- **Railway** o **Fly.io**: crea el servicio desde este repositorio, monta un volumen en `/data` y expón el puerto 3100. `FLUJO_DATA_DIR` ya apunta a `/data` en la imagen.
-- **Una VM** (Compute Engine, etc.): `docker build -t flujo . && docker run -p 3100:3100 -v flujo-data:/data flujo`.
+```bash
+git clone https://github.com/MQuantrillC/flujo.git && cd flujo
+cp .env.example .env        # FLUJO_DOMINIO=flujo.tudominio.com, o FLUJO_SIN_HTTPS=1 si entras por IP
+docker compose up -d --build
+```
 
-Vercel y otras plataformas sin disco persistente no sirven tal cual: harían falta una base externa (Turso o Postgres) y un almacén de imágenes. Todo el acceso a datos pasa por `lib/repositorio.ts`, que es lo único que habría que cambiar.
+Los datos quedan en `./data` de la máquina. Para actualizar: `git pull && docker compose up -d --build`. Sirve en una e2-micro gratuita de Google Compute Engine (agrega 2 GB de swap antes de construir), en Railway o Fly.io con un volumen en `/data`, o en cualquier VM.
+
+Vercel y otras plataformas sin disco persistente no sirven tal cual: harían falta una base externa (Turso o Postgres) y un almacén de archivos. Todo el acceso a datos pasa por `lib/repositorio.ts`, que es lo único que habría que cambiar.
 
 ## Cómo está hecho
 
