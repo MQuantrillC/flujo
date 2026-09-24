@@ -147,7 +147,8 @@
     "hoy": "Today",
     "quitarFecha": "Clear date",
     "mesAnterior": "Previous month",
-    "mesSiguiente": "Next month"
+    "mesSiguiente": "Next month",
+    "cambiarMesAnio": "Change month or year"
   },
   "historial": {
     "creada": "created the to-do",
@@ -267,7 +268,8 @@
       "contrasenaCorta": "The password is too short.",
       "noCoinciden": "The passwords do not match.",
       "yaExiste": "There is already an account with that email."
-    }
+    },
+    "elegirFecha": "Pick a date"
   },
   "cuenta": {
     "titulo": "My account",
@@ -291,6 +293,7 @@
       "actualIncorrecta": "The current password is not correct.",
       "contrasenaCorta": "The password is too short.",
       "noCoinciden": "The passwords do not match."
-    }
+    },
+    "elegirFecha": "Pick a date"
   }
 }

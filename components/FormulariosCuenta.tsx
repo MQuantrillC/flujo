@@ -6,6 +6,7 @@ import { Check, KeyRound } from 'lucide-react';
 import { actualizarPerfilAccion, cambiarContrasenaAccion, type Resultado } from '@/lib/acciones';
 import { LARGO_MINIMO } from '@/lib/contrasenas';
 import type { Usuario } from '@/lib/modelo';
+import { SelectorFecha } from './SelectorFecha';
 
 type Estado = Resultado & { en?: number };
 const INICIAL: Estado = { ok: true };
@@ -23,7 +24,7 @@ function Campo({ etiqueta, ayuda, children }: { etiqueta: string; ayuda?: string
 export function FormularioPerfil({ usuario }: { usuario: Usuario }) {
   const t = useTranslations('cuenta');
   const [estado, enviar, pendiente] = useActionState<Estado, FormData>(async (_p, fd) => ({ ...(await actualizarPerfilAccion(_p, fd)), en: Date.now() }), INICIAL);
-  const [datos, setDatos] = useState({ nombre: usuario.nombrePila, apellido: usuario.apellido, cumpleanos: usuario.cumpleanos ?? '' });
+  const [datos, setDatos] = useState({ nombre: usuario.nombrePila, apellido: usuario.apellido });
   const campo = (k: keyof typeof datos) => ({ name: k, value: datos[k], onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDatos((d) => ({ ...d, [k]: e.target.value })) });
   return (
     <form action={enviar} className="flex flex-col gap-3">
@@ -32,7 +33,7 @@ export function FormularioPerfil({ usuario }: { usuario: Usuario }) {
         <Campo etiqueta={t('apellido')}><input {...campo('apellido')} autoComplete="family-name" className="campo" /></Campo>
       </div>
       <Campo etiqueta={t('correo')} ayuda={t('correoFijo')}><input value={usuario.email} readOnly className="campo bg-gray-50 text-gray-500" /></Campo>
-      <Campo etiqueta={t('cumpleanos')}><input {...campo('cumpleanos')} type="date" autoComplete="bday" className="campo" /></Campo>
+      <Campo etiqueta={t('cumpleanos')}><SelectorFecha name="cumpleanos" valor={usuario.cumpleanos} modo="nacimiento" placeholder={t('elegirFecha')} /></Campo>
       <div className="flex items-center gap-3">
         <button className="boton" disabled={pendiente}><Check size={14} /> {t('guardar')}</button>
         {estado.en && estado.ok && !pendiente && <span key={estado.en} className="desvanecer text-sm text-emerald-700">{t('guardado')}</span>}

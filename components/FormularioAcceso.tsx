@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { LogIn, UserPlus } from 'lucide-react';
 import { entrar, registrar, type Resultado } from '@/lib/acciones';
 import { LARGO_MINIMO } from '@/lib/contrasenas';
+import { SelectorFecha } from './SelectorFecha';
 
 const INICIAL: Resultado = { ok: true };
 
@@ -43,7 +44,7 @@ export function FormularioEntrar() {
 export function FormularioRegistro() {
   const t = useTranslations('registro');
   const [estado, enviar, pendiente] = useActionState(registrar, INICIAL);
-  const [datos, setDatos] = useState({ nombre: '', apellido: '', email: '', cumpleanos: '' });
+  const [datos, setDatos] = useState({ nombre: '', apellido: '', email: '' });
   const campo = (k: keyof typeof datos) => ({ name: k, value: datos[k], onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDatos((d) => ({ ...d, [k]: e.target.value })) });
   return (
     <form action={enviar} className="flex flex-col gap-3">
@@ -52,7 +53,7 @@ export function FormularioRegistro() {
         <Campo etiqueta={t('apellido')}><input {...campo('apellido')} required autoComplete="family-name" className="campo" /></Campo>
       </div>
       <Campo etiqueta={t('correo')}><input {...campo('email')} type="email" required autoComplete="email" className="campo" placeholder="nombre.apellido@xertica.com" /></Campo>
-      <Campo etiqueta={t('cumpleanos')} ayuda={t('opcional')}><input {...campo('cumpleanos')} type="date" autoComplete="bday" className="campo" /></Campo>
+      <Campo etiqueta={t('cumpleanos')} ayuda={t('opcional')}><SelectorFecha name="cumpleanos" valor={null} modo="nacimiento" placeholder={t('elegirFecha')} /></Campo>
       <div>
         <div className="grid gap-3 sm:grid-cols-2">
           <Campo etiqueta={t('contrasena')}><input name="contrasena" type="password" required minLength={LARGO_MINIMO} autoComplete="new-password" className="campo" /></Campo>

@@ -147,7 +147,8 @@
     "hoy": "Hoy",
     "quitarFecha": "Quitar fecha",
     "mesAnterior": "Mes anterior",
-    "mesSiguiente": "Mes siguiente"
+    "mesSiguiente": "Mes siguiente",
+    "cambiarMesAnio": "Cambiar mes o año"
   },
   "historial": {
     "creada": "creó el pendiente",
@@ -267,7 +268,8 @@
       "contrasenaCorta": "La contraseña es muy corta.",
       "noCoinciden": "Las contraseñas no coinciden.",
       "yaExiste": "Ya hay una cuenta con ese correo."
-    }
+    },
+    "elegirFecha": "Elegir fecha"
   },
   "cuenta": {
     "titulo": "Mi cuenta",
@@ -291,6 +293,7 @@
       "actualIncorrecta": "La contraseña actual no es correcta.",
       "contrasenaCorta": "La contraseña es muy corta.",
       "noCoinciden": "Las contraseñas no coinciden."
-    }
+    },
+    "elegirFecha": "Elegir fecha"
   }
 }

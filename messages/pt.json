@@ -147,7 +147,8 @@
     "hoy": "Hoje",
     "quitarFecha": "Remover data",
     "mesAnterior": "Mês anterior",
-    "mesSiguiente": "Próximo mês"
+    "mesSiguiente": "Próximo mês",
+    "cambiarMesAnio": "Mudar mês ou ano"
   },
   "historial": {
     "creada": "criou a pendência",
@@ -267,7 +268,8 @@
       "contrasenaCorta": "A senha é muito curta.",
       "noCoinciden": "As senhas não coincidem.",
       "yaExiste": "Já existe uma conta com esse e-mail."
-    }
+    },
+    "elegirFecha": "Escolher data"
   },
   "cuenta": {
     "titulo": "Minha conta",
@@ -291,6 +293,7 @@
       "actualIncorrecta": "A senha atual não está correta.",
       "contrasenaCorta": "A senha é muito curta.",
       "noCoinciden": "As senhas não coincidem."
-    }
+    },
+    "elegirFecha": "Escolher data"
   }
 }
