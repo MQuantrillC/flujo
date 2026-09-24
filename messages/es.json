@@ -142,7 +142,12 @@
     "adjuntos": "Adjuntos",
     "enlaceNombre": "Nombre (opcional)",
     "agregarEnlace": "Agregar enlace",
-    "quitarEnlace": "Quitar enlace"
+    "quitarEnlace": "Quitar enlace",
+    "sinFecha": "Sin fecha",
+    "hoy": "Hoy",
+    "quitarFecha": "Quitar fecha",
+    "mesAnterior": "Mes anterior",
+    "mesSiguiente": "Mes siguiente"
   },
   "historial": {
     "creada": "creó el pendiente",

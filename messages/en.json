@@ -142,7 +142,12 @@
     "adjuntos": "Attachments",
     "enlaceNombre": "Name (optional)",
     "agregarEnlace": "Add link",
-    "quitarEnlace": "Remove link"
+    "quitarEnlace": "Remove link",
+    "sinFecha": "No date",
+    "hoy": "Today",
+    "quitarFecha": "Clear date",
+    "mesAnterior": "Previous month",
+    "mesSiguiente": "Next month"
   },
   "historial": {
     "creada": "created the to-do",

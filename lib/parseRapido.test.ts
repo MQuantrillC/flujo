@@ -148,3 +148,33 @@ describe('enlaces en la línea', () => {
     expect(interpretar('llamar al proveedor', [], hoy).enlaces).toEqual([]);
   });
 });
+
+describe('lo que Marco escribió el jueves 24', () => {
+  const jueves = new Date(2026, 8, 24, 12);
+  it('«el próximo jueves» un jueves es el de la semana que viene, y no queda «para» colgando', () => {
+    const r = interpretar('@marco terminar la demo para el proximo jueves', equipo, jueves);
+    expect(r).toMatchObject({ titulo: 'Terminar la demo', fechaLimite: '2026-10-01' });
+  });
+  it('«el jueves» a secas un jueves es hoy; «jueves que viene» es el siguiente', () => {
+    expect(interpretar('x el jueves', equipo, jueves).fechaLimite).toBe('2026-09-24');
+    expect(interpretar('x jueves que viene', equipo, jueves).fechaLimite).toBe('2026-10-01');
+    expect(interpretar('x next thursday', equipo, jueves).fechaLimite).toBe('2026-10-01');
+  });
+  it('«prox semana» y «final de la prox semana» son el viernes de la semana siguiente', () => {
+    expect(interpretar('terminar la demo para el final de la prox semana', equipo, jueves)).toMatchObject({ titulo: 'Terminar la demo', fechaLimite: '2026-10-02' });
+    expect(interpretar('demo prox. semana', equipo, jueves).fechaLimite).toBe('2026-10-02');
+    expect(interpretar('demo la semana que viene', equipo, jueves).fechaLimite).toBe('2026-10-02');
+    expect(interpretar('demo by end of next week', equipo, jueves).fechaLimite).toBe('2026-10-02');
+  });
+  it('«final de la semana» es este viernes', () => {
+    expect(interpretar('demo para el final de la semana', equipo, jueves)).toMatchObject({ titulo: 'Demo', fechaLimite: '2026-09-25' });
+  });
+  it('«viernes 02 de octubre»: manda la fecha y el día de la semana no estorba', () => {
+    const r = interpretar('@marco terminar la demo para el viernes 02 de octubre', equipo, jueves);
+    expect(r).toMatchObject({ titulo: 'Terminar la demo', fechaLimite: '2026-10-02' });
+    expect(interpretar('entregar monday, oct 5', equipo, jueves).fechaLimite).toBe('2026-10-05');
+  });
+  it('una palabra «semana» en el título no se toma por fecha', () => {
+    expect(interpretar('reporte de la semana comercial', equipo, jueves).fechaLimite).toBeNull();
+  });
+});

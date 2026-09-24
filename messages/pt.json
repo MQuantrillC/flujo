@@ -142,7 +142,12 @@
     "adjuntos": "Anexos",
     "enlaceNombre": "Nome (opcional)",
     "agregarEnlace": "Adicionar link",
-    "quitarEnlace": "Remover link"
+    "quitarEnlace": "Remover link",
+    "sinFecha": "Sem data",
+    "hoy": "Hoje",
+    "quitarFecha": "Remover data",
+    "mesAnterior": "Mês anterior",
+    "mesSiguiente": "Próximo mês"
   },
   "historial": {
     "creada": "criou a pendência",

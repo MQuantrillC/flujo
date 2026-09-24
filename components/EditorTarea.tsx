@@ -8,6 +8,7 @@ import type { Etapa, Tarea, Usuario } from '@/lib/modelo';
 import { Filas } from './Filas';
 import { FormConfirmar } from './FormConfirmar';
 import { SelectorEtapa } from './SelectorEtapa';
+import { SelectorFecha } from './SelectorFecha';
 import { Tooltip } from './Tooltip';
 
 type Estado = ResultadoGuardar & { en?: number };
@@ -61,10 +62,10 @@ export function EditorTarea({ tarea, etapas, miembros }: { tarea: Tarea; etapas:
           <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">{t('etapa')}</span>
           <SelectorEtapa name="etapaId" etapaId={tarea.etapaId} etapas={etapas} tam="md" />
         </div>
-        <label className="text-sm">
+        <div className="text-sm">
           <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">{t('fechaLimite')}</span>
-          <input type="date" name="fechaLimite" defaultValue={tarea.fechaLimite ?? ''} className="campo" />
-        </label>
+          <SelectorFecha name="fechaLimite" valor={tarea.fechaLimite} />
+        </div>
         <fieldset className="text-sm">
           <legend className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">{t('responsables')}</legend>
           <div className="flex flex-wrap gap-1.5">

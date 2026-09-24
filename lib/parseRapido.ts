@@ -16,7 +16,7 @@
 // Lo que sobra es el título. Puro: sin base de datos ni React, y con pruebas.
 // ──────────────────────────────────────────────────────────────────────────────
 
-import { aIso, dia, finDeMes, proximoDiaSemana, sumarDias, viernesDeLaSemana, viernesProximaSemana } from './fechas';
+import { aIso, dia, finDeMes, sumarDias, viernesDeLaSemana, viernesProximaSemana } from './fechas';
 import { normalizarEnlace } from './enlaces';
 
 export interface MiembroParaParse { email: string; nombre: string }
@@ -64,8 +64,18 @@ const NUMEROS: Record<string, number> = {
 const DIAS_RE = Object.keys(DIAS).join('|');
 const MESES_RE = Object.keys(MESES).join('|');
 const NUM_RE = '\\d{1,3}|' + Object.keys(NUMEROS).filter((k) => !k.endsWith('_')).join('|');
-/** Palabras que suelen ir antes de una fecha y se quitan con ella: «para el», «antes del», «by», «até». */
-const PREFIJO = '(?:para el |para |antes del |antes de |hasta el |hasta |el proximo |la proxima |el |este |esta |al |a |by |on |before |until |next |this |ate o |ate a |ate |na |no |antes do |antes da |proxima |proximo |nesta |neste |para a |para o )?';
+/**
+ * Palabras que suelen ir antes de una fecha y se quitan con ella, en tres capas
+ * opcionales: preposición («para», «antes del», «by», «até»), artículo («el»,
+ * «la», «the») y «próximo/next». Así «para el próximo jueves» sale entero.
+ */
+const PREFIJO = '(?:(?:para|antes del|antes de|hasta el|hasta|durante|en|em|for|by|on|before|until|ate o|ate a|ate|na|no|antes do|antes da|para a|para o) )?(?:(?:el|la|este|esta|al|a|the|o) )?(?:(?:proximo|proxima|prox\\.?|siguiente|otra|next|this|nesta|neste) )?';
+/** «final de la», «fin de», «end of the»: lo que va antes de «semana». */
+const FIN_DE = '(?:(?:final|fin|fines|end|fim) (?:de |da |of )?(?:la |a |the |esta |this |essa )?)?';
+/** «el jueves que viene», «segunda que vem». */
+const SUFIJO_DIA = '(?: que viene| que vem| entrante)?';
+/** Preposiciones que quedan colgando al final del título cuando se quita la fecha: «terminar la demo para». */
+const COLGANDO = /\s+(?:para|de|del|al|a|en|el|la|hasta|by|on|for|until|before|ate|no|na|em|o|the)$/i;
 
 type Regla = { re: RegExp; fecha: (m: RegExpMatchArray, hoy: Date) => Date | null };
 
@@ -84,16 +94,26 @@ const REGLAS: Regla[] = [
   { re: new RegExp(`\\b${PREFIJO}(?:pasado manana|day after tomorrow|depois de amanha)\\b`), fecha: (_, h) => sumarDias(h, 2) },
   { re: new RegExp(`\\b${PREFIJO}(?:manana|tomorrow|amanha)\\b`), fecha: (_, h) => sumarDias(h, 1) },
   { re: new RegExp(`\\b${PREFIJO}(?:hoy|today|hoje)\\b`), fecha: (_, h) => h },
-  { re: new RegExp(`\\b(?:para |durante |en |by |for |nesta |durante a |ate )?(?:esta semana|essa semana|this week|end of week|end of the week)\\b`), fecha: (_, h) => viernesDeLaSemana(h) },
-  { re: new RegExp(`\\b(?:para |durante |en |by |for |na |ate )?(?:la |a )?(?:proxima semana|siguiente semana|otra semana|next week|semana que vem)\\b`), fecha: (_, h) => viernesProximaSemana(h) },
+  // «la próxima semana», «prox semana», «final de la próxima semana», «la semana que viene»: el viernes de esa semana.
+  { re: new RegExp(`\\b${PREFIJO}${FIN_DE}(?:la |a |the )?(?:(?:proxima|prox\\.?|siguiente|otra|next) (?:semana|week)|semana que viene|semana que vem|semana entrante)\\b`), fecha: (_, h) => viernesProximaSemana(h) },
+  // «esta semana», «final de la semana», «end of the week»: este viernes.
+  { re: new RegExp(`\\b${PREFIJO}(?:${FIN_DE.slice(0, -1)}(?:semana|week)|esta semana|essa semana|this week)\\b`), fecha: (_, h) => viernesDeLaSemana(h) },
   { re: new RegExp(`\\b(?:para |a |antes de |antes del |hasta |by |before |until |ate |antes do )?(?:el |the |o )?(?:fin de mes|end of month|end of the month|fim do mes|final do mes)\\b`), fecha: (_, h) => finDeMes(h) },
   {
     re: new RegExp(`\\b(?:en|in|em) (${NUM_RE}) (dias?|semanas?|days?|weeks?)\\b`),
     fecha: (m, h) => { const n = NUMEROS[m[1]] ?? Number(m[1]); return sumarDias(h, /^(semana|week)/.test(m[2]) ? n * 7 : n); },
   },
   {
-    re: new RegExp(`\\b${PREFIJO}(${DIAS_RE})(?:-feira)?\\b`),
-    fecha: (m, h) => proximoDiaSemana(h, DIAS[m[1]]),
+    // «el jueves» → el jueves que viene (o hoy, si es jueves); «próximo jueves» o «jueves que viene» → nunca hoy.
+    // «viernes 02 de octubre», «monday, oct 5» → manda la fecha, el día de la semana sólo acompaña.
+    re: new RegExp(`\\b${PREFIJO}(${DIAS_RE})(?:-feira)?${SUFIJO_DIA}(?:,? (?:(\\d{1,2}) (?:de |of )?(${MESES_RE})[a-z]*\\.?|(${MESES_RE})[a-z]*\\.? (\\d{1,2})(?:st|nd|rd|th)?)(?: (?:de |del |of |, )?(\\d{4}))?)?\\b`),
+    fecha: (m, h) => {
+      if (m[2]) return diaMes(h, Number(m[2]), MESES[m[3]], anio(m[6]));
+      if (m[5]) return diaMes(h, Number(m[5]), MESES[m[4]], anio(m[6]));
+      const dias = (DIAS[m[1]] - h.getDay() + 7) % 7;
+      const siguiente = /proxim|siguiente|next|que viene|que vem|entrante/.test(m[0]);
+      return sumarDias(h, dias === 0 && siguiente ? 7 : dias);
+    },
   },
   { re: /\b(\d{4})-(\d{2})-(\d{2})\b/, fecha: (m, h) => diaMes(h, Number(m[3]), Number(m[2]) - 1, Number(m[1])) },
   {
@@ -184,6 +204,8 @@ export function interpretar(texto: string, miembros: MiembroParaParse[], hoy: Da
   }
 
   let titulo = resto.replace(/\s+/g, ' ').trim().replace(/^[\s,;:\-–]+|[\s,;:\-–]+$/g, '');
+  // Al quitar la fecha puede quedar «terminar la demo para el»: se limpian las preposiciones sueltas del final.
+  if (f) for (let i = 0; i < 3 && COLGANDO.test(titulo); i++) titulo = titulo.replace(COLGANDO, '');
   if (titulo) titulo = titulo[0].toUpperCase() + titulo.slice(1);
 
   return { titulo, asignados, noResueltos, etiquetas, enlaces, fechaLimite, fechaTexto, prioridad };
