@@ -198,9 +198,8 @@
     "pendientesEn": "To-dos in this stage",
     "subir": "Move up",
     "bajar": "Move down",
-    "esHecho": "This stage means done",
+    "esHecho": "Mark this stage as \"done\"",
     "hecho": "done",
-    "hechoPregunta": "done?",
     "confirmarEliminarEtapa": "Delete the stage “{nombre}”?",
     "tienePendientes": "It has to-dos: move them first",
     "eliminar": "Delete",
@@ -210,7 +209,8 @@
     "invitar": "Invite",
     "invitarAyuda": "The email they signed up with (or will sign up with). Several are fine.",
     "etapasOrden": "To reorder, drag them by the handle or use the arrows.",
-    "arrastrar": "Drag to reorder"
+    "arrastrar": "Drag to reorder",
+    "hechoEtapa": "This stage closes the to-do"
   },
   "importar": {
     "titulo": "Import to-dos",
@@ -358,6 +358,42 @@
       "estado": "Status",
       "abierto": "open",
       "id": "Id"
+    }
+  },
+  "pasar": {
+    "titulo": "Move to-dos to another team",
+    "ayuda": "To take what you have here to another of your teams, for example a new one with your area.",
+    "sinDestino": "You don't have another team to send them to yet.",
+    "crearEquipo": "Create one →",
+    "destino": "To which team",
+    "cuales": "Which ones",
+    "etiqueta": "With the tag",
+    "como": "How",
+    "filtros": {
+      "abiertos": "All open",
+      "mios": "Only mine",
+      "etiqueta": "With a tag",
+      "todos": "All, done ones too"
+    },
+    "modos": {
+      "copiar": "Copy (they stay here)",
+      "mover": "Move (they leave here)"
+    },
+    "nota": "Copying creates new to-dos, without comments or attachments; moving takes their whole history along. Stages are matched by name (if none matches, the first one) and assignees who are not in the other team are dropped.",
+    "boton": {
+      "copiar": "{n, plural, =0 {Nothing to copy} one {Copy # to-do to {equipo}} other {Copy # to-dos to {equipo}}}",
+      "mover": "{n, plural, =0 {Nothing to move} one {Move # to-do to {equipo}} other {Move # to-dos to {equipo}}}"
+    },
+    "pasando": "Working…",
+    "confirmarMover": "Move {n} to-dos to \"{equipo}\"? They will disappear from this team.",
+    "listo": {
+      "copiar": "{n, plural, one {Done: # to-do copied to {equipo}.} other {Done: # to-dos copied to {equipo}.}}",
+      "mover": "{n, plural, one {Done: # to-do moved to {equipo}.} other {Done: # to-dos moved to {equipo}.}}"
+    },
+    "verEquipo": "Go see them →",
+    "errores": {
+      "destino": "That team is not yours.",
+      "nada": "No to-dos match the filter."
     }
   }
 }

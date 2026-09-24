@@ -15,6 +15,7 @@ import { completarEnlace, extraerEnlaces } from './enlaces';
 import { hoyActual } from './hoy';
 import { interpretar } from './parseRapido';
 import { ajustarBorradores, leerImportacion, type AjustesImportacion, type Borrador } from './importar';
+import { esFiltro, esModo, seleccionar, type Modo } from './copiar';
 import { idiomaValido } from './idioma';
 import * as repo from './repositorio';
 import { CORREO_VALIDO, etapasIniciales, type Prioridad } from './modelo';
@@ -123,6 +124,29 @@ export async function agregarMiembroAccion(fd: FormData): Promise<void> {
   await miembroActual(eid);
   for (const c of texto(fd, 'email').split(/[\s,;]+/)) repo.agregarMiembro(eid, c);
   revalidatePath(`/e/${eid}`, 'layout');
+}
+
+// ── Pasar pendientes a otro equipo ──────────────────────────────────────────
+
+export type ResultadoPase = { ok: true; n: number; destino: string; modo: Modo } | { ok: false; error: 'destino' | 'nada' } | null;
+
+/** Copia o mueve al otro equipo los pendientes que cumplen el filtro; el filtro se vuelve a aplicar aquí. */
+export async function pasarPendientesAccion(_p: ResultadoPase, fd: FormData): Promise<ResultadoPase> {
+  const origen = texto(fd, 'equipoId');
+  const u = await miembroActual(origen);
+  const destino = texto(fd, 'destino');
+  const d = repo.equipo(destino);
+  if (!d || destino === origen || !repo.esMiembro(destino, u.email)) return { ok: false, error: 'destino' };
+  const filtro = texto(fd, 'filtro'); const modo = texto(fd, 'modo');
+  if (!esFiltro(filtro) || !esModo(modo)) return { ok: false, error: 'nada' };
+  const finales = new Set(repo.etapasDe(origen).filter((e) => e.esFinal).map((e) => e.id));
+  const ids = seleccionar(repo.tareasDe(origen), finales, filtro, texto(fd, 'etiqueta'), u.email).map((t) => t.id);
+  if (ids.length === 0) return { ok: false, error: 'nada' };
+  const n = repo.pasarTareas(ids, origen, destino, u.email, modo === 'mover');
+  revalidatePath(`/e/${origen}`, 'layout');
+  revalidatePath(`/e/${destino}`, 'layout');
+  revalidatePath('/');
+  return { ok: true, n, destino: d.nombre, modo };
 }
 
 export async function quitarMiembroAccion(fd: FormData): Promise<void> {

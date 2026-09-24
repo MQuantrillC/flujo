@@ -1,11 +1,12 @@
 import { Check, Download, Trash2, UserPlus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
-import { equipo, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
+import { equipo, equiposDe, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
 import { agregarMiembroAccion, quitarMiembroAccion, renombrarEquipoAccion } from '@/lib/acciones';
 import { Avatar } from '@/components/Avatar';
 import { EditorEtapas } from '@/components/EditorEtapas';
 import { FormConfirmar } from '@/components/FormConfirmar';
+import { PasarPendientes } from '@/components/PasarPendientes';
 import { Tooltip } from '@/components/Tooltip';
 
 export const dynamic = 'force-dynamic';
@@ -17,11 +18,13 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
   const t = await getTranslations('miembros');
   const tc = await getTranslations('comun');
   const tx = await getTranslations('exportar');
+  const tp = await getTranslations('pasar');
   const e = equipo(equipoId)!;
   const miembros = miembrosDe(equipoId);
   const etapas = etapasDe(equipoId);
+  const tareas = tareasDe(equipoId);
   const enUso: Record<string, number> = {};
-  for (const x of tareasDe(equipoId)) enUso[x.etapaId] = (enUso[x.etapaId] ?? 0) + 1;
+  for (const x of tareas) enUso[x.etapaId] = (enUso[x.etapaId] ?? 0) + 1;
 
   return (
     <div className="grid gap-5 lg:grid-cols-2">
@@ -83,7 +86,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
           <ul className="grid gap-2 sm:grid-cols-2">
             {(['md', 'json', 'csv', 'xlsx'] as const).map((f) => (
               <li key={f}>
-                <a href={`/api/equipos/${equipoId}/exportar?formato=${f}`} download className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50/60 px-3 py-2 transition-colors hover:border-acento hover:bg-acento/5">
+                <a href={`/api/equipos/${equipoId}/exportar?formato=${f}`} download className="flex h-full items-center gap-3 rounded-lg border border-gray-200 bg-gray-50/60 px-3 py-2 transition-colors hover:border-acento hover:bg-acento/5">
                   <Download size={15} className="shrink-0 text-acento" />
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold text-gray-800">{tx(f)}</span>
@@ -93,6 +96,19 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="tarjeta p-5">
+          <h2 className="mb-1 font-semibold text-gray-800">{tp('titulo')}</h2>
+          <p className="mb-4 text-xs text-gray-500">{tp('ayuda')}</p>
+          <PasarPendientes
+            equipoId={equipoId}
+            destinos={equiposDe(u.email).filter((x) => x.id !== equipoId).map((x) => ({ id: x.id, nombre: x.nombre }))}
+            tareas={tareas.map((x) => ({ id: x.id, etapaId: x.etapaId, asignados: x.asignados, etiquetas: x.etiquetas }))}
+            finales={etapas.filter((x) => x.esFinal).map((x) => x.id)}
+            etiquetas={[...new Set(tareas.flatMap((x) => x.etiquetas))].sort()}
+            yo={u.email}
+          />
         </section>
       </div>
     </div>

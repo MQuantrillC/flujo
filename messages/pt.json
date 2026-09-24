@@ -198,9 +198,8 @@
     "pendientesEn": "Pendências nesta etapa",
     "subir": "Subir",
     "bajar": "Descer",
-    "esHecho": "Esta etapa significa feito",
+    "esHecho": "Marcar esta etapa como «feito»",
     "hecho": "feito",
-    "hechoPregunta": "feito?",
     "confirmarEliminarEtapa": "Excluir a etapa «{nombre}»?",
     "tienePendientes": "Tem pendências: mova-as antes",
     "eliminar": "Excluir",
@@ -210,7 +209,8 @@
     "invitar": "Convidar",
     "invitarAyuda": "O e-mail com que se cadastrou (ou vai se cadastrar). Pode colocar vários.",
     "etapasOrden": "Para ordenar, arraste pela alça ou use as setas.",
-    "arrastrar": "Arrastar para ordenar"
+    "arrastrar": "Arrastar para ordenar",
+    "hechoEtapa": "Esta etapa encerra a pendência"
   },
   "importar": {
     "titulo": "Importar pendências",
@@ -358,6 +358,42 @@
       "estado": "Estado",
       "abierto": "aberto",
       "id": "Id"
+    }
+  },
+  "pasar": {
+    "titulo": "Passar pendências para outra equipe",
+    "ayuda": "Para levar o que você tem aqui para outra das suas equipes, por exemplo uma nova com a sua área.",
+    "sinDestino": "Você ainda não tem outra equipe para onde passá-las.",
+    "crearEquipo": "Criar uma →",
+    "destino": "Para qual equipe",
+    "cuales": "Quais",
+    "etiqueta": "Com a etiqueta",
+    "como": "Como",
+    "filtros": {
+      "abiertos": "Todas as abertas",
+      "mios": "Só as minhas",
+      "etiqueta": "Com uma etiqueta",
+      "todos": "Todas, feitas também"
+    },
+    "modos": {
+      "copiar": "Copiar (aqui ficam)",
+      "mover": "Mover (daqui somem)"
+    },
+    "nota": "Ao copiar se criam pendências novas, sem comentários nem anexos; ao mover levam todo o histórico. As etapas se emparelham pelo nome (se não existir, vai para a primeira) e os responsáveis que não estão na outra equipe são removidos.",
+    "boton": {
+      "copiar": "{n, plural, =0 {Nada para copiar} one {Copiar # pendência para {equipo}} other {Copiar # pendências para {equipo}}}",
+      "mover": "{n, plural, =0 {Nada para mover} one {Mover # pendência para {equipo}} other {Mover # pendências para {equipo}}}"
+    },
+    "pasando": "Passando…",
+    "confirmarMover": "Mover {n} pendências para «{equipo}»? Elas vão sumir desta equipe.",
+    "listo": {
+      "copiar": "{n, plural, one {Pronto: # pendência copiada para {equipo}.} other {Pronto: # pendências copiadas para {equipo}.}}",
+      "mover": "{n, plural, one {Pronto: # pendência movida para {equipo}.} other {Pronto: # pendências movidas para {equipo}.}}"
+    },
+    "verEquipo": "Ir vê-las →",
+    "errores": {
+      "destino": "Essa equipe não é sua.",
+      "nada": "Nenhuma pendência cumpre o filtro."
     }
   }
 }

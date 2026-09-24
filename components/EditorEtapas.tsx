@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ArrowDown, ArrowUp, Check, GripVertical, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, Circle, CircleCheck, GripVertical, Trash2 } from 'lucide-react';
 import {
   agregarEtapaAccion, eliminarEtapaAccion, marcarEtapaFinalAccion, moverEtapaAccion, renombrarEtapaAccion, reordenarEtapasAccion,
 } from '@/lib/acciones';
@@ -88,7 +88,11 @@ export function EditorEtapas({ equipoId, etapas: delServidor, enUso }: { equipoI
               <form action={moverEtapaAccion}><input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} /><input type="hidden" name="direccion" value="1" />
                 <Tooltip texto={t('bajar')}><button disabled={i === etapas.length - 1} className={botonIcono}><ArrowDown size={14} /></button></Tooltip></form>
               <form action={marcarEtapaFinalAccion}><input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} />
-                <Tooltip texto={t('esHecho')}><button className={`rounded-md px-1.5 py-1 text-[11px] font-semibold transition-colors ${et.esFinal ? 'bg-emerald-100 text-emerald-700' : 'text-gray-400 hover:bg-gray-200'}`}>{et.esFinal ? t('hecho') : t('hechoPregunta')}</button></Tooltip></form>
+                <Tooltip texto={et.esFinal ? t('hechoEtapa') : t('esHecho')}>
+                  <button aria-pressed={et.esFinal} aria-label={t('hecho')} className={`rounded-md p-1 transition-colors ${et.esFinal ? 'text-emerald-600' : 'text-gray-300 hover:bg-gray-200 hover:text-emerald-500'}`}>
+                    {et.esFinal ? <CircleCheck size={17} className="fill-emerald-100" /> : <Circle size={17} />}
+                  </button>
+                </Tooltip></form>
               <FormConfirmar action={eliminarEtapaAccion} mensaje={t('confirmarEliminarEtapa', { nombre: et.nombre })}>
                 <input type="hidden" name="equipoId" value={equipoId} /><input type="hidden" name="etapaId" value={et.id} />
                 <Tooltip texto={n > 0 ? t('tienePendientes') : t('eliminar')}><button disabled={n > 0 || etapas.length <= 1} className="rounded-md p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-30"><Trash2 size={14} /></button></Tooltip>

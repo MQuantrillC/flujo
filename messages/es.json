@@ -198,9 +198,8 @@
     "pendientesEn": "Pendientes en esta etapa",
     "subir": "Subir",
     "bajar": "Bajar",
-    "esHecho": "Esta etapa significa hecho",
+    "esHecho": "Marcar esta etapa como «hecho»",
     "hecho": "hecho",
-    "hechoPregunta": "¿hecho?",
     "confirmarEliminarEtapa": "¿Eliminar la etapa «{nombre}»?",
     "tienePendientes": "Tiene pendientes: muévelos antes",
     "eliminar": "Eliminar",
@@ -210,7 +209,8 @@
     "invitar": "Invitar",
     "invitarAyuda": "El correo con el que se registró (o se registrará). Puedes poner varios.",
     "etapasOrden": "Para ordenarlas, arrástralas por el asa o usa las flechas.",
-    "arrastrar": "Arrastrar para ordenar"
+    "arrastrar": "Arrastrar para ordenar",
+    "hechoEtapa": "Esta etapa cierra el pendiente"
   },
   "importar": {
     "titulo": "Importar pendientes",
@@ -358,6 +358,42 @@
       "estado": "Estado",
       "abierto": "abierto",
       "id": "Id"
+    }
+  },
+  "pasar": {
+    "titulo": "Pasar pendientes a otro equipo",
+    "ayuda": "Para llevarte lo que tienes aquí a otro de tus equipos, por ejemplo uno nuevo con tu área.",
+    "sinDestino": "Todavía no tienes otro equipo al que pasarlos.",
+    "crearEquipo": "Crear uno →",
+    "destino": "A qué equipo",
+    "cuales": "Cuáles",
+    "etiqueta": "Con la etiqueta",
+    "como": "Cómo",
+    "filtros": {
+      "abiertos": "Todos los abiertos",
+      "mios": "Solo los míos",
+      "etiqueta": "Con una etiqueta",
+      "todos": "Todos, también los hechos"
+    },
+    "modos": {
+      "copiar": "Copiar (aquí se quedan)",
+      "mover": "Mover (de aquí desaparecen)"
+    },
+    "nota": "Al copiar se crean pendientes nuevos, sin comentarios ni adjuntos; al mover se llevan todo su historial. Las etapas se emparejan por nombre (si no existe, va a la primera) y se quitan los responsables que no están en el otro equipo.",
+    "boton": {
+      "copiar": "{n, plural, =0 {Nada que copiar} one {Copiar # pendiente a {equipo}} other {Copiar # pendientes a {equipo}}}",
+      "mover": "{n, plural, =0 {Nada que mover} one {Mover # pendiente a {equipo}} other {Mover # pendientes a {equipo}}}"
+    },
+    "pasando": "Pasando…",
+    "confirmarMover": "¿Mover {n} pendientes a «{equipo}»? Desaparecerán de este equipo.",
+    "listo": {
+      "copiar": "{n, plural, one {Listo: # pendiente copiado a {equipo}.} other {Listo: # pendientes copiados a {equipo}.}}",
+      "mover": "{n, plural, one {Listo: # pendiente movido a {equipo}.} other {Listo: # pendientes movidos a {equipo}.}}"
+    },
+    "verEquipo": "Ir a verlos →",
+    "errores": {
+      "destino": "Ese equipo no es tuyo.",
+      "nada": "No hay pendientes que cumplan el filtro."
     }
   }
 }

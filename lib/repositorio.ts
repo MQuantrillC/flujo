@@ -9,6 +9,7 @@ import { randomBytes, randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ADJUNTOS_DIR, db } from './db';
+import { etapaEquivalente } from './copiar';
 import {
   nombreDesdeCorreo,
   type Adjunto, type Comentario, type Enlace, type Equipo, type Etapa, type Evento, type Prioridad, type Tarea, type TipoEvento, type Usuario,
@@ -375,6 +376,41 @@ export function actualizarTarea(tid: string, autor: string, c: CambiosTarea): Ta
     db.prepare('UPDATE tareas SET actualizado_en = ? WHERE id = ?').run(t, tid);
   })();
   return tarea(tid);
+}
+
+/**
+ * Pasa pendientes a otro equipo. Copiar crea pendientes nuevos (título,
+ * descripción, fecha, prioridad, etiquetas y enlaces; sin comentarios ni
+ * adjuntos). Mover cambia el equipo del mismo pendiente y conserva todo su
+ * historial. En los dos casos la etapa se empareja por nombre y se quitan los
+ * responsables que no son del otro equipo. Devuelve cuántos pasaron.
+ */
+export function pasarTareas(ids: string[], origenId: string, destinoId: string, autor: string, mover: boolean): number {
+  const etapasDestino = etapasDe(destinoId);
+  if (etapasDestino.length === 0) return 0;
+  const etapasOrigen = new Map(etapasDe(origenId).map((e) => [e.id, e]));
+  const miembros = new Set(miembrosDe(destinoId).map((m) => m.email));
+  let n = 0;
+  db.transaction(() => {
+    for (const tid of ids) {
+      const t = tarea(tid);
+      if (!t || t.equipoId !== origenId) continue;
+      const desde = etapasOrigen.get(t.etapaId);
+      const etapa = desde ? etapaEquivalente(desde, etapasDestino) : etapasDestino[0];
+      const asignados = t.asignados.filter((a) => miembros.has(a));
+      if (mover) {
+        const ahoraMs = ahora();
+        const terminado = etapa.esFinal ? (t.terminadoEn ?? ahoraMs) : null;
+        db.prepare('UPDATE tareas SET equipo_id = ?, etapa_id = ?, terminado_en = ?, actualizado_en = ? WHERE id = ?').run(destinoId, etapa.id, terminado, ahoraMs, tid);
+        db.prepare('DELETE FROM asignados WHERE tarea_id = ?').run(tid);
+        for (const a of asignados) db.prepare('INSERT INTO asignados (tarea_id, email) VALUES (?, ?)').run(tid, a);
+      } else {
+        crearTarea({ equipoId: destinoId, titulo: t.titulo, descripcion: t.descripcion, asignados, etiquetas: t.etiquetas, enlaces: t.enlaces, fechaLimite: t.fechaLimite, prioridad: t.prioridad, creadoPor: autor, etapaId: etapa.id });
+      }
+      n++;
+    }
+  })();
+  return n;
 }
 
 export function eliminarTarea(tid: string): void {
