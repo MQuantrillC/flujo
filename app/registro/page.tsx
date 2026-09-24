@@ -8,8 +8,9 @@ import BlurText from '@/components/reactbits/BlurText';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Registro() {
+export default async function Registro({ searchParams }: { searchParams: Promise<{ correo?: string; equipo?: string }> }) {
   if (await correoActual()) redirect('/');
+  const { correo, equipo } = await searchParams;
   const t = await getTranslations('registro');
   return (
     <div className="grid flex-1 place-items-center px-4 py-8">
@@ -19,7 +20,8 @@ export default async function Registro() {
           <Ajustes />
         </div>
         <BlurText text={t('titulo')} delay={80} className="mb-5 text-lg font-semibold text-gray-800" />
-        <FormularioRegistro />
+        {correo && equipo && <p className="mb-4 rounded-lg bg-acento/10 px-3 py-2 text-sm text-gray-700">{t.rich('invitado', { equipo, b: (c) => <b>{c}</b> })}</p>}
+        <FormularioRegistro correoInicial={correo ?? ''} />
       </div>
     </div>
   );

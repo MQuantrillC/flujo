@@ -5,7 +5,7 @@
 // es y si es del equipo antes de tocar nada.
 // ──────────────────────────────────────────────────────────────────────────────
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -17,6 +17,8 @@ import { interpretar } from './parseRapido';
 import { ajustarBorradores, leerImportacion, type AjustesImportacion, type Borrador } from './importar';
 import { esFiltro, esModo, seleccionar, type Modo } from './copiar';
 import { idiomaValido } from './idioma';
+import { correoConfigurado, enviarCorreo } from './correo';
+import { correoInvitacion, enlaceInvitacion } from './invitaciones';
 import * as repo from './repositorio';
 import { CORREO_VALIDO, etapasIniciales, type Prioridad } from './modelo';
 
@@ -97,9 +99,38 @@ export async function crearEquipoAccion(fd: FormData): Promise<void> {
   const nombre = texto(fd, 'nombre');
   if (!nombre) redirect('/?error=nombre');
   // Un campo por correo (las filas del formulario), pero también vale pegar varios en uno.
-  const correos = fd.getAll('correos').flatMap((c) => String(c).split(/[\s,;]+/)).map((c) => c.trim()).filter(Boolean);
+  const correos = fd.getAll('correos').flatMap((c) => String(c).split(/[\s,;]+/)).map((c) => c.trim().toLowerCase()).filter(Boolean);
   const e = repo.crearEquipo(nombre, u.email, correos, etapasIniciales(idiomaValido(await getLocale())));
+  await avisarInvitados(e.id, correos.filter((c) => c !== u.email), u.nombre);
   redirect(`/e/${e.id}`);
+}
+
+/** La dirección pública de la app, para los enlaces de los correos: FLUJO_URL o la de esta petición. */
+async function urlBase(): Promise<string> {
+  const fija = process.env.FLUJO_URL?.trim();
+  if (fija) return fija.replace(/\/+$/, '');
+  const h = await headers();
+  const proto = h.get('x-forwarded-proto') ?? (esProduccion() && process.env.FLUJO_SIN_HTTPS !== '1' ? 'https' : 'http');
+  return `${proto}://${h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3100'}`;
+}
+
+/**
+ * Manda el correo de invitación a cada correo nuevo del equipo, en el idioma de
+ * quien invita. Sin RESEND_API_KEY no hace nada: la pantalla de Ajustes ofrece
+ * el enlace para copiar. Nunca rompe la acción que lo llama.
+ */
+async function avisarInvitados(eid: string, correos: string[], quien: string): Promise<void> {
+  if (!correoConfigurado() || correos.length === 0) return;
+  const e = repo.equipo(eid);
+  if (!e) return;
+  const base = await urlBase();
+  const t = await getTranslations('correo.invitacion');
+  await Promise.allSettled(correos.map(async (email) => {
+    const invitado = { email, equipoId: eid, equipoNombre: e.nombre, tieneCuenta: !!repo.usuario(email)?.tieneCuenta };
+    const v = { quien, equipo: e.nombre, email };
+    const rotulos = { asunto: t('asunto', v), hola: t('hola'), cuerpo: t('cuerpo', v), crearCuenta: t('crearCuenta', v), entrar: t('entrar'), boton: t('boton'), pie: t('pie') };
+    await enviarCorreo(email, correoInvitacion(rotulos, invitado, enlaceInvitacion(base, invitado)));
+  }));
 }
 
 /** El espacio personal: un equipo de una sola persona, para los pendientes propios. */
@@ -121,8 +152,9 @@ export async function renombrarEquipoAccion(fd: FormData): Promise<void> {
 
 export async function agregarMiembroAccion(fd: FormData): Promise<void> {
   const eid = texto(fd, 'equipoId');
-  await miembroActual(eid);
-  for (const c of texto(fd, 'email').split(/[\s,;]+/)) repo.agregarMiembro(eid, c);
+  const u = await miembroActual(eid);
+  const nuevos = texto(fd, 'email').toLowerCase().split(/[\s,;]+/).filter((c) => repo.agregarMiembro(eid, c));
+  await avisarInvitados(eid, nuevos, u.nombre);
   revalidatePath(`/e/${eid}`, 'layout');
 }
 

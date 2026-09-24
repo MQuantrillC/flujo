@@ -18,6 +18,10 @@ services:
     restart: unless-stopped
     environment:
       FLUJO_SIN_HTTPS: ${FLUJO_SIN_HTTPS:-0}
+      # Correos de invitación (opcional): ver .env.example.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      FLUJO_REMITENTE: ${FLUJO_REMITENTE:-}
+      FLUJO_URL: ${FLUJO_URL:-}
     volumes:
       - ./data:/data
     expose:

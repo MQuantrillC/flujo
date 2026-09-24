@@ -1,9 +1,11 @@
 import { Check, Download, Trash2, UserPlus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
+import { correoConfigurado } from '@/lib/correo';
 import { equipo, equiposDe, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
 import { agregarMiembroAccion, quitarMiembroAccion, renombrarEquipoAccion } from '@/lib/acciones';
 import { Avatar } from '@/components/Avatar';
+import { CopiarInvitacion } from '@/components/CopiarInvitacion';
 import { EditorEtapas } from '@/components/EditorEtapas';
 import { FormConfirmar } from '@/components/FormConfirmar';
 import { PasarPendientes } from '@/components/PasarPendientes';
@@ -53,6 +55,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
                 </span>
                 <span className="block truncate text-xs text-gray-500">{m.email}</span>
               </span>
+              {m.email !== u.email && <CopiarInvitacion invitado={{ email: m.email, equipoId, equipoNombre: e.nombre, tieneCuenta: m.tieneCuenta }} />}
               <FormConfirmar action={quitarMiembroAccion} mensaje={m.email === u.email ? t('confirmarSalir') : t('confirmarQuitar', { nombre: m.nombre })}>
                 <input type="hidden" name="equipoId" value={equipoId} />
                 <input type="hidden" name="email" value={m.email} />
@@ -69,7 +72,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
             <input name="email" required className="campo" placeholder={t('correoPlaceholder')} autoComplete="off" />
             <button className="boton shrink-0"><UserPlus size={14} /> {t('invitar')}</button>
           </div>
-          <p className="text-xs text-gray-500">{t('invitarAyuda')}</p>
+          <p className="text-xs text-gray-500">{t('invitarAyuda')} {correoConfigurado() ? t('invitarCorreo') : t('invitarSinCorreo')}</p>
         </form>
       </section>
 

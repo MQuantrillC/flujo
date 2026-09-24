@@ -41,10 +41,10 @@ export function FormularioEntrar() {
   );
 }
 
-export function FormularioRegistro() {
+export function FormularioRegistro({ correoInicial = '' }: { correoInicial?: string }) {
   const t = useTranslations('registro');
   const [estado, enviar, pendiente] = useActionState(registrar, INICIAL);
-  const [datos, setDatos] = useState({ nombre: '', apellido: '', email: '' });
+  const [datos, setDatos] = useState({ nombre: '', apellido: '', email: correoInicial });
   const campo = (k: keyof typeof datos) => ({ name: k, value: datos[k], onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDatos((d) => ({ ...d, [k]: e.target.value })) });
   return (
     <form action={enviar} className="flex flex-col gap-3">

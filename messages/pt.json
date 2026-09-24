@@ -219,7 +219,12 @@
     "invitarAyuda": "O e-mail com que se cadastrou (ou vai se cadastrar). Pode colocar vários.",
     "etapasOrden": "Para ordenar, arraste pela alça ou use as setas.",
     "arrastrar": "Arrastar para ordenar",
-    "hechoEtapa": "Esta etapa encerra a pendência"
+    "hechoEtapa": "Esta etapa encerra a pendência",
+    "copiarInvitacion": "Copiar link de convite",
+    "copiado": "Copiado",
+    "invitacionTexto": "Convidei você para a equipe «{equipo}» no Flujo: {enlace}",
+    "invitarCorreo": "Vai receber um e-mail com o link.",
+    "invitarSinCorreo": "O Flujo não envia e-mails: copie o link de convite (o ícone ao lado de cada membro) e mande você mesmo."
   },
   "importar": {
     "titulo": "Importar pendências",
@@ -291,7 +296,8 @@
       "noCoinciden": "As senhas não coincidem.",
       "yaExiste": "Já existe uma conta com esse e-mail."
     },
-    "elegirFecha": "Escolher data"
+    "elegirFecha": "Escolher data",
+    "invitado": "Você foi convidado para a equipe <b>{equipo}</b>. Crie sua conta com este e-mail e ela aparece ao entrar."
   },
   "cuenta": {
     "titulo": "Minha conta",
@@ -403,6 +409,17 @@
     "errores": {
       "destino": "Essa equipe não é sua.",
       "nada": "Nenhuma pendência cumpre o filtro."
+    }
+  },
+  "correo": {
+    "invitacion": {
+      "asunto": "{quien} convidou você para a equipe «{equipo}» no Flujo",
+      "hola": "Olá,",
+      "cuerpo": "{quien} adicionou você à equipe «{equipo}» no Flujo, o app de pendências da equipe.",
+      "crearCuenta": "Crie sua conta com este e-mail ({email}) e a equipe aparece ao entrar:",
+      "entrar": "Você já tem conta: entre e a equipe está lá:",
+      "boton": "Abrir Flujo",
+      "pie": "Se não esperava este e-mail, pode ignorá-lo."
     }
   }
 }

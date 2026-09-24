@@ -149,11 +149,12 @@ export function miembrosDe(eid: string): Usuario[] {
   return (db.prepare('SELECT u.* FROM miembros m JOIN usuarios u ON u.email = m.email WHERE m.equipo_id = ? ORDER BY u.nombre, u.apellido').all(eid) as any[]).map(usuarioDeFila);
 }
 
-export function agregarMiembro(eid: string, email: string): void {
+/** Devuelve true si la persona no estaba ya en el equipo. */
+export function agregarMiembro(eid: string, email: string): boolean {
   const e = email.trim().toLowerCase();
-  if (!e.includes('@')) return;
+  if (!e.includes('@')) return false;
   asegurarUsuario(e);
-  db.prepare('INSERT OR IGNORE INTO miembros (equipo_id, email, agregado_en) VALUES (?, ?, ?)').run(eid, e, ahora());
+  return db.prepare('INSERT OR IGNORE INTO miembros (equipo_id, email, agregado_en) VALUES (?, ?, ?)').run(eid, e, ahora()).changes > 0;
 }
 
 export function quitarMiembro(eid: string, email: string): void {

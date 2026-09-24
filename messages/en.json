@@ -219,7 +219,12 @@
     "invitarAyuda": "The email they signed up with (or will sign up with). Several are fine.",
     "etapasOrden": "To reorder, drag them by the handle or use the arrows.",
     "arrastrar": "Drag to reorder",
-    "hechoEtapa": "This stage closes the to-do"
+    "hechoEtapa": "This stage closes the to-do",
+    "copiarInvitacion": "Copy invitation link",
+    "copiado": "Copied",
+    "invitacionTexto": "I invited you to the \"{equipo}\" team on Flujo: {enlace}",
+    "invitarCorreo": "They will get an email with the link.",
+    "invitarSinCorreo": "Flujo does not send emails: copy the invitation link (the icon next to each member) and send it yourself."
   },
   "importar": {
     "titulo": "Import to-dos",
@@ -291,7 +296,8 @@
       "noCoinciden": "The passwords do not match.",
       "yaExiste": "There is already an account with that email."
     },
-    "elegirFecha": "Pick a date"
+    "elegirFecha": "Pick a date",
+    "invitado": "You were invited to the <b>{equipo}</b> team. Create your account with this email and you will see it once you sign in."
   },
   "cuenta": {
     "titulo": "My account",
@@ -403,6 +409,17 @@
     "errores": {
       "destino": "That team is not yours.",
       "nada": "No to-dos match the filter."
+    }
+  },
+  "correo": {
+    "invitacion": {
+      "asunto": "{quien} invited you to the \"{equipo}\" team on Flujo",
+      "hola": "Hi,",
+      "cuerpo": "{quien} added you to the \"{equipo}\" team on Flujo, the team to-do app.",
+      "crearCuenta": "Create your account with this email ({email}) and you will see the team once you sign in:",
+      "entrar": "You already have an account: sign in and the team is there:",
+      "boton": "Open Flujo",
+      "pie": "If you were not expecting this email, you can ignore it."
     }
   }
 }

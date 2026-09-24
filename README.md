@@ -16,7 +16,7 @@ Abre http://localhost:3100, crea tu cuenta y tu primer equipo. Los datos quedan 
 
 ## Cuentas e invitaciones
 
-Cada persona crea su cuenta con nombre, apellido, correo, cumpleaños y contraseña (la contraseña se guarda como hash scrypt; las sesiones viven en la base y en una cookie `httpOnly`). Para invitar a alguien a un equipo basta con su correo: si todavía no tiene cuenta, verá el equipo en cuanto la cree con ese mismo correo.
+Cada persona crea su cuenta con nombre, apellido, correo, cumpleaños y contraseña (la contraseña se guarda como hash scrypt; las sesiones viven en la base y en una cookie `httpOnly`). Para invitar a alguien a un equipo basta con su correo: si todavía no tiene cuenta, verá el equipo en cuanto la cree con ese mismo correo. En Ajustes hay un botón para copiar el enlace de invitación y pasárselo por donde sea; y si en el `.env` de la máquina hay una clave de Resend (`RESEND_API_KEY`, ver `.env.example`), la invitación también le llega por correo.
 
 ## Desplegar
 
