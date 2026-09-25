@@ -75,7 +75,7 @@ export function ColumnaTablero({ etapaId, nombre, cantidad, vacio, esFinal = fal
 
   return (
     <section
-      className={`flex w-[84vw] shrink-0 snap-center flex-col gap-2 rounded-xl p-2 transition-colors sm:w-72 sm:snap-align-none ${encima ? 'bg-acento/10 ring-2 ring-acento/40' : 'fondo-columna'}`}
+      className={`flex w-[84vw] shrink-0 snap-center flex-col gap-2 rounded-xl p-2 transition-colors sm:w-72 sm:snap-align-none ${encima ? 'fondo-columna-activa ring-2 ring-acento/40' : 'fondo-columna'}`}
       onDragOver={(e) => {
         if (!e.dataTransfer.types.includes(TIPO_ARRASTRE)) return;
         e.preventDefault();
@@ -102,7 +102,8 @@ export function ColumnaTablero({ etapaId, nombre, cantidad, vacio, esFinal = fal
         iniciar(async () => { await moverTareaAccion(tareaId, etapaId, destino); router.refresh(); });
       }}
     >
-      <h2 className={`sticky top-0 z-10 -mx-2 -mt-2 flex items-center justify-between rounded-t-xl px-3 pb-1.5 pt-2 text-xs font-bold uppercase tracking-wider text-gray-500 ${encima ? '' : 'fondo-columna'}`}>
+      {/* Pegada justo bajo la cabecera de la página mientras la columna pasa por debajo (sólo en pantallas grandes). */}
+      <h2 className="cabecera-columna z-15 -mx-2 -mt-2 flex items-center justify-between rounded-t-xl px-3 pb-2 pt-2 text-xs font-bold uppercase tracking-wider text-gray-500" style={{ top: 'var(--tope-tablero, 0px)' }}>
         <span className="flex items-center gap-1.5">
           {nombre} <span className="rounded-full bg-white px-1.5 text-[10px] text-gray-500">{cantidad}</span>
         </span>

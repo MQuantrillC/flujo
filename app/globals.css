@@ -131,5 +131,11 @@ body {
   input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select { font-size: 16px; }
 }
 
-/* Las columnas del tablero: el mismo tono que gray-200/50 sobre el fondo, pero sólido, para la cabecera fija. */
-.fondo-columna { background: color-mix(in srgb, var(--color-gray-200) 50%, var(--background)); }
+/* Las columnas del tablero: el mismo tono que gray-200/50 sobre el fondo, pero sólido, para que la
+   cabecera fija tape las tarjetas que pasan por debajo. Mientras se arrastra algo encima, un tinte del acento. */
+.fondo-columna { --fondo: color-mix(in srgb, var(--color-gray-200) 50%, var(--background)); background: var(--fondo); }
+.fondo-columna-activa { --fondo: color-mix(in srgb, var(--color-acento) 10%, var(--background)); background: var(--fondo); }
+/* La cabecera de cada columna, pegada bajo la de la página; el degradado hace que la tarjeta cortada se vaya difuminando. */
+.cabecera-columna { position: relative; background: var(--fondo); }
+.cabecera-columna::after { content: ''; position: absolute; inset-inline: 0; top: 100%; height: 0.75rem; background: linear-gradient(var(--fondo), transparent); pointer-events: none; }
+@media (min-width: 640px) { .cabecera-columna { position: sticky; } }

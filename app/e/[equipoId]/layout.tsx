@@ -21,7 +21,7 @@ export default async function LayoutEquipo({ children, params }: { children: Rea
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur">
+      <header data-cabecera className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2">
           <Link href="/" className="flex items-center"><Marca alto={26} /></Link>
           <span className="text-gray-300">/</span>
