@@ -19,8 +19,8 @@ const ICONO: Record<ClaseAdjunto, { Icono: typeof FileIcon; color: string }> = {
 };
 
 /** Un adjunto: miniatura si es imagen; si no, una ficha con icono, nombre y peso que lo descarga. */
-export async function AdjuntoVista({ adjunto }: { adjunto: Adjunto }) {
-  if (esImagen(adjunto.mime)) return <ImagenAdjunta adjunto={adjunto} />;
+export async function AdjuntoVista({ adjunto, grupo }: { adjunto: Adjunto; grupo?: Adjunto[] }) {
+  if (esImagen(adjunto.mime)) return <ImagenAdjunta adjunto={adjunto} grupo={grupo} />;
   const t = await getTranslations('comentarios');
   const { Icono, color } = ICONO[claseDe(adjunto.nombre, adjunto.mime)];
   return (

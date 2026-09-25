@@ -16,6 +16,7 @@ import { EditorTarea } from '@/components/EditorTarea';
 import { FormularioComentario } from '@/components/FormularioComentario';
 import { AdjuntoVista } from '@/components/AdjuntoVista';
 import { FormConfirmar } from '@/components/FormConfirmar';
+import { SubirAdjuntos } from '@/components/SubirAdjuntos';
 import { Tooltip } from '@/components/Tooltip';
 import { TextoConEnlaces } from '@/components/TextoConEnlaces';
 
@@ -77,12 +78,11 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
           <EditorTarea tarea={x} etapas={etapas} miembros={miembros} />
         </section>
 
-        {sueltos.length > 0 && (
-          <section className="tarjeta p-5">
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">{t('adjuntos')}</h2>
-            <div className="flex flex-wrap gap-3">{sueltos.map((a) => <AdjuntoVista key={a.id} adjunto={a} />)}</div>
-          </section>
-        )}
+        <section className="tarjeta p-5">
+          <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">{t('adjuntos')}{sueltos.length > 0 && <span className="ml-1.5 font-normal normal-case tracking-normal">· {sueltos.length}</span>}</h2>
+          {sueltos.length > 0 && <div className="mb-3 flex flex-wrap gap-3">{sueltos.map((a) => <AdjuntoVista key={a.id} adjunto={a} grupo={sueltos} />)}</div>}
+          <SubirAdjuntos tareaId={tareaId} />
+        </section>
 
         <section className="flex flex-col gap-3">
           <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400">{t('seguimiento')} <span className="font-normal normal-case tracking-normal">· {t('comentarios', { n: comentarios.length })}</span></h2>
@@ -92,7 +92,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-gray-500"><span className="font-semibold text-gray-700">{nombre(c.autor)}</span> · {hace(c.creadoEn)}</p>
                 {c.texto && <TextoConEnlaces texto={c.texto} className="mt-1 whitespace-pre-wrap text-sm text-gray-800" />}
-                {c.adjuntos.length > 0 && <div className="mt-2 flex flex-wrap gap-3">{c.adjuntos.map((a) => <AdjuntoVista key={a.id} adjunto={a} />)}</div>}
+                {c.adjuntos.length > 0 && <div className="mt-2 flex flex-wrap gap-3">{c.adjuntos.map((a) => <AdjuntoVista key={a.id} adjunto={a} grupo={c.adjuntos} />)}</div>}
               </div>
             </article>
           ))}

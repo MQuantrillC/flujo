@@ -107,7 +107,9 @@
       "call the supplier today !",
       "@{b} send the signed contract oct 15",
       "@{a} review https://docs.google.com/… before friday"
-    ]
+    ],
+    "adjuntar": "Attach files",
+    "adjuntarAyuda": "Attach images or files to the to-do. You can also paste or drop them here."
   },
   "errores": {
     "faltaTitulo": "Missing title: write what needs to be done.",
@@ -166,7 +168,9 @@
     "copiarAyuda": "Creates a linked twin in that team: they share stage and content",
     "moverA": "Move",
     "moverAyuda": "Takes the to-do with its whole history; it leaves this team",
-    "confirmarMover": "Move this to-do to \"{equipo}\"? It will disappear from this team."
+    "confirmarMover": "Move this to-do to \"{equipo}\"? It will disappear from this team.",
+    "adjuntarAyuda": "paste, drop or choose · images, PDF, Office, CSV, text or zip · up to {mb} MB",
+    "subir": "{n, plural, one {Upload 1 file} other {Upload # files}}"
   },
   "historial": {
     "creada": "created the to-do",
@@ -452,5 +456,14 @@
       "oEnlace": "If the button does not work, paste this link in your browser:",
       "firma": "Flujo · the team’s to-dos, in one place."
     }
+  },
+  "visor": {
+    "abrir": "View {nombre}",
+    "cerrar": "Close",
+    "descargar": "Download",
+    "abrirPestana": "Open in a new tab",
+    "anterior": "Previous",
+    "siguiente": "Next",
+    "contador": "{i} of {n}"
   }
 }

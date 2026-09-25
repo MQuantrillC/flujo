@@ -107,7 +107,9 @@
       "ligar para o fornecedor hoje !",
       "@{b} enviar o contrato assinado 15 out",
       "@{a} revisar https://docs.google.com/… antes da sexta"
-    ]
+    ],
+    "adjuntar": "Anexar arquivos",
+    "adjuntarAyuda": "Anexe imagens ou arquivos à pendência. Também dá para colar ou arrastar aqui."
   },
   "errores": {
     "faltaTitulo": "Falta o título: escreva o que precisa ser feito.",
@@ -166,7 +168,9 @@
     "copiarAyuda": "Cria uma gêmea vinculada nessa equipe: compartilham etapa e conteúdo",
     "moverA": "Mover",
     "moverAyuda": "Leva a pendência com todo o histórico; some daqui",
-    "confirmarMover": "Mover esta pendência para «{equipo}»? Ela vai sumir desta equipe."
+    "confirmarMover": "Mover esta pendência para «{equipo}»? Ela vai sumir desta equipe.",
+    "adjuntarAyuda": "cole, arraste ou escolha · imagens, PDF, Office, CSV, texto ou zip · até {mb} MB",
+    "subir": "{n, plural, one {Enviar 1 arquivo} other {Enviar # arquivos}}"
   },
   "historial": {
     "creada": "criou a pendência",
@@ -452,5 +456,14 @@
       "oEnlace": "Se o botão não funcionar, cole este link no navegador:",
       "firma": "Flujo · as pendências da equipe, em um só lugar."
     }
+  },
+  "visor": {
+    "abrir": "Ver {nombre}",
+    "cerrar": "Fechar",
+    "descargar": "Baixar",
+    "abrirPestana": "Abrir em outra aba",
+    "anterior": "Anterior",
+    "siguiente": "Próxima",
+    "contador": "{i} de {n}"
   }
 }

@@ -107,7 +107,9 @@
       "llamar al proveedor hoy !",
       "@{b} enviar el contrato firmado el 15 oct",
       "@{a} revisar https://docs.google.com/… antes del viernes"
-    ]
+    ],
+    "adjuntar": "Adjuntar archivos",
+    "adjuntarAyuda": "Adjunta imágenes o archivos al pendiente. También puedes pegarlos o arrastrarlos aquí."
   },
   "errores": {
     "faltaTitulo": "Falta el título: escribe qué hay que hacer.",
@@ -166,7 +168,9 @@
     "copiarAyuda": "Crea un gemelo vinculado en ese equipo: comparten etapa y contenido",
     "moverA": "Mover",
     "moverAyuda": "Se lleva el pendiente con todo su historial; desaparece de aquí",
-    "confirmarMover": "¿Mover este pendiente a «{equipo}»? Desaparecerá de este equipo."
+    "confirmarMover": "¿Mover este pendiente a «{equipo}»? Desaparecerá de este equipo.",
+    "adjuntarAyuda": "pega, arrastra o elige · imágenes, PDF, Office, CSV, texto o zip · hasta {mb} MB",
+    "subir": "{n, plural, one {Subir 1 archivo} other {Subir # archivos}}"
   },
   "historial": {
     "creada": "creó el pendiente",
@@ -452,5 +456,14 @@
       "oEnlace": "Si el botón no funciona, copia este enlace en el navegador:",
       "firma": "Flujo · los pendientes del equipo, en un solo lugar."
     }
+  },
+  "visor": {
+    "abrir": "Ver {nombre}",
+    "cerrar": "Cerrar",
+    "descargar": "Descargar",
+    "abrirPestana": "Abrir en otra pestaña",
+    "anterior": "Anterior",
+    "siguiente": "Siguiente",
+    "contador": "{i} de {n}"
   }
 }

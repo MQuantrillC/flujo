@@ -1,22 +1,22 @@
 import { X } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import type { Adjunto } from '@/lib/modelo';
+import { esImagen } from '@/lib/adjuntos';
 import { eliminarAdjuntoAccion } from '@/lib/acciones';
 import { FormConfirmar } from './FormConfirmar';
-import { Tooltip } from './Tooltip';
+import { VisorImagen } from './VisorImagen';
 
-/** Una miniatura que abre la imagen completa en otra pestaña, con su botón de quitar. */
-export async function ImagenAdjunta({ adjunto }: { adjunto: Adjunto }) {
+/**
+ * Una miniatura que abre la imagen en el visor de la app, con su botón de
+ * quitar. `grupo` son los adjuntos hermanos (del mismo comentario o del mismo
+ * pendiente): entre sus imágenes se pasa con las flechas.
+ */
+export async function ImagenAdjunta({ adjunto, grupo }: { adjunto: Adjunto; grupo?: Adjunto[] }) {
   const t = await getTranslations('comentarios');
-  const url = `/api/adjuntos/${adjunto.id}`;
+  const imagenes = (grupo ?? [adjunto]).filter((a) => esImagen(a.mime)).map((a) => ({ id: a.id, nombre: a.nombre }));
   return (
     <figure className="group relative">
-      <Tooltip texto={adjunto.nombre}>
-        <a href={url} target="_blank" rel="noopener">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt={adjunto.nombre} className="h-28 w-28 rounded-lg border border-gray-200 object-cover transition-transform hover:scale-[1.02]" loading="lazy" />
-        </a>
-      </Tooltip>
+      <VisorImagen imagen={{ id: adjunto.id, nombre: adjunto.nombre }} grupo={imagenes} />
       <FormConfirmar action={eliminarAdjuntoAccion} peligro boton={t('quitar')} mensaje={t('confirmarQuitarImagen')} className="absolute -right-1.5 -top-1.5 hidden group-hover:block">
         <input type="hidden" name="adjuntoId" value={adjunto.id} />
         <button className="rounded-full bg-black/70 p-0.5 text-white" aria-label={t('quitar')}><X size={12} /></button>

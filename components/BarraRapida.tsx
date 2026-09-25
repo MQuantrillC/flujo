@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Flag, Link2, Sparkles } from 'lucide-react';
+import { Flag, Link2, Paperclip, Sparkles } from 'lucide-react';
+import { ACEPTA_ADJUNTOS } from '@/lib/adjuntos';
+import { Miniaturas } from './Miniaturas';
+import { useAdjuntos } from './useAdjuntos';
 import { nombresCortos } from '@/lib/nombres';
 import { interpretar, type MiembroParaParse } from '@/lib/parseRapido';
 import { fechaCorta } from '@/lib/fechas';
@@ -45,6 +48,9 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
   const [cerrada, setCerrada] = useState(false); // Esc cierra la lista hasta que cambie el token
   const [error, setError] = useState<string | null>(null);
   const [creadas, setCreadas] = useState(0);
+  const adj = useAdjuntos();
+  const [arrastrando, setArrastrando] = useState(false);
+  const selector = useRef<HTMLInputElement>(null);
   const [pendiente, iniciar] = useTransition();
   const [caretPendiente, setCaretPendiente] = useState<number | null>(null);
   const router = useRouter();
@@ -111,8 +117,11 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
     setError(null);
     iniciar(async () => {
       const r = await crearTareaRapida(equipoId, texto);
-      if (r.ok) { setTexto(''); setCaret(0); setCreadas((n) => n + 1); router.refresh(); campo.current?.focus(); }
-      else setError(te(r.error ?? 'generico'));
+      if (!r.ok) { setError(te(r.error ?? 'generico')); return; }
+      // El pendiente ya existe; los archivos van después, colgados de él.
+      const fallo = r.tareaId ? await adj.subir(r.tareaId) : null;
+      setTexto(''); setCaret(0); setCreadas((n) => n + 1); adj.limpiar(); router.refresh(); campo.current?.focus();
+      if (fallo) setError(fallo);
     });
   };
 
@@ -137,7 +146,12 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
   const actualizarCaret = () => setCaret(campo.current?.selectionStart ?? 0);
 
   return (
-    <section className="tarjeta relative p-3">
+    <section
+      className={`tarjeta relative p-3 transition-colors ${arrastrando ? 'border-acento bg-acento/5' : ''}`}
+      onDragOver={(e) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); setArrastrando(true); } }}
+      onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setArrastrando(false); }}
+      onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); setArrastrando(false); adj.agregar(e.dataTransfer.files); } }}
+    >
       <form onSubmit={(e) => { e.preventDefault(); enviar(); }} className="flex items-center gap-2">
         <Sparkles size={18} className="shrink-0 text-acento" />
         <input
@@ -149,6 +163,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
           onClick={actualizarCaret}
           onBlur={() => setCerrada(true)}
           onFocus={() => setCerrada(false)}
+          onPaste={adj.alPegar}
           placeholder={t('placeholder')}
           className="min-w-0 flex-1 bg-transparent text-[15px] text-gray-800 outline-none placeholder:text-gray-400"
           autoComplete="off"
@@ -158,8 +173,18 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
           aria-controls="sugerencias-linea-rapida"
           aria-autocomplete="list"
         />
+        <input ref={selector} type="file" accept={ACEPTA_ADJUNTOS} multiple className="hidden" onChange={(e) => { adj.agregar(e.target.files); e.target.value = ''; }} />
+        <button type="button" onClick={() => selector.current?.click()} className={`rounded-md p-1.5 transition-colors hover:bg-gray-100 ${adj.archivos.length ? 'text-acento' : 'text-gray-400 hover:text-gray-700'}`} aria-label={t('adjuntar')} title={t('adjuntarAyuda')}>
+          <Paperclip size={16} />
+        </button>
         <button type="submit" disabled={!texto.trim() || pendiente} className="boton">{pendiente ? t('creando') : t('crear')}</button>
       </form>
+      {(adj.archivos.length > 0 || adj.error) && (
+        <div className="mt-2 flex flex-col gap-1.5">
+          <Miniaturas archivos={adj.archivos} vistas={adj.vistas} onQuitar={adj.quitar} tam="sm" />
+          {adj.error && <span className="text-xs text-red-600">{adj.error}</span>}
+        </div>
+      )}
 
       <Aparece visible={listaAbierta} className="absolute left-9 top-12 z-30 w-80 max-w-[calc(100%-2.5rem)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
         <ul role="listbox" id="sugerencias-linea-rapida">
