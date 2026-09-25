@@ -162,6 +162,17 @@ export function resolverMiembro(alias: string, miembros: MiembroParaParse[]): Mi
   return candidatos.find((c) => c.exacto)?.m ?? candidatos.find((c) => c.prefijo)?.m ?? null;
 }
 
+/**
+ * Si se escribió más de una línea, la primera es la línea rápida (título, @,
+ * #, fecha) y el resto va tal cual como descripción del pendiente.
+ */
+export function partirLinea(texto: string): { linea: string; descripcion: string } {
+  const lineas = texto.replace(/\r\n?/g, '\n').split('\n');
+  const i = lineas.findIndex((l) => l.trim());
+  if (i < 0) return { linea: '', descripcion: '' };
+  return { linea: lineas[i].trim(), descripcion: lineas.slice(i + 1).join('\n').trim() };
+}
+
 export function interpretar(texto: string, miembros: MiembroParaParse[], hoy: Date = dia()): Interpretacion {
   const hoyD = dia(hoy);
   let resto = texto;

@@ -109,7 +109,9 @@
       "@{a} review https://docs.google.com/… before friday"
     ],
     "adjuntar": "Attach files",
-    "adjuntarAyuda": "Attach images or files to the to-do. You can also paste or drop them here."
+    "adjuntarAyuda": "Attach images or files to the to-do. You can also paste or drop them here.",
+    "conDescripcion": "+ description",
+    "saltoLinea": "Enter creates the to-do. Shift+Enter or Ctrl+Enter adds a line: whatever you write below the first line becomes the description."
   },
   "errores": {
     "faltaTitulo": "Missing title: write what needs to be done.",

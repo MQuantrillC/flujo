@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { interpretar, resolverMiembro } from './parseRapido';
+import { interpretar, resolverMiembro, partirLinea } from './parseRapido';
 import { fechaCorta, haceCuanto, viernesDeLaSemana, viernesProximaSemana } from './fechas';
 
 const equipo = [
@@ -182,5 +182,18 @@ describe('lo que Marco escribió el jueves 24', () => {
   });
   it('una palabra «semana» en el título no se toma por fecha', () => {
     expect(interpretar('reporte de la semana comercial', equipo, jueves).fechaLimite).toBeNull();
+  });
+});
+
+describe('partirLinea', () => {
+  it('una sola línea es toda la línea rápida', () => {
+    expect(partirLinea('  @marco enviar contrato el viernes ')).toEqual({ linea: '@marco enviar contrato el viernes', descripcion: '' });
+  });
+  it('lo que sigue a la primera línea va como descripción, con sus saltos', () => {
+    expect(partirLinea('@marco enviar contrato\r\nRevisar cláusula 3.\n\nY el anexo.\n')).toEqual({ linea: '@marco enviar contrato', descripcion: 'Revisar cláusula 3.\n\nY el anexo.' });
+  });
+  it('las líneas vacías del principio no cuentan', () => {
+    expect(partirLinea('\n\nhola\nmundo')).toEqual({ linea: 'hola', descripcion: 'mundo' });
+    expect(partirLinea('\n  \n')).toEqual({ linea: '', descripcion: '' });
   });
 });

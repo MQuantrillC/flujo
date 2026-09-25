@@ -109,7 +109,9 @@
       "@{a} revisar https://docs.google.com/… antes del viernes"
     ],
     "adjuntar": "Adjuntar archivos",
-    "adjuntarAyuda": "Adjunta imágenes o archivos al pendiente. También puedes pegarlos o arrastrarlos aquí."
+    "adjuntarAyuda": "Adjunta imágenes o archivos al pendiente. También puedes pegarlos o arrastrarlos aquí.",
+    "conDescripcion": "+ descripción",
+    "saltoLinea": "Enter crea el pendiente. Shift+Enter o Ctrl+Enter bajan de línea: lo que escribas debajo de la primera línea va como descripción."
   },
   "errores": {
     "faltaTitulo": "Falta el título: escribe qué hay que hacer.",

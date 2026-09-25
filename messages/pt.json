@@ -109,7 +109,9 @@
       "@{a} revisar https://docs.google.com/… antes da sexta"
     ],
     "adjuntar": "Anexar arquivos",
-    "adjuntarAyuda": "Anexe imagens ou arquivos à pendência. Também dá para colar ou arrastar aqui."
+    "adjuntarAyuda": "Anexe imagens ou arquivos à pendência. Também dá para colar ou arrastar aqui.",
+    "conDescripcion": "+ descrição",
+    "saltoLinea": "Enter cria a pendência. Shift+Enter ou Ctrl+Enter pulam de linha: o que você escrever abaixo da primeira linha vira a descrição."
   },
   "errores": {
     "faltaTitulo": "Falta o título: escreva o que precisa ser feito.",

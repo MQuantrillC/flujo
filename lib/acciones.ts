@@ -13,7 +13,7 @@ import { COOKIE_SESION, DURACION_SESION, esProduccion, miembroActual, tokenActua
 import { cifrar, coincide, LARGO_MINIMO } from './contrasenas';
 import { completarEnlace, extraerEnlaces } from './enlaces';
 import { hoyActual } from './hoy';
-import { interpretar } from './parseRapido';
+import { interpretar, partirLinea } from './parseRapido';
 import { ajustarBorradores, leerImportacion, type AjustesImportacion, type Borrador } from './importar';
 import { esFiltro, esModo, seleccionar, type Modo } from './copiar';
 import { idiomaValido } from './idioma';
@@ -265,14 +265,16 @@ export async function marcarEtapaFinalAccion(fd: FormData): Promise<void> {
 export interface ResultadoRapido extends Resultado { tareaId?: string }
 
 /** La línea rápida: «@harold revisar /master/insights esta semana». */
-export async function crearTareaRapida(equipoId: string, linea: string): Promise<ResultadoRapido> {
+export async function crearTareaRapida(equipoId: string, texto: string): Promise<ResultadoRapido> {
   const u = await miembroActual(equipoId);
   const miembros = repo.miembrosDe(equipoId);
+  // La primera línea es la línea rápida; si escribió más, va como descripción.
+  const { linea, descripcion } = partirLinea(texto);
   // «mañana» o «el viernes» se cuentan desde el hoy de quien escribe, no desde el del servidor.
   const r = interpretar(linea, miembros, await hoyActual());
   if (!r.titulo) return { ok: false, error: 'faltaTitulo' };
   const t = repo.crearTarea({
-    equipoId, titulo: r.titulo, asignados: r.asignados, etiquetas: r.etiquetas, enlaces: sinNombre(r.enlaces),
+    equipoId, titulo: r.titulo, descripcion, asignados: r.asignados, etiquetas: r.etiquetas, enlaces: sinNombre(r.enlaces),
     fechaLimite: r.fechaLimite, prioridad: r.prioridad, creadoPor: u.email,
   });
   revalidatePath(`/e/${equipoId}`, 'layout');

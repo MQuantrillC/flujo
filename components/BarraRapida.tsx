@@ -8,7 +8,7 @@ import { ACEPTA_ADJUNTOS } from '@/lib/adjuntos';
 import { Miniaturas } from './Miniaturas';
 import { useAdjuntos } from './useAdjuntos';
 import { nombresCortos } from '@/lib/nombres';
-import { interpretar, type MiembroParaParse } from '@/lib/parseRapido';
+import { interpretar, partirLinea, type MiembroParaParse } from '@/lib/parseRapido';
 import { fechaCorta } from '@/lib/fechas';
 import { etiquetaEnlace } from '@/lib/enlaces';
 import { idiomaValido } from '@/lib/idioma';
@@ -54,9 +54,19 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
   const [pendiente, iniciar] = useTransition();
   const [caretPendiente, setCaretPendiente] = useState<number | null>(null);
   const router = useRouter();
-  const campo = useRef<HTMLInputElement>(null);
+  const campo = useRef<HTMLTextAreaElement>(null);
 
-  const lectura = useMemo(() => (texto.trim() ? interpretar(texto, miembros) : null), [texto, miembros]);
+  // La primera línea es la que se interpreta; lo demás va como descripción.
+  const partes = useMemo(() => partirLinea(texto), [texto]);
+  const lectura = useMemo(() => (partes.linea ? interpretar(partes.linea, miembros) : null), [partes.linea, miembros]);
+
+  // El campo crece con lo escrito (una línea de entrada, las que hagan falta después).
+  useEffect(() => {
+    const el = campo.current;
+    if (!el) return;
+    el.style.height = '0px';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [texto]);
   const nombreDe = (email: string) => miembros.find((m) => m.email === email)?.nombre ?? email;
   const cortos = useMemo(() => nombresCortos(miembros), [miembros]);
 
@@ -133,13 +143,25 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
 
   const insertar = (s: string) => poner((texto.endsWith(' ') || texto === '' ? texto : texto + ' ') + s + ' ');
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  /** Un salto de línea donde está el cursor (Shift+Enter o Ctrl+Enter). */
+  const saltoDeLinea = () => {
+    const el = campo.current;
+    const ini = el?.selectionStart ?? texto.length;
+    const fin = el?.selectionEnd ?? ini;
+    setTexto(texto.slice(0, ini) + '\n' + texto.slice(fin));
+    setCaretPendiente(ini + 1);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Shift+Enter o Ctrl+Enter bajan de línea siempre, aunque la lista de sugerencias esté abierta.
+    if (e.key === 'Enter' && (e.shiftKey || e.ctrlKey || e.metaKey)) { e.preventDefault(); saltoDeLinea(); return; }
     if (listaAbierta) {
       if (e.key === 'ArrowDown') { e.preventDefault(); setIndice((i) => (i + 1) % sugerencias.length); return; }
       if (e.key === 'ArrowUp') { e.preventDefault(); setIndice((i) => (i - 1 + sugerencias.length) % sugerencias.length); return; }
       if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); elegir(sugerencias[indice]); return; }
       if (e.key === 'Escape') { e.preventDefault(); setCerrada(true); return; }
     }
+    // Enter crea; con Shift o Ctrl, baja de línea (lo que siga a la primera línea va como descripción).
     if (e.key === 'Enter') { e.preventDefault(); enviar(); }
   };
 
@@ -152,10 +174,11 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
       onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setArrastrando(false); }}
       onDrop={(e) => { if (e.dataTransfer.files.length) { e.preventDefault(); setArrastrando(false); adj.agregar(e.dataTransfer.files); } }}
     >
-      <form onSubmit={(e) => { e.preventDefault(); enviar(); }} className="flex items-center gap-2">
-        <Sparkles size={18} className="shrink-0 text-acento" />
-        <input
+      <form onSubmit={(e) => { e.preventDefault(); enviar(); }} className="flex items-start gap-2">
+        <Sparkles size={18} className="mt-2 shrink-0 text-acento" />
+        <textarea
           ref={campo}
+          rows={1}
           value={texto}
           onChange={(e) => { setTexto(e.target.value); setCaret(e.target.selectionStart ?? e.target.value.length); }}
           onKeyDown={onKeyDown}
@@ -165,16 +188,17 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
           onFocus={() => setCerrada(false)}
           onPaste={adj.alPegar}
           placeholder={t('placeholder')}
-          className="min-w-0 flex-1 bg-transparent text-[15px] text-gray-800 outline-none placeholder:text-gray-400"
+          className="min-w-0 flex-1 resize-none bg-transparent py-1.5 text-[15px] leading-6 text-gray-800 outline-none placeholder:text-gray-400"
           autoComplete="off"
           autoFocus
+          title={t('saltoLinea')}
           role="combobox"
           aria-expanded={listaAbierta}
           aria-controls="sugerencias-linea-rapida"
           aria-autocomplete="list"
         />
         <input ref={selector} type="file" accept={ACEPTA_ADJUNTOS} multiple className="hidden" onChange={(e) => { adj.agregar(e.target.files); e.target.value = ''; }} />
-        <button type="button" onClick={() => selector.current?.click()} className={`rounded-md p-1.5 transition-colors hover:bg-gray-100 ${adj.archivos.length ? 'text-acento' : 'text-gray-400 hover:text-gray-700'}`} aria-label={t('adjuntar')} title={t('adjuntarAyuda')}>
+        <button type="button" onClick={() => selector.current?.click()} className={`mt-1 rounded-md p-1.5 transition-colors hover:bg-gray-100 ${adj.archivos.length ? 'text-acento' : 'text-gray-400 hover:text-gray-700'}`} aria-label={t('adjuntar')} title={t('adjuntarAyuda')}>
           <Paperclip size={16} />
         </button>
         <button type="submit" disabled={!texto.trim() || pendiente} className="boton">{pendiente ? t('creando') : t('crear')}</button>
@@ -216,6 +240,7 @@ export function BarraRapida({ equipoId, miembros, etiquetas = [], nota }: { equi
             {lectura.etiquetas.map((e) => <span key={e} className="rounded-md bg-acento/10 px-1.5 py-0.5 text-acento">#{e}</span>)}
             {lectura.enlaces.map((u) => <span key={u} className="inline-flex items-center gap-1 rounded-md bg-sky-100 px-1.5 py-0.5 text-sky-800"><Link2 size={11} /> {etiquetaEnlace(u)}</span>)}
             {lectura.prioridad === 'alta' && <span className="flex items-center gap-1 text-red-600"><Flag size={11} className="fill-red-500" /> {t('alta')}</span>}
+            {partes.descripcion && <span className="rounded-md bg-gray-100 px-1.5 py-0.5" title={partes.descripcion}>{t('conDescripcion')}</span>}
             {lectura.noResueltos.map((n) => <span key={n} className="text-red-600">{t('noEsDelEquipo', { alias: n })}</span>)}
           </>
         ) : (
