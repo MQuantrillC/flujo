@@ -41,7 +41,8 @@ export function AccionesTarjeta({ tareaId, prioridad }: { tareaId: string; prior
           <Flag size={13} className={alta ? 'fill-red-500' : ''} />
         </button>
       </Tooltip>
-      <FormConfirmar action={eliminarTareaEnSitioAccion} peligro mensaje={t('confirmarBorrar')} boton={t('borrar')}>
+      {/* El formulario como flex: si no, el botón queda sobre una línea de texto y cae unos píxeles respecto a la bandera. */}
+      <FormConfirmar action={eliminarTareaEnSitioAccion} peligro mensaje={t('confirmarBorrar')} boton={t('borrar')} className="flex items-center">
         <input type="hidden" name="tareaId" value={tareaId} />
         <Tooltip texto={t('borrar')}>
           <button className="rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-red-600" aria-label={t('borrar')}><Trash2 size={13} /></button>
