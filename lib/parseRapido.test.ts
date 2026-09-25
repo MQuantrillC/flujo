@@ -155,6 +155,12 @@ describe('lo que Marco escribió el jueves 24', () => {
     const r = interpretar('@marco terminar la demo para el proximo jueves', equipo, jueves);
     expect(r).toMatchObject({ titulo: 'Terminar la demo', fechaLimite: '2026-10-01' });
   });
+  it('«prox viernes» escrito un viernes es el de la semana que viene, no hoy', () => {
+    const viernes = new Date(2026, 8, 25, 12);
+    expect(interpretar('prox viernes', equipo, viernes).fechaLimite).toBe('2026-10-02');
+    expect(interpretar('enviar reporte prox. viernes', equipo, viernes)).toMatchObject({ titulo: 'Enviar reporte', fechaLimite: '2026-10-02' });
+    expect(interpretar('enviar reporte el viernes', equipo, viernes).fechaLimite).toBe('2026-09-25');
+  });
   it('«el jueves» a secas un jueves es hoy; «jueves que viene» es el siguiente', () => {
     expect(interpretar('x el jueves', equipo, jueves).fechaLimite).toBe('2026-09-24');
     expect(interpretar('x jueves que viene', equipo, jueves).fechaLimite).toBe('2026-10-01');

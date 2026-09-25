@@ -111,7 +111,8 @@ const REGLAS: Regla[] = [
       if (m[2]) return diaMes(h, Number(m[2]), MESES[m[3]], anio(m[6]));
       if (m[5]) return diaMes(h, Number(m[5]), MESES[m[4]], anio(m[6]));
       const dias = (DIAS[m[1]] - h.getDay() + 7) % 7;
-      const siguiente = /proxim|siguiente|next|que viene|que vem|entrante/.test(m[0]);
+      // «prox», «prox.», «próximo», «siguiente», «next», «que viene»: cualquier forma de decir «no este, el otro».
+      const siguiente = /prox|siguiente|next|que viene|que vem|entrante/.test(m[0]);
       return sumarDias(h, dias === 0 && siguiente ? 7 : dias);
     },
   },
