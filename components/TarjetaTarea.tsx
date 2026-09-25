@@ -25,7 +25,6 @@ export async function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = tru
     <TarjetaAnimada id={tarea.id} etapaId={arrastrable ? tarea.etapaId : undefined}>
     <article className={`tarjeta group relative p-3 transition-colors hover:border-acento/50 ${terminada ? 'opacity-70' : ''}`}>
       <Link href={`/e/${tarea.equipoId}/t/${tarea.id}`} className="absolute inset-0 rounded-xl" aria-label={tarea.titulo} draggable={false} />
-      <AccionesTarjeta tareaId={tarea.id} prioridad={tarea.prioridad} />
       {equipoNombre && (
         <p className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-gray-400"><Users size={10} /> {equipoNombre}</p>
       )}
@@ -63,12 +62,15 @@ export async function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = tru
             )}
           </span>
         )}
+        {!conEtapa && <AccionesTarjeta tareaId={tarea.id} prioridad={tarea.prioridad} />}
         <span className="relative z-10 ml-auto flex -space-x-1.5">
           {tarea.asignados.map((a) => <Avatar key={a} nombre={nombres[a] ?? a} tam="sm" />)}
         </span>
       </div>
       {conEtapa && (
-        <div className="relative z-10 mt-2 flex justify-end">
+        <div className="relative z-10 mt-2 flex items-center justify-between">
+          {/* Los atajos abajo a la izquierda, frente al desplegable de etapa: ahí no tapan nada. */}
+          <AccionesTarjeta tareaId={tarea.id} prioridad={tarea.prioridad} />
           <SelectorEtapa tareaId={tarea.id} etapaId={tarea.etapaId} etapas={etapas} />
         </div>
       )}

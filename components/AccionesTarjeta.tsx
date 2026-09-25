@@ -11,8 +11,9 @@ import { Tooltip } from './Tooltip';
 
 /**
  * Los atajos que asoman al pasar el ratón por una tarjeta: marcar o quitar la
- * prioridad alta y borrar el pendiente, sin abrir la ficha. En el móvil no hay
- * «pasar el ratón», así que ahí no se muestran: se hace desde la ficha.
+ * prioridad alta y borrar el pendiente, sin abrir la ficha. Van abajo a la
+ * izquierda, donde no tapan nada. En el móvil no hay «pasar el ratón», así
+ * que ahí no se muestran: se hace desde la ficha.
  */
 export function AccionesTarjeta({ tareaId, prioridad }: { tareaId: string; prioridad: Prioridad }) {
   const t = useTranslations('tarea');
@@ -32,7 +33,7 @@ export function AccionesTarjeta({ tareaId, prioridad }: { tareaId: string; prior
 
   return (
     <div
-      className="absolute right-2 top-2 z-10 hidden items-center gap-0.5 rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm transition-opacity sm:flex sm:opacity-0 sm:focus-within:opacity-100 sm:group-hover:opacity-100"
+      className="relative z-10 hidden items-center gap-0.5 transition-opacity sm:flex sm:opacity-0 sm:focus-within:opacity-100 sm:group-hover:opacity-100"
       draggable={false}
     >
       <Tooltip texto={alta ? t('quitarAlta') : t('marcarAlta')}>
