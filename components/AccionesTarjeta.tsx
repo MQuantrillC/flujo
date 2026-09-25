@@ -33,11 +33,12 @@ export function AccionesTarjeta({ tareaId, prioridad }: { tareaId: string; prior
 
   return (
     <div
-      className="relative z-10 hidden items-center gap-0.5 transition-opacity sm:flex sm:opacity-0 sm:focus-within:opacity-100 sm:group-hover:opacity-100"
+      // Visible al pasar el ratón o al llegar con el teclado (focus-visible): un clic no la deja pegada.
+      className="relative z-10 hidden items-center gap-0.5 transition-opacity sm:flex sm:opacity-0 sm:has-[:focus-visible]:opacity-100 sm:group-hover:opacity-100"
       draggable={false}
     >
       <Tooltip texto={alta ? t('quitarAlta') : t('marcarAlta')}>
-        <button type="button" onClick={alternar} aria-pressed={alta} className={`rounded-md p-1 transition-colors hover:bg-gray-100 ${alta ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}>
+        <button type="button" onClick={alternar} aria-pressed={alta} aria-label={alta ? t('quitarAlta') : t('marcarAlta')} className={`rounded-md p-1 transition-colors hover:bg-gray-100 ${alta ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}>
           <Flag size={13} className={alta ? 'fill-red-500' : ''} />
         </button>
       </Tooltip>
