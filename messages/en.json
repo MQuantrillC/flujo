@@ -172,7 +172,8 @@
     "moverAyuda": "Takes the to-do with its whole history; it leaves this team",
     "confirmarMover": "Move this to-do to \"{equipo}\"? It will disappear from this team.",
     "adjuntarAyuda": "paste, drop or choose · images, PDF, Office, CSV, text or zip · up to {mb} MB",
-    "subir": "{n, plural, one {Upload 1 file} other {Upload # files}}"
+    "subir": "{n, plural, one {Upload 1 file} other {Upload # files}}",
+    "etiquetasAtajos": "↑ ↓ to move · Enter or Tab to pick · Esc to close"
   },
   "historial": {
     "creada": "created the to-do",

@@ -172,7 +172,8 @@
     "moverAyuda": "Leva a pendência com todo o histórico; some daqui",
     "confirmarMover": "Mover esta pendência para «{equipo}»? Ela vai sumir desta equipe.",
     "adjuntarAyuda": "cole, arraste ou escolha · imagens, PDF, Office, CSV, texto ou zip · até {mb} MB",
-    "subir": "{n, plural, one {Enviar 1 arquivo} other {Enviar # arquivos}}"
+    "subir": "{n, plural, one {Enviar 1 arquivo} other {Enviar # arquivos}}",
+    "etiquetasAtajos": "↑ ↓ para mover · Enter ou Tab para escolher · Esc para fechar"
   },
   "historial": {
     "creada": "criou a pendência",

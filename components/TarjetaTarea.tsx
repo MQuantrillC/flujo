@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import type { Etapa, Tarea } from '@/lib/modelo';
 import { etiquetaEnlace } from '@/lib/enlaces';
 import { idiomaValido } from '@/lib/idioma';
+import { AccionesTarjeta } from './AccionesTarjeta';
 import { Avatar } from './Avatar';
 import { ChipFecha } from './ChipFecha';
 import { SelectorEtapa } from './SelectorEtapa';
@@ -24,6 +25,7 @@ export async function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = tru
     <TarjetaAnimada id={tarea.id} etapaId={arrastrable ? tarea.etapaId : undefined}>
     <article className={`tarjeta group relative p-3 transition-colors hover:border-acento/50 ${terminada ? 'opacity-70' : ''}`}>
       <Link href={`/e/${tarea.equipoId}/t/${tarea.id}`} className="absolute inset-0 rounded-xl" aria-label={tarea.titulo} draggable={false} />
+      <AccionesTarjeta tareaId={tarea.id} prioridad={tarea.prioridad} />
       {equipoNombre && (
         <p className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-gray-400"><Users size={10} /> {equipoNombre}</p>
       )}

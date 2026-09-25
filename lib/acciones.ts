@@ -359,6 +359,27 @@ export async function moverTareaAccion(tareaId: string, etapaId: string, antesDe
   revalidatePath('/');
 }
 
+/** Desde la tarjeta: marcar o quitar la prioridad alta sin abrir la ficha. */
+export async function cambiarPrioridadAccion(tareaId: string, prioridad: Prioridad): Promise<void> {
+  const t = repo.tarea(tareaId);
+  if (!t) return;
+  const u = await miembroActual(t.equipoId);
+  repo.actualizarTarea(tareaId, u.email, { prioridad });
+  revalidatePath(`/e/${t.equipoId}`, 'layout');
+  revalidatePath('/');
+}
+
+/** Desde la tarjeta: borra y se queda en la misma vista (la de la ficha, en cambio, vuelve al tablero). */
+export async function eliminarTareaEnSitioAccion(fd: FormData): Promise<void> {
+  const tid = texto(fd, 'tareaId');
+  const t = repo.tarea(tid);
+  if (!t) return;
+  await miembroActual(t.equipoId);
+  repo.eliminarTarea(tid);
+  revalidatePath(`/e/${t.equipoId}`, 'layout');
+  revalidatePath('/');
+}
+
 export async function eliminarTareaAccion(fd: FormData): Promise<void> {
   const tid = texto(fd, 'tareaId');
   const t = repo.tarea(tid);

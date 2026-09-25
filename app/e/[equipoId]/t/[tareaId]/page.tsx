@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Copy, Link2, Users } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
-import { adjuntosSueltos, comentariosDe, equipo, equiposDe, esMiembro, etapasDe, eventosDe, miembrosDe, tarea, vinculadasDe } from '@/lib/repositorio';
+import { adjuntosSueltos, comentariosDe, equipo, equiposDe, esMiembro, etapasDe, eventosDe, miembrosDe, tarea, tareasDe, vinculadasDe } from '@/lib/repositorio';
+import { etiquetasEnUso } from '@/lib/vistas';
 import { pasarTareaAccion } from '@/lib/acciones';
 import { aIso, fechaCorta, haceCuanto } from '@/lib/fechas';
 import { hoyActual } from '@/lib/hoy';
@@ -75,7 +76,7 @@ export default async function PaginaTarea({ params }: { params: Promise<{ equipo
         <Link href={`/e/${equipoId}`} className="flex w-fit items-center gap-1 text-sm text-gray-500 hover:text-gray-800"><ArrowLeft size={14} /> {tc('volverTablero')}</Link>
 
         <section className="tarjeta p-5">
-          <EditorTarea tarea={x} etapas={etapas} miembros={miembros} />
+          <EditorTarea tarea={x} etapas={etapas} miembros={miembros} etiquetasEquipo={etiquetasEnUso(tareasDe(equipoId)).map((e) => e.etiqueta)} />
         </section>
 
         <section className="tarjeta p-5">

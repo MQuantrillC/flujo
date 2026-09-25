@@ -172,7 +172,8 @@
     "moverAyuda": "Se lleva el pendiente con todo su historial; desaparece de aquí",
     "confirmarMover": "¿Mover este pendiente a «{equipo}»? Desaparecerá de este equipo.",
     "adjuntarAyuda": "pega, arrastra o elige · imágenes, PDF, Office, CSV, texto o zip · hasta {mb} MB",
-    "subir": "{n, plural, one {Subir 1 archivo} other {Subir # archivos}}"
+    "subir": "{n, plural, one {Subir 1 archivo} other {Subir # archivos}}",
+    "etiquetasAtajos": "↑ ↓ para moverte · Enter o Tab para elegir · Esc para cerrar"
   },
   "historial": {
     "creada": "creó el pendiente",

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Check, Flag, Trash2 } from 'lucide-react';
 import { actualizarTareaAccion, eliminarTareaAccion, type ResultadoGuardar } from '@/lib/acciones';
 import type { Etapa, Tarea, Usuario } from '@/lib/modelo';
+import { CampoEtiquetas } from './CampoEtiquetas';
 import { Filas } from './Filas';
 import { FormConfirmar } from './FormConfirmar';
 import { SelectorEtapa } from './SelectorEtapa';
@@ -14,7 +15,11 @@ import { Tooltip } from './Tooltip';
 type Estado = ResultadoGuardar & { en?: number };
 
 /** Todo lo editable de un pendiente en un solo formulario. Guarda con el botón o con Ctrl+Enter. */
-export function EditorTarea({ tarea, etapas, miembros }: { tarea: Tarea; etapas: Etapa[]; miembros: Usuario[] }) {
+export function EditorTarea({ tarea, etapas, miembros, etiquetasEquipo = [] }: {
+  tarea: Tarea; etapas: Etapa[]; miembros: Usuario[];
+  /** Las etiquetas que ya usa el equipo, para sugerirlas. */
+  etiquetasEquipo?: string[];
+}) {
   const t = useTranslations('tarea');
   const te = useTranslations('errores');
   // `en` cambia con cada guardado: el aviso «Guardado ✓» se vuelve a pintar (y a desvanecer) cada vez.
@@ -79,7 +84,7 @@ export function EditorTarea({ tarea, etapas, miembros }: { tarea: Tarea; etapas:
         </fieldset>
         <label className="text-sm">
           <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">{t('etiquetas')}</span>
-          <input name="etiquetas" defaultValue={tarea.etiquetas.join(', ')} className="campo" placeholder={t('etiquetasEjemplo')} autoComplete="off" />
+          <CampoEtiquetas name="etiquetas" inicial={tarea.etiquetas} existentes={etiquetasEquipo} placeholder={t('etiquetasEjemplo')} />
         </label>
       </div>
 
