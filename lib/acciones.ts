@@ -343,11 +343,16 @@ export async function actualizarTareaAccion(fd: FormData): Promise<ResultadoGuar
   return { ok: true };
 }
 
-export async function moverTareaAccion(tareaId: string, etapaId: string): Promise<void> {
+/**
+ * Cambia de etapa y, si viene `antesDe`, también la deja en ese hueco de la
+ * columna (null = al final). Sin `antesDe` entra arriba, como siempre.
+ */
+export async function moverTareaAccion(tareaId: string, etapaId: string, antesDe?: string | null): Promise<void> {
   const t = repo.tarea(tareaId);
   if (!t) return;
   const u = await miembroActual(t.equipoId);
-  repo.actualizarTarea(tareaId, u.email, { etapaId });
+  if (antesDe !== undefined) repo.reordenarTarea(tareaId, etapaId, antesDe, u.email);
+  else repo.actualizarTarea(tareaId, u.email, { etapaId });
   revalidatePath(`/e/${t.equipoId}`, 'layout');
   revalidatePath('/');
 }

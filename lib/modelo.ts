@@ -42,6 +42,8 @@ export interface Tarea {
   vinculoId: string | null;
   /** Cuántos gemelos tiene en otros equipos. */
   vinculadas: number;
+  /** Sitio elegido a mano dentro de su columna; null si nunca se arrastró (va arriba, por plazo). */
+  posicion: number | null;
 }
 
 export interface Adjunto {

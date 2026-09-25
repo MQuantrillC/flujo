@@ -3,7 +3,7 @@ import { Tag, X } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
-import { agruparPorPersona, agruparPorPlazo, agruparSemana, etiquetasEnUso, ordenarPorPlazo } from '@/lib/vistas';
+import { agruparPorPersona, agruparPorPlazo, agruparSemana, etiquetasEnUso, ordenarColumna } from '@/lib/vistas';
 import { fechaCorta } from '@/lib/fechas';
 import { hoyActual } from '@/lib/hoy';
 import { idiomaValido } from '@/lib/idioma';
@@ -13,6 +13,7 @@ import { TarjetaTarea } from '@/components/TarjetaTarea';
 import { Avatar } from '@/components/Avatar';
 import { GrupoAnimado } from '@/components/Animado';
 import { ColumnaTablero } from '@/components/ColumnaTablero';
+import { TableroScroll } from '@/components/TableroScroll';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,21 +73,22 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
       )}
 
       {vista === 'tablero' && (
-        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:snap-none sm:px-0">
+        <TableroScroll>
           {etapas.map((et) => {
-            const tareas = ordenarPorPlazo(conEtiqueta.filter((x) => x.etapaId === et.id && (!et.esFinal || (x.terminadoEn ?? 0) >= corteHechas)));
+            const tareas = ordenarColumna(conEtiqueta.filter((x) => x.etapaId === et.id && (!et.esFinal || (x.terminadoEn ?? 0) >= corteHechas)));
             return (
               <ColumnaTablero
                 key={et.id} etapaId={et.id} nombre={et.nombre} cantidad={tareas.length}
                 vacio={et.esFinal ? t('nadaHechas', { dias: DIAS_HECHAS_VISIBLES }) : t('nadaAqui')}
                 esFinal={et.esFinal}
                 resumen={(et.esFinal ? [...tareas].sort((a, b) => (b.terminadoEn ?? 0) - (a.terminadoEn ?? 0)) : tareas).map((x) => ({ id: x.id, titulo: x.titulo }))}
+                ids={tareas.map((x) => x.id)}
               >
                 {tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapas} hoy={hoy} arrastrable />)}
               </ColumnaTablero>
             );
           })}
-        </div>
+        </TableroScroll>
       )}
 
       {vista === 'mio' && (() => {

@@ -20,6 +20,7 @@ export function TarjetaAnimada({ id, etapaId, children }: { id: string; etapaId?
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, layout: { type: 'spring', stiffness: 400, damping: 32 } }}
       draggable={!!etapaId}
+      data-tarea={etapaId ? id : undefined}
       className={etapaId ? 'cursor-grab active:cursor-grabbing' : undefined}
       onDragStart={(e) => {
         if (!etapaId) return;

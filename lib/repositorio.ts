@@ -9,6 +9,7 @@ import { randomBytes, randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ADJUNTOS_DIR, db } from './db';
+import { ordenarColumna } from './vistas';
 import { etapaEquivalente, etapaEspejo } from './copiar';
 import {
   nombreDesdeCorreo,
@@ -275,6 +276,7 @@ function tareasDeFilas(filas: any[]): Tarea[] {
     comentarios: com.find((c) => c.tarea_id === r.id)?.n ?? 0,
     adjuntos: adj.find((c) => c.tarea_id === r.id)?.n ?? 0,
     vinculoId: r.vinculo_id ?? null,
+    posicion: r.posicion ?? null,
     vinculadas: r.vinculo_id ? Math.max(0, (gemelos.find((g) => g.vinculo_id === r.vinculo_id)?.n ?? 1) - 1) : 0,
   }));
 }
@@ -416,7 +418,8 @@ function aplicarCambios(antes: Tarea, autor: string, c: CambiosTarea): Tarea | n
     if (c.etapaId !== undefined && c.etapaId !== antes.etapaId) {
       const nueva = etapa(c.etapaId);
       if (nueva && nueva.equipoId === antes.equipoId) {
-        db.prepare('UPDATE tareas SET etapa_id = ?, terminado_en = ? WHERE id = ?').run(nueva.id, nueva.esFinal ? t : null, tid);
+        // Cambia de columna: pierde su sitio a mano y entra arriba (por plazo), salvo que se suelte en un hueco concreto.
+        db.prepare('UPDATE tareas SET etapa_id = ?, terminado_en = ?, posicion = NULL WHERE id = ?').run(nueva.id, nueva.esFinal ? t : null, tid);
         registrarEvento(tid, autor, 'etapa', { de: etapa(antes.etapaId)?.nombre ?? '', a: nueva.nombre });
       }
     }
@@ -478,6 +481,23 @@ export function pasarTareas(ids: string[], origenId: string, destinoId: string, 
     }
   })();
   return n;
+}
+
+/**
+ * Deja la tarea en `etapaId` justo antes de `antesDe` (null = al final). Congela
+ * el orden de toda la columna tal como se ve, numerando de 0 en adelante, para
+ * que lo arrastrado se quede donde se soltó.
+ */
+export function reordenarTarea(tid: string, etapaId: string, antesDe: string | null, autor: string): void {
+  const t = tarea(tid);
+  if (!t || !etapa(etapaId)) return;
+  if (t.etapaId !== etapaId) actualizarTarea(tid, autor, { etapaId });
+  const columna = ordenarColumna(tareasDe(t.equipoId).filter((x) => x.etapaId === etapaId && x.id !== tid));
+  const i = antesDe ? columna.findIndex((x) => x.id === antesDe) : -1;
+  const ids = columna.map((x) => x.id);
+  ids.splice(i >= 0 ? i : ids.length, 0, tid);
+  const fijar = db.prepare('UPDATE tareas SET posicion = ? WHERE id = ?');
+  db.transaction(() => ids.forEach((id, k) => fijar.run(k, id)))();
 }
 
 export function eliminarTarea(tid: string): void {

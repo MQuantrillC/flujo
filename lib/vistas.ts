@@ -22,6 +22,17 @@ export function ordenarPorPlazo(tareas: Tarea[]): Tarea[] {
   });
 }
 
+/**
+ * El orden de una columna del tablero: primero lo que nadie ordenó a mano
+ * (por plazo, como siempre), y debajo lo que se arrastró, en el sitio elegido.
+ * Así lo nuevo aparece arriba y lo acomodado se queda donde se dejó.
+ */
+export function ordenarColumna(tareas: Tarea[]): Tarea[] {
+  const sinSitio = ordenarPorPlazo(tareas.filter((t) => t.posicion === null));
+  const conSitio = tareas.filter((t) => t.posicion !== null).sort((a, b) => (a.posicion! - b.posicion!) || a.creadoEn - b.creadoEn);
+  return [...sinSitio, ...conSitio];
+}
+
 /** Vencidas · Hoy · Esta semana · Próxima semana · Después · Sin fecha. Sólo grupos con algo. */
 export function agruparPorPlazo(tareas: Tarea[], hoy: Date): Grupo[] {
   const viernes = aIso(viernesDeLaSemana(hoy));

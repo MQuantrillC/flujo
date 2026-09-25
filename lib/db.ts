@@ -117,6 +117,8 @@ const COLUMNAS_NUEVAS: [tabla: string, columna: string, definicion: string][] = 
   ['enlaces', 'nombre', "TEXT NOT NULL DEFAULT ''"],
   // Pendientes vinculados entre equipos: comparten este id (el del primero).
   ['tareas', 'vinculo_id', 'TEXT'],
+  // Orden a mano dentro de la columna (arrastrando). NULL = nunca se ordenó: va arriba, por plazo.
+  ['tareas', 'posicion', 'REAL'],
 ];
 
 function migrar(db: Database.Database): void {
