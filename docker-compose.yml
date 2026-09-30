@@ -19,6 +19,10 @@ services:
     environment:
       FLUJO_SIN_HTTPS: ${FLUJO_SIN_HTTPS:-0}
       # Correos de invitación (opcional): ver .env.example.
+      SMTP_USUARIO: ${SMTP_USUARIO:-}
+      SMTP_CLAVE: ${SMTP_CLAVE:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PUERTO: ${SMTP_PUERTO:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       FLUJO_REMITENTE: ${FLUJO_REMITENTE:-}
       FLUJO_URL: ${FLUJO_URL:-}
