@@ -121,6 +121,8 @@ const COLUMNAS_NUEVAS: [tabla: string, columna: string, definicion: string][] = 
   ['tareas', 'posicion', 'REAL'],
   // Color opcional de la persona en ese equipo (lib/colores.ts). NULL = sin color.
   ['miembros', 'color', 'TEXT'],
+  // Avisos por correo de ese equipo (lib/notificar.ts): 1 encendidos (por omisión), 0 apagados por la persona.
+  ['miembros', 'avisos', 'INTEGER NOT NULL DEFAULT 1'],
 ];
 
 function migrar(db: Database.Database): void {

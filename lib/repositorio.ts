@@ -162,6 +162,19 @@ export function quitarMiembro(eid: string, email: string): void {
   db.prepare('DELETE FROM miembros WHERE equipo_id = ? AND email = ?').run(eid, email);
 }
 
+/** Quién apagó los avisos por correo en este equipo. */
+export function silenciadosDe(eid: string): Set<string> {
+  return new Set((db.prepare('SELECT email FROM miembros WHERE equipo_id = ? AND avisos = 0').all(eid) as { email: string }[]).map((f) => f.email));
+}
+
+export function avisosActivos(eid: string, email: string): boolean {
+  return (db.prepare('SELECT avisos FROM miembros WHERE equipo_id = ? AND email = ?').get(eid, email) as { avisos: number } | undefined)?.avisos !== 0;
+}
+
+export function fijarAvisos(eid: string, email: string, activos: boolean): void {
+  db.prepare('UPDATE miembros SET avisos = ? WHERE equipo_id = ? AND email = ?').run(activos ? 1 : 0, eid, email);
+}
+
 /** Los colores elegidos en estos equipos, con clave «equipo|correo» (lib/colores.ts → claveColor). Sólo los que tienen uno. */
 export function coloresDe(eids: string[]): Record<string, string> {
   if (!eids.length) return {};
@@ -566,6 +579,12 @@ export function comentariosDe(tareaId: string): Comentario[] {
 /** Imágenes pegadas directo a la tarea, sin comentario. */
 export function adjuntosSueltos(tareaId: string): Adjunto[] {
   return (db.prepare('SELECT * FROM adjuntos WHERE tarea_id = ? AND comentario_id IS NULL ORDER BY creado_en').all(tareaId) as any[]).map(adjuntoDeFila);
+}
+
+/** Lo que `autor` hizo en el pendiente desde `desde` (ms), en orden: para armar el aviso por correo. */
+export function eventosDesde(tareaId: string, autor: string, desde: number): Evento[] {
+  return (db.prepare('SELECT * FROM eventos WHERE tarea_id = ? AND autor = ? AND creado_en >= ? ORDER BY creado_en').all(tareaId, autor, desde) as any[])
+    .map((r) => ({ id: r.id, tareaId: r.tarea_id, autor: r.autor, tipo: r.tipo, detalle: JSON.parse(r.detalle || '{}'), creadoEn: r.creado_en }));
 }
 
 export function eventosDe(tareaId: string): Evento[] {

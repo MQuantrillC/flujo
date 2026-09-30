@@ -27,11 +27,11 @@ export interface RotulosInvitacion {
 export interface Correo { asunto: string; html: string; texto: string }
 
 const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ESCAPES[c]);
+export const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ESCAPES[c]);
 
 // Los colores de la app (globals.css, tema claro). En correo van fijos: los clientes no leen variables.
-const ACENTO = '#137a8b';
-const FUENTE = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+export const ACENTO = '#137a8b';
+export const FUENTE = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
 /**
  * El correo de invitación: texto plano y una versión HTML con la marca, hecha

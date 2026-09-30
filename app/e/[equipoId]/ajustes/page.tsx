@@ -2,7 +2,8 @@ import { Check, Download, Trash2, UserPlus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { correoConfigurado } from '@/lib/correo';
-import { coloresDe, equipo, equiposDe, etapasDe, miembrosDe, puedeEliminarEquipo, tareasDe, usuario } from '@/lib/repositorio';
+import { avisosActivos, coloresDe, equipo, equiposDe, etapasDe, miembrosDe, puedeEliminarEquipo, tareasDe, usuario } from '@/lib/repositorio';
+import { InterruptorAvisos } from '@/components/InterruptorAvisos';
 import { claveColor } from '@/lib/colores';
 import { agregarMiembroAccion, quitarMiembroAccion, renombrarEquipoAccion } from '@/lib/acciones';
 import { Avatar } from '@/components/Avatar';
@@ -81,6 +82,8 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
           </div>
           <p className="text-xs text-gray-500">{t('invitarAyuda')} {correoConfigurado() ? t('invitarCorreo') : t('invitarSinCorreo')}</p>
         </form>
+
+        <InterruptorAvisos equipoId={equipoId} activos={avisosActivos(equipoId, u.email)} configurado={correoConfigurado()} />
       </section>
 
       <div className="flex flex-col gap-5">

@@ -5,7 +5,7 @@
 // es y si es del equipo antes de tocar nada.
 // ──────────────────────────────────────────────────────────────────────────────
 
-import { cookies, headers } from 'next/headers';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -20,6 +20,8 @@ import { esFiltro, esModo, seleccionar, type Modo } from './copiar';
 import { idiomaValido } from './idioma';
 import { correoConfigurado, enviarCorreo } from './correo';
 import { correoInvitacion, enlaceInvitacion } from './invitaciones';
+import { avisarResponsables } from './notificar';
+import { urlBase } from './url';
 import * as repo from './repositorio';
 import { CORREO_VALIDO, etapasIniciales, type Prioridad } from './modelo';
 
@@ -106,14 +108,6 @@ export async function crearEquipoAccion(fd: FormData): Promise<void> {
   redirect(`/e/${e.id}`);
 }
 
-/** La dirección pública de la app, para los enlaces de los correos: FLUJO_URL o la de esta petición. */
-async function urlBase(): Promise<string> {
-  const fija = process.env.FLUJO_URL?.trim();
-  if (fija) return fija.replace(/\/+$/, '');
-  const h = await headers();
-  const proto = h.get('x-forwarded-proto') ?? (esProduccion() && process.env.FLUJO_SIN_HTTPS !== '1' ? 'https' : 'http');
-  return `${proto}://${h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3100'}`;
-}
 
 /**
  * Manda el correo de invitación a cada correo nuevo del equipo, en el idioma de
@@ -219,6 +213,14 @@ export async function colorMiembroAccion(equipoId: string, email: string, color:
   return { ok: true };
 }
 
+/** Ajustes: cada persona enciende o apaga sus propios avisos por correo de este equipo. */
+export async function avisosAccion(equipoId: string, activos: boolean): Promise<Resultado> {
+  const u = await miembroActual(equipoId);
+  repo.fijarAvisos(equipoId, u.email, activos);
+  revalidatePath(`/e/${equipoId}/ajustes`);
+  return { ok: true };
+}
+
 export async function quitarMiembroAccion(fd: FormData): Promise<void> {
   const eid = texto(fd, 'equipoId');
   const u = await miembroActual(eid);
@@ -284,10 +286,12 @@ export async function crearTareaRapida(equipoId: string, texto: string): Promise
   // «mañana» o «el viernes» se cuentan desde el hoy de quien escribe, no desde el del servidor.
   const r = interpretar(linea, miembros, await hoyActual());
   if (!r.titulo) return { ok: false, error: 'faltaTitulo' };
+  const desde = Date.now();
   const t = repo.crearTarea({
     equipoId, titulo: r.titulo, descripcion, asignados: r.asignados, etiquetas: r.etiquetas, enlaces: sinNombre(r.enlaces),
     fechaLimite: r.fechaLimite, prioridad: r.prioridad, creadoPor: u.email,
   });
+  await avisarResponsables(t.id, u.email, desde);
   revalidatePath(`/e/${equipoId}`, 'layout');
   revalidatePath('/');
   return { ok: true, tareaId: t.id };
@@ -341,6 +345,7 @@ export async function actualizarTareaAccion(fd: FormData): Promise<ResultadoGuar
   const titulo = texto(fd, 'titulo');
   if (!titulo) return { ok: false, error: 'tituloVacio' };
   const prioridad = texto(fd, 'prioridad') === 'alta' ? 'alta' : 'normal';
+  const desde = Date.now();
   repo.actualizarTarea(tid, u.email, {
     titulo,
     descripcion: String(fd.get('descripcion') ?? ''),
@@ -351,6 +356,7 @@ export async function actualizarTareaAccion(fd: FormData): Promise<ResultadoGuar
     etiquetas: [...new Set(texto(fd, 'etiquetas').split(/[\s,;#]+/).map((x) => x.toLowerCase()).filter(Boolean))],
     enlaces: leerEnlaces(fd),
   });
+  await avisarResponsables(tid, u.email, desde);
   revalidatePath(`/e/${t.equipoId}`, 'layout');
   revalidatePath('/');
   return { ok: true };
@@ -364,8 +370,10 @@ export async function moverTareaAccion(tareaId: string, etapaId: string, antesDe
   const t = repo.tarea(tareaId);
   if (!t) return;
   const u = await miembroActual(t.equipoId);
+  const desde = Date.now();
   if (antesDe !== undefined) repo.reordenarTarea(tareaId, etapaId, antesDe, u.email);
   else repo.actualizarTarea(tareaId, u.email, { etapaId });
+  await avisarResponsables(tareaId, u.email, desde);
   revalidatePath(`/e/${t.equipoId}`, 'layout');
   revalidatePath('/');
 }
@@ -375,7 +383,9 @@ export async function cambiarPrioridadAccion(tareaId: string, prioridad: Priorid
   const t = repo.tarea(tareaId);
   if (!t) return;
   const u = await miembroActual(t.equipoId);
+  const desde = Date.now();
   repo.actualizarTarea(tareaId, u.email, { prioridad });
+  await avisarResponsables(tareaId, u.email, desde);
   revalidatePath(`/e/${t.equipoId}`, 'layout');
   revalidatePath('/');
 }

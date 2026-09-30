@@ -255,7 +255,12 @@
       "naranja": "Orange",
       "rosa": "Pink",
       "violeta": "Violet"
-    }
+    },
+    "avisos": "Email notifications",
+    "avisosAyuda": "We email you when someone assigns you a to-do in this team, comments on it or changes it. Only for you: everyone decides their own.",
+    "avisosSinCorreo": "Email sending is not set up on this server, so none go out for now.",
+    "encendidos": "On",
+    "apagados": "Off"
   },
   "importar": {
     "titulo": "Import to-dos",
@@ -471,6 +476,34 @@
       "titulo": "You were invited to the {equipo} team",
       "oEnlace": "If the button does not work, paste this link in your browser:",
       "firma": "Flujo · the team’s to-dos, in one place."
+    },
+    "aviso": {
+      "asuntoAsignado": "{quien} assigned you: {titulo}",
+      "asuntoComentario": "{quien} commented on: {titulo}",
+      "asuntoCambio": "{quien} changed: {titulo}",
+      "tituloAsignado": "{quien} assigned you a to-do",
+      "tituloComentario": "{quien} commented on one of your to-dos",
+      "tituloCambio": "{quien} changed one of your to-dos",
+      "enEquipo": "In the team {equipo}",
+      "escribio": "{quien} wrote:",
+      "vence": "due {fecha}",
+      "alta": "high priority",
+      "sinFecha": "no date",
+      "nadie": "nobody",
+      "ninguna": "none",
+      "lTitulo": "New title: {a}",
+      "lDescripcion": "Edited the description",
+      "lFecha": "Due date: {de} → {a}",
+      "lAlta": "Marked it high priority",
+      "lNormal": "Removed the high priority",
+      "lEtapa": "Stage: {de} → {a}",
+      "lAsignados": "Owners: {nombres}",
+      "lEtiquetas": "Tags: {lista}",
+      "lEnlaces": "Changed the links",
+      "lAdjunto": "Attached {nombre}",
+      "boton": "Open the to-do",
+      "pie": "You got this because you own this to-do.",
+      "apagar": "Turn these off for this team"
     }
   },
   "visor": {

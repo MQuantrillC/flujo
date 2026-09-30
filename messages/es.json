@@ -255,7 +255,12 @@
       "naranja": "Naranja",
       "rosa": "Rosa",
       "violeta": "Violeta"
-    }
+    },
+    "avisos": "Avisos por correo",
+    "avisosAyuda": "Te escribimos cuando alguien te asigna un pendiente de este equipo, lo comenta o lo cambia. Solo cuenta para ti: cada persona decide los suyos.",
+    "avisosSinCorreo": "El envío de correos no está configurado en este servidor, así que por ahora no sale ninguno.",
+    "encendidos": "Encendidos",
+    "apagados": "Apagados"
   },
   "importar": {
     "titulo": "Importar pendientes",
@@ -471,6 +476,34 @@
       "titulo": "Te invitaron al equipo {equipo}",
       "oEnlace": "Si el botón no funciona, copia este enlace en el navegador:",
       "firma": "Flujo · los pendientes del equipo, en un solo lugar."
+    },
+    "aviso": {
+      "asuntoAsignado": "{quien} te asignó: {titulo}",
+      "asuntoComentario": "{quien} comentó en: {titulo}",
+      "asuntoCambio": "{quien} cambió: {titulo}",
+      "tituloAsignado": "{quien} te asignó un pendiente",
+      "tituloComentario": "{quien} comentó un pendiente tuyo",
+      "tituloCambio": "{quien} cambió un pendiente tuyo",
+      "enEquipo": "En el equipo {equipo}",
+      "escribio": "{quien} escribió:",
+      "vence": "vence {fecha}",
+      "alta": "prioridad alta",
+      "sinFecha": "sin fecha",
+      "nadie": "nadie",
+      "ninguna": "ninguna",
+      "lTitulo": "Nuevo título: {a}",
+      "lDescripcion": "Editó la descripción",
+      "lFecha": "Fecha límite: {de} → {a}",
+      "lAlta": "Lo marcó como prioridad alta",
+      "lNormal": "Le quitó la prioridad alta",
+      "lEtapa": "Etapa: {de} → {a}",
+      "lAsignados": "Responsables: {nombres}",
+      "lEtiquetas": "Etiquetas: {lista}",
+      "lEnlaces": "Cambió los enlaces",
+      "lAdjunto": "Adjuntó {nombre}",
+      "boton": "Ver el pendiente",
+      "pie": "Te llegó porque eres responsable de este pendiente.",
+      "apagar": "Apagar estos avisos en este equipo"
     }
   },
   "visor": {

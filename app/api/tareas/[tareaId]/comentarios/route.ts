@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { correoActual } from '@/lib/auth';
 import { extensionPermitida, MAX_MB_ADJUNTO, mimeDe } from '@/lib/adjuntos';
 import { comentar, esMiembro, guardarAdjunto, tarea } from '@/lib/repositorio';
+import { avisarResponsables } from '@/lib/notificar';
 
 export const runtime = 'nodejs';
 
@@ -28,10 +29,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ tareaId
     if (a.size > MAX_BYTES) return NextResponse.json({ error: 'muyGrande', nombre: a.name, mb: MAX_MB_ADJUNTO }, { status: 400 });
   }
 
+  const desde = Date.now();
   const comentario = texto ? comentar(tareaId, email, texto) : null;
   for (const a of archivos) {
     guardarAdjunto({ tareaId, comentarioId: comentario?.id ?? null, nombre: a.name || 'archivo', mime: mimeDe(a.name, a.type), contenido: Buffer.from(await a.arrayBuffer()), subidoPor: email });
   }
+  await avisarResponsables(tareaId, email, desde);
   revalidatePath(`/e/${t.equipoId}`, 'layout');
   return NextResponse.json({ ok: true, comentarioId: comentario?.id ?? null, adjuntos: archivos.length });
 }
