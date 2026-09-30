@@ -33,6 +33,32 @@ export function ordenarColumna(tareas: Tarea[]): Tarea[] {
   return [...sinSitio, ...conSitio];
 }
 
+export type Vista = 'tablero' | 'mio' | 'semana' | 'persona';
+
+/**
+ * Los pendientes que entran en una vista, antes de filtrar por etiqueta. Es la
+ * misma lista que la vista muestra y la que cuentan los chips de etiquetas de
+ * arriba, así «#btb 6» dice cuántos hay en lo que estás mirando:
+ *  - tablero: los abiertos y los terminados hace poco (desde `corteHechas`);
+ *  - lo mío: los abiertos asignados a `email`;
+ *  - esta semana: los abiertos que vencen hasta este viernes (incluye vencidos);
+ *  - por persona: los abiertos.
+ */
+export function tareasDeVista(vista: Vista, tareas: Tarea[], { finales, email, hoy, corteHechas }: {
+  finales: Set<string>; email: string; hoy: Date; corteHechas: number;
+}): Tarea[] {
+  const abiertas = tareas.filter((t) => !finales.has(t.etapaId));
+  if (vista === 'tablero') return tareas.filter((t) => !finales.has(t.etapaId) || (t.terminadoEn ?? 0) >= corteHechas);
+  if (vista === 'mio') return abiertas.filter((t) => t.asignados.includes(email));
+  if (vista === 'semana') return abiertas.filter((t) => venceEstaSemana(t, hoy));
+  return abiertas;
+}
+
+/** Tiene fecha y vence hasta el viernes de esta semana (las vencidas también cuentan). */
+export function venceEstaSemana(t: Pick<Tarea, 'fechaLimite'>, hoy: Date): boolean {
+  return !!t.fechaLimite && t.fechaLimite <= aIso(viernesDeLaSemana(hoy));
+}
+
 /** Vencidas · Hoy · Esta semana · Próxima semana · Después · Sin fecha. Sólo grupos con algo. */
 export function agruparPorPlazo(tareas: Tarea[], hoy: Date): Grupo[] {
   const viernes = aIso(viernesDeLaSemana(hoy));
@@ -55,11 +81,10 @@ export function agruparPorPlazo(tareas: Tarea[], hoy: Date): Grupo[] {
 
 /** Lo que vence hasta el viernes, día por día (clave = fecha ISO), con las vencidas primero. */
 export function agruparSemana(tareas: Tarea[], hoy: Date): Grupo[] {
-  const viernes = aIso(viernesDeLaSemana(hoy));
   const vencidas: Tarea[] = [];
   const porDia = new Map<string, Tarea[]>();
   for (const t of ordenarPorPlazo(tareas)) {
-    if (!t.fechaLimite || t.fechaLimite > viernes) continue;
+    if (!t.fechaLimite || !venceEstaSemana(t, hoy)) continue;
     if (diasHasta(t.fechaLimite, hoy) < 0) vencidas.push(t);
     else porDia.set(t.fechaLimite, [...(porDia.get(t.fechaLimite) ?? []), t]);
   }

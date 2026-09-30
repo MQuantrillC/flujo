@@ -3,7 +3,7 @@ import { Tag, X } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { coloresDe, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
-import { agruparPorPersona, agruparPorPlazo, agruparSemana, etiquetasEnUso, ordenarColumna } from '@/lib/vistas';
+import { agruparPorPersona, agruparPorPlazo, agruparSemana, etiquetasEnUso, ordenarColumna, tareasDeVista, type Vista } from '@/lib/vistas';
 import { fechaCorta } from '@/lib/fechas';
 import { hoyActual } from '@/lib/hoy';
 import { idiomaValido } from '@/lib/idioma';
@@ -37,10 +37,16 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
   const corteHechas = hoy.getTime() - DIAS_HECHAS_VISIBLES * 86_400_000;
 
   const todas = tareasDe(equipoId);
-  const conEtiqueta = etiqueta ? todas.filter((x) => x.etiquetas.includes(etiqueta)) : todas;
   const finales = new Set(etapas.filter((e) => e.esFinal).map((e) => e.id));
-  const activas = conEtiqueta.filter((x) => !finales.has(x.etapaId));
-  const etiquetas = etiquetasEnUso(todas);
+  // Lo que entra en esta vista, y de eso lo que queda con la etiqueta elegida. Los chips cuentan lo primero.
+  const vistaValida: Vista = vista === 'mio' || vista === 'semana' || vista === 'persona' ? vista : 'tablero';
+  const enVista = tareasDeVista(vistaValida, todas, { finales, email: u.email, hoy, corteHechas });
+  const mostradas = etiqueta ? enVista.filter((x) => x.etiquetas.includes(etiqueta)) : enVista;
+  const etiquetas = etiquetasEnUso(enVista);
+  // Si la etiqueta elegida no aparece en esta vista, su chip se queda (con 0) para poder quitarla.
+  if (etiqueta && !etiquetas.some((e) => e.etiqueta === etiqueta)) etiquetas.push({ etiqueta, n: 0 });
+  // La línea rápida sugiere todas las del equipo, no sólo las de la vista.
+  const etiquetasEquipo = etiquetasEnUso(todas).map((e) => e.etiqueta);
   const base = `/e/${equipoId}`;
   const conVista = (extra: Record<string, string | undefined>) => {
     const q = new URLSearchParams();
@@ -58,7 +64,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
   return (
     <GrupoAnimado>
     <div className="flex flex-col gap-4">
-      <BarraRapida equipoId={equipoId} miembros={miembros} etiquetas={etiquetas.map((e) => e.etiqueta)} />
+      <BarraRapida equipoId={equipoId} miembros={miembros} etiquetas={etiquetasEquipo} />
 
       {etiquetas.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
@@ -76,7 +82,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
       {vista === 'tablero' && (
         <TableroScroll>
           {etapas.map((et) => {
-            const tareas = ordenarColumna(conEtiqueta.filter((x) => x.etapaId === et.id && (!et.esFinal || (x.terminadoEn ?? 0) >= corteHechas)));
+            const tareas = ordenarColumna(mostradas.filter((x) => x.etapaId === et.id));
             return (
               <ColumnaTablero
                 key={et.id} etapaId={et.id} nombre={et.nombre} cantidad={tareas.length}
@@ -93,7 +99,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
       )}
 
       {vista === 'mio' && (() => {
-        const grupos = agruparPorPlazo(activas.filter((x) => x.asignados.includes(u.email)), hoy);
+        const grupos = agruparPorPlazo(mostradas, hoy);
         return grupos.length === 0 ? vacio(t('sinMios', { alias: u.nombre.split(' ')[0].toLowerCase() })) : grupos.map((g) => (
           <section key={g.clave}>
             <h2 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.clave === 'vencidas' ? 'text-red-600' : 'text-gray-500'}`}>{tituloGrupo(g.clave)} · {g.tareas.length}</h2>
@@ -103,7 +109,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
       })()}
 
       {vista === 'semana' && (() => {
-        const grupos = agruparSemana(activas, hoy);
+        const grupos = agruparSemana(mostradas, hoy);
         return grupos.length === 0 ? vacio(t('nadaSemana')) : grupos.map((g) => (
           <section key={g.clave}>
             <h2 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.clave === 'vencidas' ? 'text-red-600' : 'text-gray-500'}`}>{tituloGrupo(g.clave)} · {g.tareas.length}</h2>
@@ -113,7 +119,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
       })()}
 
       {vista === 'persona' && (() => {
-        const grupos = agruparPorPersona(activas, miembros);
+        const grupos = agruparPorPersona(mostradas, miembros);
         return grupos.length === 0 ? vacio(t('nadaAbierto')) : grupos.map((g) => (
           <section key={g.email ?? '-'}>
             <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">

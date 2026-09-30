@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { agruparPorPlazo, agruparSemana, agruparPorPersona, etiquetasEnUso, ordenarColumna } from './vistas';
+import { agruparPorPlazo, agruparSemana, agruparPorPersona, etiquetasEnUso, ordenarColumna, tareasDeVista } from './vistas';
 import type { Tarea } from './modelo';
 
 const hoy = new Date(2026, 8, 23, 12); // miércoles
@@ -53,5 +53,30 @@ describe('ordenarColumna', () => {
   it('sin posiciones es el orden por plazo de siempre', () => {
     const r = ordenarColumna([t('x', '2026-03-01', 1, null), t('y', '2026-02-01', 2, null), t('z', null, 0, null)]);
     expect(r.map((x) => x.id)).toEqual(['y', 'x', 'z']);
+  });
+});
+
+describe('tareasDeVista — lo que cuenta cada vista', () => {
+  const finales = new Set(['h']);
+  const corteHechas = new Date(2026, 8, 16).getTime();
+  const tareas = [
+    t('mia-viernes', '2026-09-25', { asignados: ['yo@x'], etiquetas: ['btb'] }),
+    t('mia-sin-fecha', null, { asignados: ['yo@x'], etiquetas: ['btb'] }),
+    t('otra-vencida', '2026-09-20', { asignados: ['otra@x'], etiquetas: ['btb', 'q4'] }),
+    t('otra-lejos', '2026-10-20', { asignados: ['otra@x'], etiquetas: ['q4'] }),
+    t('hecha-reciente', null, { etapaId: 'h', terminadoEn: new Date(2026, 8, 22).getTime(), asignados: ['yo@x'], etiquetas: ['btb'] }),
+    t('hecha-vieja', null, { etapaId: 'h', terminadoEn: new Date(2026, 7, 1).getTime(), asignados: ['yo@x'], etiquetas: ['btb'] }),
+  ];
+  const ids = (v: Parameters<typeof tareasDeVista>[0]) => tareasDeVista(v, tareas, { finales, email: 'yo@x', hoy, corteHechas }).map((x) => x.id);
+
+  it('tablero: abiertas y hechas recientes, no las viejas', () => {
+    expect(ids('tablero')).toEqual(['mia-viernes', 'mia-sin-fecha', 'otra-vencida', 'otra-lejos', 'hecha-reciente']);
+  });
+  it('lo mío: sólo mis abiertas', () => expect(ids('mio')).toEqual(['mia-viernes', 'mia-sin-fecha']));
+  it('esta semana: abiertas que vencen hasta el viernes, vencidas incluidas', () => expect(ids('semana')).toEqual(['mia-viernes', 'otra-vencida']));
+  it('por persona: todas las abiertas', () => expect(ids('persona')).toEqual(['mia-viernes', 'mia-sin-fecha', 'otra-vencida', 'otra-lejos']));
+  it('y los chips cuentan eso: #btb 2 en «Lo mío», no 5', () => {
+    const mio = tareasDeVista('mio', tareas, { finales, email: 'yo@x', hoy, corteHechas });
+    expect(etiquetasEnUso(mio)).toEqual([{ etiqueta: 'btb', n: 2 }]);
   });
 });
