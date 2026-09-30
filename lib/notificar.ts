@@ -40,29 +40,31 @@ export async function avisarResponsables(tareaId: string, autor: string, desde: 
     const e = repo.equipo(t.equipoId);
     if (!e) return;
     const base = await urlBase();
-    const idioma = idiomaValido(await getLocale());
+    const propio = idiomaValido(await getLocale());
     const hoy = await hoyActual();
-    const tr = await getTranslations('correo.aviso');
-    const ti = await getTranslations('correo.invitacion');
     const nombre = (email: string) => miembros.find((m) => m.email === email)?.nombre ?? repo.usuario(email)?.nombre ?? email;
-    const fecha = (iso: unknown) => (typeof iso === 'string' && iso ? fechaCorta(iso, hoy, idioma) : tr('sinFecha'));
     const quien = nombre(autor);
-
-    const cambios = eventos.map((ev) => ({ tipo: ev.tipo, texto: linea(ev, tr, fecha, nombre) })).filter((c): c is { tipo: Evento['tipo']; texto: string } => !!c.texto);
     const etapa = repo.etapa(t.etapaId);
-    const meta = [etapa?.nombre, t.fechaLimite ? tr('vence', { fecha: fecha(t.fechaLimite) }) : null, t.prioridad === 'alta' ? tr('alta') : null].filter((m): m is string => !!m);
     const evComentario = [...eventos].reverse().find((ev) => ev.tipo === 'comentario');
     const comentario = evComentario ? repo.comentariosDe(tareaId).find((c) => c.id === evComentario.detalle.comentarioId) : undefined;
-
     const enlace = `${base}/e/${t.equipoId}/t/${t.id}`;
     const ajustes = `${base}/e/${t.equipoId}/ajustes`;
     const icono = `${base}/apple-icon.png`;
-    const textos: Record<MotivoAviso, { asunto: string; titulo: string }> = {
-      asignado: { asunto: tr('asuntoAsignado', { quien, titulo: t.titulo }), titulo: tr('tituloAsignado', { quien }) },
-      comentario: { asunto: tr('asuntoComentario', { quien, titulo: t.titulo }), titulo: tr('tituloComentario', { quien }) },
-      cambio: { asunto: tr('asuntoCambio', { quien, titulo: t.titulo }), titulo: tr('tituloCambio', { quien }) },
-    };
-    const envios = dest.map((d) => ({
+
+    // Cada destinatario lee el correo en su idioma (el que eligió en Flujo); si no se sabe, en el de quien hizo el cambio.
+    const envios = await Promise.all(dest.map(async (d) => {
+      const idioma = idiomaValido(repo.idiomaDe(d.email) ?? propio);
+      const tr = await getTranslations({ locale: idioma, namespace: 'correo.aviso' });
+      const ti = await getTranslations({ locale: idioma, namespace: 'correo.invitacion' });
+      const fecha = (iso: unknown) => (typeof iso === 'string' && iso ? fechaCorta(iso, hoy, idioma) : tr('sinFecha'));
+      const cambios = eventos.map((ev) => ({ tipo: ev.tipo, texto: linea(ev, tr, fecha, nombre) })).filter((c): c is { tipo: Evento['tipo']; texto: string } => !!c.texto);
+      const meta = [etapa?.nombre, t.fechaLimite ? tr('vence', { fecha: fecha(t.fechaLimite) }) : null, t.prioridad === 'alta' ? tr('alta') : null].filter((m): m is string => !!m);
+      const textos: Record<MotivoAviso, { asunto: string; titulo: string }> = {
+        asignado: { asunto: tr('asuntoAsignado', { quien, titulo: t.titulo }), titulo: tr('tituloAsignado', { quien }) },
+        comentario: { asunto: tr('asuntoComentario', { quien, titulo: t.titulo }), titulo: tr('tituloComentario', { quien }) },
+        cambio: { asunto: tr('asuntoCambio', { quien, titulo: t.titulo }), titulo: tr('tituloCambio', { quien }) },
+      };
+      return {
       para: d.email,
       correo: correoAviso({
         ...textos[d.motivo], equipo: tr('enEquipo', { equipo: e.nombre }), pendiente: t.titulo, meta,
@@ -71,6 +73,7 @@ export async function avisarResponsables(tareaId: string, autor: string, desde: 
         comentario: comentario ? { rotulo: tr('escribio', { quien }), texto: comentario.texto } : null,
         boton: tr('boton'), oEnlace: ti('oEnlace'), pie: tr('pie'), apagar: tr('apagar'), firma: ti('firma'),
       }, enlace, ajustes, icono),
+      };
     }));
     after(async () => { await Promise.allSettled(envios.map((x) => enviarCorreo(x.para, x.correo))); });
   } catch (err) {

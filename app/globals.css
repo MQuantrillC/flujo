@@ -138,7 +138,8 @@ body {
 /* La cabecera de cada columna, pegada bajo la de la página; el degradado hace que la tarjeta cortada se vaya difuminando. */
 .cabecera-columna { position: relative; background: var(--fondo); }
 .cabecera-columna::after { content: ''; position: absolute; inset-inline: 0; top: 100%; height: 0.75rem; background: linear-gradient(var(--fondo), transparent); pointer-events: none; }
-@media (min-width: 640px) { .cabecera-columna { position: sticky; } }
+/* El desplazamiento sólo cuando es fija: en posición relativa, «top» la bajaría encima de la primera tarjeta (móvil). */
+@media (min-width: 640px) { .cabecera-columna { position: sticky; top: var(--tope-tablero, 0px); } }
 
 /* Tarjeta con el color de su responsable (lib/colores.ts). Sólo un tinte sobre el blanco del tema (que en oscuro
    es oscuro), así el texto y los chips se leen igual; la franja de la izquierda es la que dice «de quién». */

@@ -12,7 +12,8 @@
     "cancelar": "Cancel",
     "seguro": "Are you sure?",
     "siContinuar": "Yes, continue",
-    "siEliminar": "Yes, delete"
+    "siEliminar": "Yes, delete",
+    "descripcionApp": "Your team's to-dos, in one line."
   },
   "entrar": {
     "lema": "Team to-dos, in one line.",

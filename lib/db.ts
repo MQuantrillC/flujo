@@ -123,6 +123,8 @@ const COLUMNAS_NUEVAS: [tabla: string, columna: string, definicion: string][] = 
   ['miembros', 'color', 'TEXT'],
   // Avisos por correo de ese equipo (lib/notificar.ts): 1 encendidos (por omisión), 0 apagados por la persona.
   ['miembros', 'avisos', 'INTEGER NOT NULL DEFAULT 1'],
+  // El idioma que eligió la persona (es/en/pt): los correos que recibe salen en ese. NULL = aún no se sabe.
+  ['usuarios', 'idioma', 'TEXT'],
 ];
 
 function migrar(db: Database.Database): void {

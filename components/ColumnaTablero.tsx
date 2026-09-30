@@ -103,7 +103,7 @@ export function ColumnaTablero({ etapaId, nombre, cantidad, vacio, esFinal = fal
       }}
     >
       {/* Pegada justo bajo la cabecera de la página mientras la columna pasa por debajo (sólo en pantallas grandes). */}
-      <h2 className="cabecera-columna z-15 -mx-2 -mt-2 flex items-center justify-between rounded-t-xl px-3 pb-2 pt-2 text-xs font-bold uppercase tracking-wider text-gray-500" style={{ top: 'var(--tope-tablero, 0px)' }}>
+      <h2 className="cabecera-columna z-15 -mx-2 -mt-2 flex items-center justify-between rounded-t-xl px-3 pb-2 pt-2 text-xs font-bold uppercase tracking-wider text-gray-500">
         <span className="flex items-center gap-1.5">
           {nombre} <span className="rounded-full bg-white px-1.5 text-[10px] text-gray-500">{cantidad}</span>
         </span>

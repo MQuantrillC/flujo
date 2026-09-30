@@ -67,6 +67,15 @@ export function registrarUsuario(c: NuevaCuenta): boolean {
   return true;
 }
 
+/** El idioma guardado de una persona, o null si nunca eligió (ni entró desde que existe esto). */
+export function idiomaDe(email: string): string | null {
+  return (db.prepare('SELECT idioma FROM usuarios WHERE email = ?').get(email.trim().toLowerCase()) as { idioma: string | null } | undefined)?.idioma ?? null;
+}
+
+export function fijarIdioma(email: string, idioma: string): void {
+  db.prepare('UPDATE usuarios SET idioma = ? WHERE email = ?').run(idioma, email.trim().toLowerCase());
+}
+
 export function actualizarPerfil(email: string, p: { nombre: string; apellido: string; cumpleanos: string | null }): void {
   if (!p.nombre.trim()) return;
   db.prepare('UPDATE usuarios SET nombre = ?, apellido = ?, cumpleanos = ? WHERE email = ?').run(p.nombre.trim(), p.apellido.trim(), p.cumpleanos, email);

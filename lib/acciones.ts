@@ -9,7 +9,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { COOKIE_SESION, DURACION_SESION, esProduccion, miembroActual, tokenActual, usuarioActual } from './auth';
+import { COOKIE_SESION, DURACION_SESION, correoActual, esProduccion, miembroActual, tokenActual, usuarioActual } from './auth';
 import { cifrar, coincide, LARGO_MINIMO } from './contrasenas';
 import { completarEnlace, extraerEnlaces } from './enlaces';
 import { hoyActual } from './hoy';
@@ -17,7 +17,7 @@ import { interpretar, partirLinea } from './parseRapido';
 import { esColorPersona } from './colores';
 import { ajustarBorradores, leerImportacion, type AjustesImportacion, type Borrador } from './importar';
 import { esFiltro, esModo, seleccionar, type Modo } from './copiar';
-import { idiomaValido } from './idioma';
+import { COOKIE_IDIOMA, idiomaValido } from './idioma';
 import { correoConfigurado, enviarCorreo } from './correo';
 import { correoInvitacion, enlaceInvitacion } from './invitaciones';
 import { avisarResponsables } from './notificar';
@@ -39,7 +39,22 @@ async function abrirSesion(email: string): Promise<void> {
   const token = repo.crearSesion(email);
   // En producción la cookie sólo viaja por HTTPS, salvo que FLUJO_SIN_HTTPS=1 (una máquina a la que se entra por IP).
   const segura = esProduccion() && process.env.FLUJO_SIN_HTTPS !== '1';
-  (await cookies()).set(COOKIE_SESION, token, { httpOnly: true, sameSite: 'lax', secure: segura, path: '/', maxAge: DURACION_SESION });
+  const jar = await cookies();
+  jar.set(COOKIE_SESION, token, { httpOnly: true, sameSite: 'lax', secure: segura, path: '/', maxAge: DURACION_SESION });
+  // El idioma sigue a la persona: si ya eligió uno, se aplica en este navegador; si no, se guarda el que está usando.
+  const guardado = repo.idiomaDe(email);
+  if (guardado) jar.set(COOKIE_IDIOMA, idiomaValido(guardado), { sameSite: 'lax', path: '/', maxAge: UN_ANIO });
+  else repo.fijarIdioma(email, idiomaValido(await getLocale()));
+}
+
+const UN_ANIO = 60 * 60 * 24 * 365;
+
+/** El selector de idioma: lo recuerda en este navegador y, con sesión, en la cuenta (para los correos). */
+export async function idiomaAccion(idioma: string): Promise<void> {
+  const i = idiomaValido(idioma);
+  (await cookies()).set(COOKIE_IDIOMA, i, { sameSite: 'lax', path: '/', maxAge: UN_ANIO });
+  const email = await correoActual();
+  if (email) repo.fijarIdioma(email, i);
 }
 
 export async function entrar(_prev: Resultado, fd: FormData): Promise<Resultado> {
@@ -119,8 +134,10 @@ async function avisarInvitados(eid: string, correos: string[], quien: string): P
   const e = repo.equipo(eid);
   if (!e) return;
   const base = await urlBase();
-  const t = await getTranslations('correo.invitacion');
+  const propio = idiomaValido(await getLocale());
   await Promise.allSettled(correos.map(async (email) => {
+    // En el idioma de quien la recibe si ya tiene cuenta y eligió uno; si no, en el de quien invita.
+    const t = await getTranslations({ locale: idiomaValido(repo.idiomaDe(email) ?? propio), namespace: 'correo.invitacion' });
     const invitado = { email, equipoId: eid, equipoNombre: e.nombre, tieneCuenta: !!repo.usuario(email)?.tieneCuenta };
     const v = { quien, equipo: e.nombre, email };
     const rotulos = { asunto: t('asunto', v), titulo: t('titulo', v), cuerpo: t('cuerpo', v), crearCuenta: t('crearCuenta', v), entrar: t('entrar'), boton: t('boton'), oEnlace: t('oEnlace'), pie: t('pie'), firma: t('firma') };

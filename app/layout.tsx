@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Onest, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { COOKIE_TEMA } from "@/lib/idioma";
 import { zonaActual } from "@/lib/hoy";
 import { Zona } from "@/components/Zona";
@@ -11,10 +11,10 @@ import "./globals.css";
 const onest = Onest({ variable: "--font-onest", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Flujo",
-  description: "Pendientes del equipo, en una línea.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("comun");
+  return { title: "Flujo", description: t("descripcionApp") };
+}
 
 // Sin cookie de tema, manda la preferencia del sistema; se aplica antes de pintar
 // para que no haya un destello claro.
