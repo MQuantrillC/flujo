@@ -162,6 +162,18 @@ export function quitarMiembro(eid: string, email: string): void {
   db.prepare('DELETE FROM miembros WHERE equipo_id = ? AND email = ?').run(eid, email);
 }
 
+/** Los colores elegidos en estos equipos, con clave «equipo|correo» (lib/colores.ts → claveColor). Sólo los que tienen uno. */
+export function coloresDe(eids: string[]): Record<string, string> {
+  if (!eids.length) return {};
+  const filas = db.prepare(`SELECT equipo_id, email, color FROM miembros WHERE color IS NOT NULL AND equipo_id IN (${eids.map(() => '?').join(',')})`).all(...eids) as { equipo_id: string; email: string; color: string }[];
+  return Object.fromEntries(filas.map((f) => [`${f.equipo_id}|${f.email}`, f.color]));
+}
+
+/** Pone o quita (null) el color de una persona en un equipo. Devuelve false si no es miembro. */
+export function fijarColorMiembro(eid: string, email: string, color: string | null): boolean {
+  return db.prepare('UPDATE miembros SET color = ? WHERE equipo_id = ? AND email = ?').run(color, eid, email).changes > 0;
+}
+
 /** Quién puede borrar el equipo: quien lo creó; si ya no está, cualquier miembro. */
 export function puedeEliminarEquipo(eid: string, email: string): boolean {
   const e = equipo(eid);

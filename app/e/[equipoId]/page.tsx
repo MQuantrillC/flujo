@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Tag, X } from 'lucide-react';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
-import { etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
+import { coloresDe, etapasDe, miembrosDe, tareasDe } from '@/lib/repositorio';
 import { agruparPorPersona, agruparPorPlazo, agruparSemana, etiquetasEnUso, ordenarColumna } from '@/lib/vistas';
 import { fechaCorta } from '@/lib/fechas';
 import { hoyActual } from '@/lib/hoy';
@@ -31,6 +31,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
   const etapas = etapasDe(equipoId);
   const miembros = miembrosDe(equipoId);
   const nombres = Object.fromEntries(miembros.map((m) => [m.email, m.nombre]));
+  const colores = coloresDe([equipoId]);
   const hoy = await hoyActual();
   // En la columna «hecho» sólo se ven las terminadas hace poco; las demás quedan en el historial.
   const corteHechas = hoy.getTime() - DIAS_HECHAS_VISIBLES * 86_400_000;
@@ -49,7 +50,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
     return s ? `${base}?${s}` : base;
   };
 
-  const tarjeta = (x: Tarea) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapas} hoy={hoy} />;
+  const tarjeta = (x: Tarea) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapas} hoy={hoy} colores={colores} />;
   const lista = (tareas: Tarea[]) => <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{tareas.map(tarjeta)}</div>;
   const vacio = (msg: string) => <p className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">{msg}</p>;
   const tituloGrupo = (clave: string) => (/^\d{4}-\d{2}-\d{2}$/.test(clave) ? fechaCorta(clave, hoy, idioma) : t(`grupos.${clave}`));
@@ -84,7 +85,7 @@ export default async function PaginaEquipo({ params, searchParams }: { params: P
                 resumen={(et.esFinal ? [...tareas].sort((a, b) => (b.terminadoEn ?? 0) - (a.terminadoEn ?? 0)) : tareas).map((x) => ({ id: x.id, titulo: x.titulo }))}
                 ids={tareas.map((x) => x.id)}
               >
-                {tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapas} hoy={hoy} arrastrable />)}
+                {tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapas} hoy={hoy} colores={colores} arrastrable />)}
               </ColumnaTablero>
             );
           })}

@@ -242,7 +242,20 @@
     "eliminarBoton": "Delete {equipo} forever",
     "confirmarEliminarEquipo": "Delete the {equipo} team with all its to-dos? This cannot be undone.",
     "soloCreador": "Only the person who created the team ({nombre}) can delete it.",
-    "copiarManual": "Could not copy automatically. Select the text and copy it:"
+    "copiarManual": "Could not copy automatically. Select the text and copy it:",
+    "color": "Colour of their to-dos",
+    "colorAyuda": "Softly tints the cards of the to-dos assigned to them. Optional.",
+    "sinColor": "No colour",
+    "colores": {
+      "azul": "Blue",
+      "turquesa": "Turquoise",
+      "verde": "Green",
+      "lima": "Lime",
+      "ambar": "Amber",
+      "naranja": "Orange",
+      "rosa": "Pink",
+      "violeta": "Violet"
+    }
   },
   "importar": {
     "titulo": "Import to-dos",

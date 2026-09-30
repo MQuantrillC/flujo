@@ -242,7 +242,20 @@
     "eliminarBoton": "Excluir {equipo} para sempre",
     "confirmarEliminarEquipo": "Excluir a equipe {equipo} com todas as pendências? Não dá para desfazer.",
     "soloCreador": "Só quem criou a equipe ({nombre}) pode excluí-la.",
-    "copiarManual": "Não deu para copiar sozinho. Selecione o texto e copie:"
+    "copiarManual": "Não deu para copiar sozinho. Selecione o texto e copie:",
+    "color": "Cor das pendências",
+    "colorAyuda": "Tinge de leve os cartões das pendências atribuídas a essa pessoa. É opcional.",
+    "sinColor": "Sem cor",
+    "colores": {
+      "azul": "Azul",
+      "turquesa": "Turquesa",
+      "verde": "Verde",
+      "lima": "Lima",
+      "ambar": "Âmbar",
+      "naranja": "Laranja",
+      "rosa": "Rosa",
+      "violeta": "Violeta"
+    }
   },
   "importar": {
     "titulo": "Importar pendências",

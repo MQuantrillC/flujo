@@ -139,3 +139,11 @@ body {
 .cabecera-columna { position: relative; background: var(--fondo); }
 .cabecera-columna::after { content: ''; position: absolute; inset-inline: 0; top: 100%; height: 0.75rem; background: linear-gradient(var(--fondo), transparent); pointer-events: none; }
 @media (min-width: 640px) { .cabecera-columna { position: sticky; } }
+
+/* Tarjeta con el color de su responsable (lib/colores.ts). Sólo un tinte sobre el blanco del tema (que en oscuro
+   es oscuro), así el texto y los chips se leen igual; la franja de la izquierda es la que dice «de quién». */
+.tarjeta.con-color {
+  /* Dos capas del propio fondo: la franja (4 px, recortada por el borde redondeado) y el tinte. Nada por encima del contenido. */
+  background: var(--franja) left / 4px 100% no-repeat, color-mix(in srgb, var(--persona) 9%, var(--color-white));
+  border-color: color-mix(in srgb, var(--persona) 30%, var(--color-gray-200));
+}

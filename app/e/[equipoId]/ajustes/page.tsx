@@ -2,7 +2,8 @@ import { Check, Download, Trash2, UserPlus } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { miembroActual } from '@/lib/auth';
 import { correoConfigurado } from '@/lib/correo';
-import { equipo, equiposDe, etapasDe, miembrosDe, puedeEliminarEquipo, tareasDe, usuario } from '@/lib/repositorio';
+import { coloresDe, equipo, equiposDe, etapasDe, miembrosDe, puedeEliminarEquipo, tareasDe, usuario } from '@/lib/repositorio';
+import { claveColor } from '@/lib/colores';
 import { agregarMiembroAccion, quitarMiembroAccion, renombrarEquipoAccion } from '@/lib/acciones';
 import { Avatar } from '@/components/Avatar';
 import { CopiarInvitacion } from '@/components/CopiarInvitacion';
@@ -11,6 +12,7 @@ import { EditorEtapas } from '@/components/EditorEtapas';
 import { EliminarEquipo } from '@/components/EliminarEquipo';
 import { FormConfirmar } from '@/components/FormConfirmar';
 import { PasarPendientes } from '@/components/PasarPendientes';
+import { SelectorColor } from '@/components/SelectorColor';
 import { Tooltip } from '@/components/Tooltip';
 
 export const dynamic = 'force-dynamic';
@@ -25,6 +27,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
   const tp = await getTranslations('pasar');
   const e = equipo(equipoId)!;
   const miembros = miembrosDe(equipoId);
+  const colores = coloresDe([equipoId]);
   const etapas = etapasDe(equipoId);
   const tareas = tareasDe(equipoId);
   const puedeEliminar = puedeEliminarEquipo(equipoId, u.email);
@@ -58,6 +61,7 @@ export default async function Ajustes({ params }: { params: Promise<{ equipoId: 
                 </span>
                 <span className="block truncate text-xs text-gray-500">{m.email}</span>
               </span>
+              <SelectorColor equipoId={equipoId} email={m.email} color={colores[claveColor(equipoId, m.email)] ?? null} />
               {m.email !== u.email && <CopiarInvitacion invitado={{ email: m.email, equipoId, equipoNombre: e.nombre, tieneCuenta: m.tieneCuenta }} />}
               <FormConfirmar action={quitarMiembroAccion} peligro boton={m.email === u.email ? t('salirEquipo') : t('quitar')} mensaje={m.email === u.email ? t('confirmarSalir') : t('confirmarQuitar', { nombre: m.nombre })}>
                 <input type="hidden" name="equipoId" value={equipoId} />

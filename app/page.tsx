@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ChevronRight, Plus, UserRound, Users } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { usuarioActual } from '@/lib/auth';
-import { equiposDe, etapasDeEquipos, miembrosDe, tareasAbiertasDe, tareasDe } from '@/lib/repositorio';
+import { coloresDe, equiposDe, etapasDeEquipos, miembrosDe, tareasAbiertasDe, tareasDe } from '@/lib/repositorio';
 import { crearEquipoAccion, crearEspacioPersonalAccion } from '@/lib/acciones';
 import { agruparPorPlazo, etiquetasEnUso } from '@/lib/vistas';
 import { nombresCortos } from '@/lib/nombres';
@@ -38,6 +38,7 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
   const nombres: Record<string, string> = {};
   for (const e of equipos) for (const m of miembrosDe(e.id)) nombres[m.email] = m.nombre;
   const nombreEquipo = Object.fromEntries(equipos.map((e) => [e.id, e.nombre]));
+  const colores = coloresDe(equipos.map((e) => e.id));
   const grupos = agruparPorPlazo(abiertas, hoy);
 
   return (
@@ -101,7 +102,7 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<{
                 <section key={g.clave}>
                   <h3 className={`mb-2 text-xs font-bold uppercase tracking-wider ${g.clave === 'vencidas' ? 'text-red-600' : 'text-gray-500'}`}>{tt(`grupos.${g.clave}`)} · {g.tareas.length}</h3>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {g.tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapasPor[x.equipoId] ?? []} hoy={hoy} equipoNombre={nombreEquipo[x.equipoId]} />)}
+                    {g.tareas.map((x) => <TarjetaTarea key={x.id} tarea={x} nombres={nombres} etapas={etapasPor[x.equipoId] ?? []} hoy={hoy} equipoNombre={nombreEquipo[x.equipoId]} colores={colores} />)}
                   </div>
                 </section>
               ))}

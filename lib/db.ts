@@ -119,6 +119,8 @@ const COLUMNAS_NUEVAS: [tabla: string, columna: string, definicion: string][] = 
   ['tareas', 'vinculo_id', 'TEXT'],
   // Orden a mano dentro de la columna (arrastrando). NULL = nunca se ordenó: va arriba, por plazo.
   ['tareas', 'posicion', 'REAL'],
+  // Color opcional de la persona en ese equipo (lib/colores.ts). NULL = sin color.
+  ['miembros', 'color', 'TEXT'],
 ];
 
 function migrar(db: Database.Database): void {

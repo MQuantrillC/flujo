@@ -3,6 +3,7 @@ import { Copy, Flag, Link2, MessageSquare, Paperclip, Users } from 'lucide-react
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { Etapa, Tarea } from '@/lib/modelo';
 import { etiquetaEnlace } from '@/lib/enlaces';
+import { coloresDeTarea, franja } from '@/lib/colores';
 import { idiomaValido } from '@/lib/idioma';
 import { AccionesTarjeta } from './AccionesTarjeta';
 import { Avatar } from './Avatar';
@@ -13,17 +14,21 @@ import { Tooltip } from './Tooltip';
 
 const MAX_ENLACES = 3;
 
-export async function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = true, arrastrable = false, equipoNombre }: {
+export async function TarjetaTarea({ tarea, nombres, etapas, hoy, conEtapa = true, arrastrable = false, equipoNombre, colores = {} }: {
   tarea: Tarea; nombres: Record<string, string>; etapas: Etapa[]; hoy: Date; conEtapa?: boolean; arrastrable?: boolean;
+  /** Colores elegidos en Ajustes, con clave «equipo|correo» (repo.coloresDe). */
+  colores?: Record<string, string>;
   /** En las vistas que mezclan equipos, de cuál es esta tarjeta. */
   equipoNombre?: string;
 }) {
   const t = await getTranslations('tarjeta');
   const idioma = idiomaValido(await getLocale());
   const terminada = !!tarea.terminadoEn;
+  const tonos = coloresDeTarea(tarea, colores);
+  const estiloColor = tonos.length ? ({ '--persona': tonos[0], '--franja': franja(tonos) } as React.CSSProperties) : undefined;
   return (
     <TarjetaAnimada id={tarea.id} etapaId={arrastrable ? tarea.etapaId : undefined}>
-    <article className={`tarjeta group relative p-3 transition-colors hover:border-acento/50 ${terminada ? 'opacity-70' : ''}`}>
+    <article className={`tarjeta group relative p-3 transition-colors hover:border-acento/50 ${tonos.length ? 'con-color' : ''} ${terminada ? 'opacity-70' : ''}`} style={estiloColor}>
       <Link href={`/e/${tarea.equipoId}/t/${tarea.id}`} className="absolute inset-0 rounded-xl" aria-label={tarea.titulo} draggable={false} />
       {equipoNombre && (
         <p className="mb-1 flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-gray-400"><Users size={10} /> {equipoNombre}</p>

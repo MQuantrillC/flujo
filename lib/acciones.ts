@@ -14,6 +14,7 @@ import { cifrar, coincide, LARGO_MINIMO } from './contrasenas';
 import { completarEnlace, extraerEnlaces } from './enlaces';
 import { hoyActual } from './hoy';
 import { interpretar, partirLinea } from './parseRapido';
+import { esColorPersona } from './colores';
 import { ajustarBorradores, leerImportacion, type AjustesImportacion, type Borrador } from './importar';
 import { esFiltro, esModo, seleccionar, type Modo } from './copiar';
 import { idiomaValido } from './idioma';
@@ -206,6 +207,16 @@ export async function pasarTareaAccion(fd: FormData): Promise<void> {
   revalidatePath(`/e/${destino}`, 'layout');
   revalidatePath('/');
   if (mover && n > 0) redirect(`/e/${destino}/t/${tid}`);
+}
+
+/** Ajustes: el color de una persona en el equipo (o ninguno). Sólo colores de la paleta. */
+export async function colorMiembroAccion(equipoId: string, email: string, color: string | null): Promise<Resultado> {
+  await miembroActual(equipoId);
+  if (color !== null && !esColorPersona(color)) return { ok: false, error: 'generico' };
+  if (!repo.fijarColorMiembro(equipoId, email, color)) return { ok: false, error: 'generico' };
+  revalidatePath(`/e/${equipoId}`, 'layout');
+  revalidatePath('/');
+  return { ok: true };
 }
 
 export async function quitarMiembroAccion(fd: FormData): Promise<void> {

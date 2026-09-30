@@ -242,7 +242,20 @@
     "eliminarBoton": "Eliminar {equipo} para siempre",
     "confirmarEliminarEquipo": "¿Eliminar el equipo {equipo} con todos sus pendientes? No se puede deshacer.",
     "soloCreador": "Solo quien creó el equipo ({nombre}) puede eliminarlo.",
-    "copiarManual": "No se pudo copiar solo. Selecciona el texto y cópialo:"
+    "copiarManual": "No se pudo copiar solo. Selecciona el texto y cópialo:",
+    "color": "Color de sus pendientes",
+    "colorAyuda": "Tiñe suavemente las tarjetas de los pendientes que tiene asignados. Es opcional.",
+    "sinColor": "Sin color",
+    "colores": {
+      "azul": "Azul",
+      "turquesa": "Turquesa",
+      "verde": "Verde",
+      "lima": "Lima",
+      "ambar": "Ámbar",
+      "naranja": "Naranja",
+      "rosa": "Rosa",
+      "violeta": "Violeta"
+    }
   },
   "importar": {
     "titulo": "Importar pendientes",
